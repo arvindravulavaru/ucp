@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UCP Learning Path - Accordion View</title>
+  <style>
+    :root {
+      --primary: #1976d2;
+      --primary-dark: #1565c0;
+      --primary-light: #e3f2fd;
+      --secondary: #424242;
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --text: #212121;
+      --text-secondary: #757575;
+      --border: #e0e0e0;
+      --success: #4caf50;
+      --shadow: 0 2px 4px rgba(0,0,0,0.1);
+      --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 450px 1fr;
+      height: 100vh;
+      width: 100vw;
+      gap: 0;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    /* Left Panel - Accordion Tree */
+    .tree-panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: opacity 0.2s;
+    }
+
+    .header h1:hover {
+      opacity: 0.9;
+    }
+
+    .header h1:active {
+      opacity: 0.8;
+    }
+
+    .progress-bar {
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-fill {
+      background: var(--success);
+      height: 100%;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    .progress-text {
+      font-size: 12px;
+      margin-top: 8px;
+      opacity: 0.85;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .search-box {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .tree-controls {
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .tree-control-btn {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      border-radius: 50%;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.7;
+    }
+
+    .tree-control-btn:hover {
+      background: rgba(25, 118, 210, 0.1);
+      color: var(--primary);
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .tree-control-btn:active {
+      transform: scale(0.95);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 36px 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+      background: white;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 0;
+      font-size: 14px;
+      width: 20px;
+      height: 20px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.5;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 50%;
+    }
+
+    .search-clear:hover {
+      opacity: 1;
+      background: rgba(0,0,0,0.05);
+      transform: translateY(-50%) scale(1.15);
+    }
+
+    .search-clear:active {
+      transform: translateY(-50%) scale(0.9);
+    }
+
+    .search-wrapper.has-value .search-clear {
+      display: flex;
+    }
+
+    .tree-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px;
+      scroll-behavior: smooth;
+      scrollbar-gutter: stable;
+    }
+
+    /* Accordion Items */
+    .tree-item {
+      margin-bottom: 4px;
+    }
+
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+      user-select: none;
+      position: relative;
+    }
+
+    .tree-node:hover {
+      background: var(--primary-light);
+      transform: translateX(2px);
+    }
+
+    .tree-node.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 6px rgba(25, 118, 210, 0.3);
+    }
+
+    .tree-node.completed .node-label {
+      opacity: 0.7;
+    }
+
+    .expand-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .tree-node.active .expand-icon {
+      color: white;
+    }
+
+    .tree-node.has-children .expand-icon {
+      font-weight: bold;
+    }
+
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      margin-right: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .tree-node:hover .checkbox {
+      border-color: var(--primary);
+      transform: scale(1.1);
+    }
+
+    .tree-node.active .checkbox {
+      border-color: white;
+    }
+
+    .tree-node.completed .checkbox {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .tree-node.completed:hover .checkbox {
+      transform: scale(1.15);
+    }
+
+    .tree-node.completed.active .checkbox {
+      background: white;
+      color: var(--primary);
+      border-color: white;
+    }
+
+    .checkbox::after {
+      content: '✓';
+      font-size: 12px;
+      font-weight: bold;
+      display: none;
+    }
+
+    .tree-node.completed .checkbox::after {
+      display: block;
+    }
+
+    .node-label {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .node-description {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      display: block;
+    }
+
+    .tree-node.active .node-description {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .tree-children {
+      margin-left: 28px;
+      display: none;
+      border-left: 2px solid var(--border);
+      padding-left: 8px;
+      margin-top: 4px;
+    }
+
+    .tree-children.expanded {
+      display: block;
+    }
+
+    /* Highlight search matches */
+    .tree-node.search-match {
+      background: #fff3cd;
+    }
+
+    .tree-node.search-match.active {
+      background: var(--primary);
+    }
+
+    /* Right Panel - Content */
+    .content-panel {
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .content-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .content-header h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .content-description {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .content-body {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 24px;
+      scroll-behavior: smooth;
+      scrollbar-gutter: stable;
+    }
+
+    .content-body h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .content-body p {
+      margin-bottom: 16px;
+      line-height: 1.7;
+    }
+
+    .content-body ul, .content-body ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+    }
+
+    .content-body li {
+      margin-bottom: 8px;
+    }
+
+    .content-body code {
+      background: var(--bg);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 13px;
+      color: #d32f2f;
+    }
+
+    .content-body pre {
+      background: var(--bg);
+      padding: 16px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .content-body pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+    }
+
+    .resources {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .resources h4 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .resource-link {
+      display: block;
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      text-decoration: none;
+      color: var(--primary);
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .resource-link:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-secondary);
+      padding: 40px;
+      text-align: center;
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    .empty-state-text {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .empty-state-hint {
+      font-size: 14px;
+    }
+
+    /* Loading state */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-size: 18px;
+      color: var(--text-secondary);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 50vh 50vh;
+      }
+
+      .tree-panel {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        height: 50vh;
+      }
+
+      .content-panel {
+        height: 50vh;
+      }
+
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .content-header h2 {
+        font-size: 20px;
+      }
+
+      .content-body {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="loading">Loading...</div>
+
+  <script>
+    // ============================================
+    // DATA LOADING AND STATE MANAGEMENT
+    // ============================================
+
+    let mindmapData = null;
+    let progressTracker = null;
+    let treeState = null;
+    let currentNodeId = null;
+
+    // Progress Tracker
+    class ProgressTracker {
+      constructor() {
+        this.storageKey = "ucp-learning-progress";
+        this.data = this.load();
+      }
+
+      load() {
+        const stored = localStorage.getItem(this.storageKey);
+        return stored ? JSON.parse(stored) : { completed: [], version: "1.0" };
+      }
+
+      save() {
+        localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+      }
+
+      toggleComplete(nodeId) {
+        const index = this.data.completed.indexOf(nodeId);
+        if (index > -1) {
+          this.data.completed.splice(index, 1);
+        } else {
+          this.data.completed.push(nodeId);
+        }
+        this.save();
+        return this.isCompleted(nodeId);
+      }
+
+      isCompleted(nodeId) {
+        return this.data.completed.includes(nodeId);
+      }
+
+      getStats() {
+        return {
+          completed: this.data.completed.length,
+          total: this.countNodes(mindmapData)
+        };
+      }
+
+      countNodes(node) {
+        if (!node) return 0;
+        let count = node.id !== "root" ? 1 : 0;
+        if (node.children) {
+          count += node.children.reduce((sum, child) => sum + this.countNodes(child), 0);
+        }
+        return count;
+      }
+    }
+
+    // Tree State Manager
+    class TreeState {
+      constructor() {
+        this.storageKey = "ucp-tree-state";
+        this.data = this.load();
+      }
+
+      load() {
+        const stored = localStorage.getItem(this.storageKey);
+        return stored ? JSON.parse(stored) : { expanded: [], version: "1.0" };
+      }
+
+      save() {
+        localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+      }
+
+      isExpanded(nodeId) {
+        return this.data.expanded.includes(nodeId);
+      }
+
+      setExpanded(nodeId, expanded) {
+        const index = this.data.expanded.indexOf(nodeId);
+        if (expanded && index === -1) {
+          this.data.expanded.push(nodeId);
+        } else if (!expanded && index > -1) {
+          this.data.expanded.splice(index, 1);
+        }
+        this.save();
+      }
+
+      expandAll(node) {
+        if (!node) return;
+        if (node.id !== 'root' && node.children && node.children.length > 0) {
+          this.data.expanded.push(node.id);
+        }
+        if (node.children) {
+          node.children.forEach(child => this.expandAll(child));
+        }
+        this.save();
+      }
+
+      collapseAll() {
+        this.data.expanded = [];
+        this.save();
+      }
+
+      initializeDefaults(node, level = 0) {
+        // Only expand level 0 (the 11 main sections) by default
+        if (!node) return;
+        if (node.id !== 'root' && level === 0 && node.children && node.children.length > 0) {
+          if (!this.isExpanded(node.id)) {
+            this.data.expanded.push(node.id);
+          }
+        }
+        if (node.children) {
+          node.children.forEach(child => this.initializeDefaults(child, level + 1));
+        }
+      }
+    }
+
+    // Load JSON data
+    async function loadData() {
+      try {
+        const response = await fetch('./ucp-learning-data.json');
+        mindmapData = await response.json();
+        progressTracker = new ProgressTracker();
+        treeState = new TreeState();
+
+        // Initialize default expanded state if first time
+        if (treeState.data.expanded.length === 0) {
+          treeState.initializeDefaults(mindmapData);
+        }
+
+        render();
+        handleDeepLink();
+      } catch (error) {
+        document.getElementById('app').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <div class="empty-state-text">Failed to load data</div>
+            <div class="empty-state-hint">${error.message}</div>
+          </div>
+        `;
+      }
+    }
+
+    // ============================================
+    // RENDER FUNCTIONS
+    // ============================================
+
+    function render() {
+      const stats = progressTracker.getStats();
+      const percentage = stats.total > 0 ? (stats.completed / stats.total * 100).toFixed(0) : 0;
+
+      document.getElementById('app').innerHTML = `
+        <div class="container">
+          <div class="tree-panel">
+            <div class="header">
+              <h1 id="homeButton">UCP Learning Path</h1>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${percentage}%"></div>
+              </div>
+              <div class="progress-text">${stats.completed} / ${stats.total}</div>
+            </div>
+
+            <!-- <div class="tree-controls">
+              <button class="tree-control-btn" id="expandAllBtn" title="Expand All">⊕</button>
+              <button class="tree-control-btn" id="collapseAllBtn" title="Collapse All">⊖</button>
+            </div> -->
+
+            <div class="search-box">
+              <div class="search-wrapper">
+                <input
+                  type="text"
+                  class="search-input"
+                  placeholder="Search..."
+                  id="searchInput"
+                />
+                <button class="search-clear" id="searchClear">✕</button>
+              </div>
+            </div>
+
+            <div class="tree-content" id="treeContent">
+              ${renderTree(mindmapData)}
+            </div>
+          </div>
+
+          <div class="content-panel" id="contentPanel">
+            ${renderContent(null)}
+          </div>
+        </div>
+      `;
+
+      attachEventListeners();
+    }
+
+    function renderTree(node, level = 0) {
+      if (!node || node.id === 'root') {
+        return node.children.map(child => renderTree(child, 0)).join('');
+      }
+
+      const hasChildren = node.children && node.children.length > 0;
+      const isCompleted = progressTracker.isCompleted(node.id);
+      const isActive = currentNodeId === node.id;
+      const isExpanded = hasChildren && treeState.isExpanded(node.id);
+      const expandIcon = hasChildren ? (isExpanded ? '▼' : '▶') : '';
+
+      return `
+        <div class="tree-item" data-node-id="${node.id}">
+          <div class="tree-node ${hasChildren ? 'has-children' : ''} ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}"
+               data-node-id="${node.id}">
+            <span class="expand-icon">${expandIcon}</span>
+            <span class="checkbox" data-action="toggle-complete"></span>
+            <div style="flex: 1;">
+              <span class="node-label">${node.label}</span>
+              ${node.description ? `<span class="node-description">${node.description}</span>` : ''}
+            </div>
+          </div>
+          ${hasChildren ? `
+            <div class="tree-children ${isExpanded ? 'expanded' : ''}">
+              ${node.children.map(child => renderTree(child, level + 1)).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderContent(nodeId) {
+      if (!nodeId) {
+        return `
+          <div class="empty-state">
+            <div class="empty-state-icon">📚</div>
+            <div class="empty-state-text">Welcome to UCP Learning Path</div>
+            <div class="empty-state-hint">Select a topic from the left to begin learning</div>
+          </div>
+        `;
+      }
+
+      const node = findNode(mindmapData, nodeId);
+      if (!node) {
+        return `
+          <div class="empty-state">
+            <div class="empty-state-icon">❓</div>
+            <div class="empty-state-text">Topic not found</div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="content-header">
+          <h2>${node.label}</h2>
+          ${node.description ? `<div class="content-description">${node.description}</div>` : ''}
+        </div>
+        <div class="content-body">
+          ${node.content || '<p>No content available for this topic.</p>'}
+
+          ${node.resources && node.resources.length > 0 ? `
+            <div class="resources">
+              <h4>Resources</h4>
+              ${node.resources.map(res => `
+                <a href="${res.url}" target="_blank" class="resource-link">
+                  📄 ${res.label}
+                </a>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    // ============================================
+    // EVENT HANDLERS
+    // ============================================
+
+    function attachEventListeners() {
+      // Home button - click title to return to welcome state
+      document.getElementById('homeButton').addEventListener('click', () => {
+        currentNodeId = null;
+        document.querySelectorAll('.tree-node').forEach(el => {
+          el.classList.remove('active');
+        });
+        document.getElementById('contentPanel').innerHTML = renderContent(null);
+        window.history.pushState(null, '', window.location.pathname);
+      });
+
+      // Expand/Collapse All buttons
+      /* document.getElementById('expandAllBtn').addEventListener('click', () => {
+        treeState.expandAll(mindmapData);
+        render();
+        if (currentNodeId) {
+          selectNode(currentNodeId);
+        }
+      });
+
+      document.getElementById('collapseAllBtn').addEventListener('click', () => {
+        treeState.collapseAll();
+        render();
+        if (currentNodeId) {
+          selectNode(currentNodeId);
+        }
+      }); */
+
+      // Search functionality
+      const searchInput = document.getElementById('searchInput');
+      const searchClear = document.getElementById('searchClear');
+      const searchWrapper = searchInput.parentElement;
+
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        if (query) {
+          searchWrapper.classList.add('has-value');
+          performSearch(query);
+        } else {
+          searchWrapper.classList.remove('has-value');
+          clearSearch();
+        }
+      });
+
+      searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        searchWrapper.classList.remove('has-value');
+        clearSearch();
+      });
+
+      // Tree node clicks
+      document.getElementById('treeContent').addEventListener('click', (e) => {
+        const checkbox = e.target.closest('[data-action="toggle-complete"]');
+        if (checkbox) {
+          e.stopPropagation();
+          const treeNode = checkbox.closest('.tree-node');
+          const nodeId = treeNode.dataset.nodeId;
+          progressTracker.toggleComplete(nodeId);
+          render();
+          // Restore selection
+          selectNode(currentNodeId);
+          return;
+        }
+
+        const treeNode = e.target.closest('.tree-node');
+        if (treeNode) {
+          const nodeId = treeNode.dataset.nodeId;
+          const node = findNode(mindmapData, nodeId);
+
+          if (node && node.children && node.children.length > 0) {
+            // Toggle expand/collapse and save to state
+            const isExpanded = treeState.isExpanded(nodeId);
+            treeState.setExpanded(nodeId, !isExpanded);
+
+            // Update UI
+            const treeItem = treeNode.closest('.tree-item');
+            const childrenEl = treeItem.querySelector('.tree-children');
+            const expandIcon = treeNode.querySelector('.expand-icon');
+
+            if (childrenEl) {
+              childrenEl.classList.toggle('expanded');
+              expandIcon.textContent = childrenEl.classList.contains('expanded') ? '▼' : '▶';
+            }
+          }
+
+          // Select node and show content
+          selectNode(nodeId);
+        }
+      });
+    }
+
+    function selectNode(nodeId) {
+      currentNodeId = nodeId;
+
+      // Update active state
+      document.querySelectorAll('.tree-node').forEach(el => {
+        el.classList.remove('active');
+      });
+
+      const activeNode = document.querySelector(`.tree-node[data-node-id="${nodeId}"]`);
+      if (activeNode) {
+        activeNode.classList.add('active');
+
+        // Auto-expand parent nodes and save to state
+        let parent = activeNode.closest('.tree-item').parentElement;
+        while (parent && parent.classList.contains('tree-children')) {
+          parent.classList.add('expanded');
+          const parentItem = parent.closest('.tree-item');
+          const parentNode = parentItem.querySelector('.tree-node');
+          const parentNodeId = parentNode.dataset.nodeId;
+          const expandIcon = parentItem.querySelector('.expand-icon');
+
+          // Save expanded state
+          treeState.setExpanded(parentNodeId, true);
+
+          if (expandIcon) expandIcon.textContent = '▼';
+          parent = parentItem.parentElement;
+        }
+
+        // Scroll active node into view within tree panel (not whole page)
+        const treeContent = document.getElementById('treeContent');
+        const nodeRect = activeNode.getBoundingClientRect();
+        const containerRect = treeContent.getBoundingClientRect();
+
+        if (nodeRect.top < containerRect.top || nodeRect.bottom > containerRect.bottom) {
+          activeNode.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+
+      // Update content panel and reset scroll to top
+      const contentPanel = document.getElementById('contentPanel');
+      contentPanel.innerHTML = renderContent(nodeId);
+
+      // Scroll content back to top
+      const contentBody = contentPanel.querySelector('.content-body');
+      if (contentBody) {
+        contentBody.scrollTop = 0;
+      }
+
+      // Update URL
+      window.history.pushState(null, '', `#/topic/${nodeId}`);
+    }
+
+    function performSearch(query) {
+      clearSearch();
+
+      const matches = [];
+      searchNodes(mindmapData, query, matches);
+
+      matches.forEach(nodeId => {
+        const nodeEl = document.querySelector(`.tree-node[data-node-id="${nodeId}"]`);
+        if (nodeEl) {
+          nodeEl.classList.add('search-match');
+
+          // Auto-expand parent nodes and save to state
+          let parent = nodeEl.closest('.tree-item').parentElement;
+          while (parent && parent.classList.contains('tree-children')) {
+            parent.classList.add('expanded');
+            const parentItem = parent.closest('.tree-item');
+            const parentNode = parentItem.querySelector('.tree-node');
+            const parentNodeId = parentNode.dataset.nodeId;
+            const expandIcon = parentItem.querySelector('.expand-icon');
+
+            // Save expanded state
+            treeState.setExpanded(parentNodeId, true);
+
+            if (expandIcon) expandIcon.textContent = '▼';
+            parent = parentItem.parentElement;
+          }
+        }
+      });
+    }
+
+    function clearSearch() {
+      document.querySelectorAll('.search-match').forEach(el => {
+        el.classList.remove('search-match');
+      });
+    }
+
+    function searchNodes(node, query, matches) {
+      if (!node) return;
+
+      if (node.id !== 'root') {
+        const label = node.label.toLowerCase();
+        const description = (node.description || '').toLowerCase();
+        const content = (node.content || '').toLowerCase();
+
+        if (label.includes(query) || description.includes(query) || content.includes(query)) {
+          matches.push(node.id);
+        }
+      }
+
+      if (node.children) {
+        node.children.forEach(child => searchNodes(child, query, matches));
+      }
+    }
+
+    // ============================================
+    // UTILITY FUNCTIONS
+    // ============================================
+
+    function findNode(node, targetId) {
+      if (!node) return null;
+      if (node.id === targetId) return node;
+
+      if (node.children) {
+        for (const child of node.children) {
+          const found = findNode(child, targetId);
+          if (found) return found;
+        }
+      }
+
+      return null;
+    }
+
+    function handleDeepLink() {
+      const hash = window.location.hash.slice(1);
+      if (hash.startsWith('/topic/')) {
+        const nodeId = hash.replace('/topic/', '');
+        selectNode(nodeId);
+      }
+    }
+
+    // Handle browser back/forward
+    window.addEventListener('hashchange', handleDeepLink);
+
+    // Initialize
+    loadData();
+  </script>
+</body>
+</html>

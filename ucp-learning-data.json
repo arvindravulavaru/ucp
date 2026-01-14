@@ -1,0 +1,396 @@
+{
+  "id": "root",
+  "label": "UCP Learning Path",
+  "children": [
+    {
+      "id": "foundations",
+      "label": "1. Foundations & Philosophy",
+      "description": "Understand the 'why' before the 'how'",
+      "content": "<h3>Start Here: Core Concepts</h3><p>The Universal Commerce Protocol (UCP) addresses the fragmented commerce landscape by providing a standardized common language and functional primitives.</p><p><strong>Key Problem:</strong> Different systems (platforms, businesses, payment providers) can't communicate efficiently, leading to custom, one-off integrations.</p><p><strong>Solution:</strong> UCP provides a uniform protocol that works across all parties.</p>",
+      "resources": [
+        { "type": "doc", "url": "https://ucp.dev/documentation/core-concepts", "label": "Core Concepts Documentation" },
+        { "type": "doc", "url": "https://github.com/Universal-Commerce-Protocol/ucp", "label": "GitHub Repository" }
+      ],
+      "children": [
+        {
+          "id": "four-actors",
+          "label": "Four Actors Model",
+          "description": "Platform, Business, CP, PSP",
+          "content": "<h3>The Four Primary Actors</h3><ul><li><strong>Platform:</strong> Consumer-facing surface (AI agent, app, social media) acting on behalf of users</li><li><strong>Business:</strong> Entity selling goods/services, acts as Merchant of Record (MoR)</li><li><strong>Credential Provider (CP):</strong> Securely manages payment instruments and user data</li><li><strong>Payment Service Provider (PSP):</strong> Processes payments on behalf of businesses</li></ul><p>Each actor has specific responsibilities and communicates using standardized UCP protocols.</p>"
+        },
+        {
+          "id": "governance-model",
+          "label": "Governance Model",
+          "description": "Reverse-domain namespacing",
+          "content": "<h3>Decentralized Governance</h3><p>UCP uses reverse-domain naming to encode authority directly into capability identifiers:</p><p><strong>Format:</strong> <code>{reverse-domain}.{service}.{capability}</code></p><p><strong>Examples:</strong></p><ul><li><code>dev.ucp.shopping.checkout</code> - Authority: ucp.dev</li><li><code>com.example.payments.installments</code> - Authority: example.com</li></ul><p>This eliminates the need for a central registry while ensuring clear ownership.</p>"
+        },
+        {
+          "id": "server-selects",
+          "label": "Server-Selects Architecture",
+          "description": "Business chooses protocol version",
+          "content": "<h3>Version Negotiation</h3><p>In UCP, the business (server) selects the protocol version from the intersection of both parties' capabilities.</p><p>This ensures backward compatibility while allowing gradual evolution of the protocol.</p>"
+        }
+      ]
+    },
+    {
+      "id": "discovery",
+      "label": "2. Discovery & Capability System",
+      "description": "How parties find and understand each other",
+      "content": "<h3>Dynamic Discovery</h3><p>UCP enables platforms to autonomously discover what businesses support without manual configuration.</p>",
+      "resources": [
+        { "type": "spec", "url": "https://ucp.dev/specification/overview#discovery", "label": "Discovery Specification" }
+      ],
+      "children": [
+        {
+          "id": "well-known-ucp",
+          "label": "/.well-known/ucp Endpoint",
+          "description": "Standard discovery endpoint",
+          "content": "<h3>Profile Discovery</h3><p>Every UCP-compliant business exposes a profile at:</p><p><code>https://business.com/.well-known/ucp</code></p><p>This profile contains:</p><ul><li><strong>capabilities[]</strong> - Supported capabilities and extensions</li><li><strong>payment.handlers[]</strong> - How to collect payment instruments</li><li><strong>signing_keys[]</strong> - JWKs for signature verification</li></ul>"
+        },
+        {
+          "id": "capabilities-vs-extensions",
+          "label": "Capabilities vs Extensions",
+          "description": "Core vs optional features",
+          "content": "<h3>Composable Architecture</h3><p><strong>Capabilities:</strong> Core functionality that defines a complete flow (e.g., checkout, order tracking)</p><p><strong>Extensions:</strong> Optional enhancements to capabilities (e.g., discounts, loyalty)</p><p>This keeps the core protocol lean while allowing rich feature sets.</p>"
+        },
+        {
+          "id": "namespace-format",
+          "label": "Namespace Format",
+          "description": "Reverse-domain naming convention",
+          "content": "<h3>Capability Naming</h3><p>Format: <code>{reverse-domain}.{service}.{capability}</code></p><p><strong>Official UCP Capabilities:</strong></p><ul><li><code>dev.ucp.shopping.checkout</code></li><li><code>dev.ucp.shopping.order</code></li><li><code>dev.ucp.common.identity_linking</code></li></ul><p><strong>Custom Extensions:</strong></p><ul><li><code>dev.ucp.shopping.discount</code></li><li><code>dev.ucp.shopping.fulfillment</code></li></ul>"
+        }
+      ]
+    },
+    {
+      "id": "shopping-domain",
+      "label": "3. Core Shopping Domain",
+      "description": "Main commerce primitives and schemas",
+      "content": "<h3>Shopping Domain Overview</h3><p>The shopping domain contains the core schemas for commerce transactions.</p>",
+      "children": [
+        {
+          "id": "checkout-schema",
+          "label": "Checkout Schema",
+          "description": "Central state object for transactions",
+          "content": "<h3>The Checkout Object</h3><p>The checkout schema is the central state object in UCP. It contains:</p><ul><li><strong>items[]</strong> - Cart line items</li><li><strong>buyer</strong> - Customer information</li><li><strong>payment</strong> - Payment methods and instruments</li><li><strong>fulfillment</strong> - Shipping options and addresses</li><li><strong>totals</strong> - Price breakdown (subtotal, tax, shipping)</li><li><strong>discount</strong> - Applied promotions (if supported)</li></ul><p>The checkout object flows through create → update → complete lifecycle.</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/checkout", "label": "Checkout Specification" }
+          ]
+        },
+        {
+          "id": "payment-schema",
+          "label": "Payment Schema",
+          "description": "Payment instruments and methods",
+          "content": "<h3>Payment Structure</h3><p>UCP supports multiple payment instrument types:</p><ul><li><strong>card_payment_instrument</strong> - Tokenized card data</li><li><strong>payment_credential</strong> - Secure credential exchange</li><li><strong>payment_handler</strong> - Instructions for collecting payment</li></ul><p>Payment data is typically tokenized by the Credential Provider (CP) to minimize PCI scope.</p>"
+        },
+        {
+          "id": "fulfillment-schema",
+          "label": "Fulfillment Schema",
+          "description": "Shipping and delivery",
+          "content": "<h3>Fulfillment System</h3><p>Fulfillment includes:</p><ul><li><strong>fulfillment_option[]</strong> - Available shipping methods</li><li><strong>fulfillment_method</strong> - Selected shipping method</li><li><strong>fulfillment_destination</strong> - Delivery address</li><li><strong>fulfillment_group</strong> - Grouped items for multi-shipment</li><li><strong>fulfillment_event</strong> - Tracking updates</li></ul>"
+        },
+        {
+          "id": "order-schema",
+          "label": "Order Schema",
+          "description": "Post-purchase order tracking",
+          "content": "<h3>Order Lifecycle</h3><p>After checkout completes, the order object tracks:</p><ul><li><strong>order_confirmation</strong> - Initial confirmation with order ID</li><li><strong>fulfillment_events</strong> - Shipping updates (shipped, delivered)</li><li><strong>webhooks</strong> - Asynchronous status notifications</li></ul><p>Businesses send order updates to platforms via webhooks.</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/order", "label": "Order Specification" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transports",
+      "label": "4. Transport Protocols",
+      "description": "REST, MCP, A2A, Embedded",
+      "content": "<h3>Multiple Transport Options</h3><p>UCP is transport-agnostic. The same capabilities can be exposed via different protocols.</p>",
+      "children": [
+        {
+          "id": "rest-api",
+          "label": "REST API",
+          "description": "Traditional HTTP endpoints",
+          "content": "<h3>REST Transport</h3><p>Standard HTTP API with JSON request/response:</p><ul><li><code>POST /checkout/create</code> - Initialize checkout</li><li><code>POST /checkout/update</code> - Update checkout state</li><li><code>POST /checkout/complete</code> - Finalize order</li></ul><p>Best for: Traditional web/mobile apps, server-side integrations</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/checkout-rest", "label": "REST API Documentation" }
+          ]
+        },
+        {
+          "id": "mcp-protocol",
+          "label": "MCP (Model Context Protocol)",
+          "description": "For AI agents and LLMs",
+          "content": "<h3>MCP Transport</h3><p>Model Context Protocol exposes UCP as tools for AI agents:</p><ul><li><code>checkout_create</code> - Tool for creating checkout</li><li><code>checkout_update</code> - Tool for updating checkout</li><li><code>checkout_complete</code> - Tool for completing order</li></ul><p>AI agents can call these tools to complete purchases on behalf of users.</p><p>Best for: AI shopping assistants, conversational commerce</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/checkout-mcp", "label": "MCP Documentation" }
+          ]
+        },
+        {
+          "id": "a2a-protocol",
+          "label": "A2A (Agent-to-Agent)",
+          "description": "Direct agent communication",
+          "content": "<h3>A2A Transport</h3><p>Agent-to-Agent protocol for direct machine-to-machine communication.</p><p>Enables autonomous agents to discover, negotiate, and transact without human intervention.</p><p>Best for: Fully autonomous commerce, B2B integrations</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/checkout-a2a", "label": "A2A Documentation" }
+          ]
+        },
+        {
+          "id": "embedded-protocol",
+          "label": "Embedded Protocol (ECP)",
+          "description": "PostMessage/JSON-RPC in iframes",
+          "content": "<h3>Embedded Commerce Protocol (ECP)</h3><p>Enables checkout flows embedded in iframes using postMessage:</p><p><strong>Key Methods:</strong></p><ul><li><code>ec.ready</code> - Handshake and delegation setup</li><li><code>ec.start</code> - Checkout UI visible</li><li><code>ec.update</code> - State changes</li><li><code>ec.complete</code> - Order placed</li></ul><p><strong>Delegations:</strong></p><ul><li><code>payment.instruments_change</code> - Platform provides payment methods</li><li><code>payment.credential</code> - Credential exchange</li></ul><p>Best for: Embedded checkout widgets, white-label solutions</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/embedded-checkout", "label": "ECP Documentation" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "label": "5. Advanced Security Patterns",
+      "description": "AP2, consent, tokenization",
+      "content": "<h3>Security-First Design</h3><p>UCP implements multiple layers of security for payment and identity protection.</p>",
+      "children": [
+        {
+          "id": "ap2-mandates",
+          "label": "AP2 Mandates",
+          "description": "Authentication Protocol 2",
+          "content": "<h3>AP2 Mandates</h3><p>Authentication Protocol 2 (AP2) mandates enforce security requirements:</p><ul><li><strong>3DS Authentication</strong> - Strong customer authentication (SCA)</li><li><strong>Step-up Auth</strong> - Additional verification when needed</li><li><strong>Risk Checks</strong> - Fraud detection thresholds</li></ul><p>PSPs include AP2 mandates in checkout responses to request additional authentication.</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/ap2-mandates", "label": "AP2 Specification" }
+          ]
+        },
+        {
+          "id": "buyer-consent",
+          "label": "Buyer Consent",
+          "description": "Explicit user permissions",
+          "content": "<h3>Consent Framework</h3><p>For agentic commerce, explicit buyer consent is required:</p><ul><li><strong>Consent Grant</strong> - User authorizes platform to transact</li><li><strong>Scope Limits</strong> - Budget caps, merchant allowlists</li><li><strong>Revocation</strong> - User can revoke consent anytime</li></ul><p>Prevents unauthorized purchases by AI agents.</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/buyer-consent", "label": "Consent Documentation" }
+          ]
+        },
+        {
+          "id": "tokenization",
+          "label": "Payment Tokenization",
+          "description": "Secure credential exchange",
+          "content": "<h3>Tokenization Flow</h3><p>Payment data flows through secure tokenization:</p><ol><li>User provides payment method to <strong>Credential Provider (CP)</strong></li><li>CP generates a token (no raw card data leaves CP)</li><li>Platform sends token to Business</li><li>Business sends token to <strong>PSP</strong></li><li>PSP exchanges token with CP for actual payment data</li><li>Transaction processed</li></ol><p>This minimizes PCI-DSS scope for Platform and Business.</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/tokenization-guide", "label": "Tokenization Guide" },
+            { "type": "spec", "url": "https://ucp.dev/specification/payment-handler-guide", "label": "Payment Handler Guide" }
+          ]
+        },
+        {
+          "id": "signing-keys",
+          "label": "JWK Signing Keys",
+          "description": "Message signature verification",
+          "content": "<h3>Cryptographic Signatures</h3><p>All parties publish JWKs (JSON Web Keys) in their UCP profile:</p><ul><li>Used to sign webhooks, responses, and authenticated messages</li><li>Recipients verify signatures using published public keys</li><li>Prevents message tampering and impersonation</li></ul>"
+        }
+      ]
+    },
+    {
+      "id": "annotations",
+      "label": "6. UCP Annotation System",
+      "description": "Source-to-spec generation",
+      "content": "<h3>Schema Generation Architecture</h3><p>UCP uses a unique source-to-spec generation model with custom annotations.</p>",
+      "resources": [
+        { "type": "doc", "url": "https://ucp.dev/documentation/schema-authoring", "label": "Schema Authoring Guide" }
+      ],
+      "children": [
+        {
+          "id": "ucp-request",
+          "label": "ucp_request Annotation",
+          "description": "Controls field behavior in requests",
+          "content": "<h3>Request Annotations</h3><p><code>\"ucp_request\": \"omit|optional|required\"</code></p><ul><li><strong>omit</strong> - Field not included in create_req.json or update_req.json</li><li><strong>optional</strong> - Field optional in requests</li><li><strong>required</strong> - Field required in requests</li></ul><p>Enables minimal request payloads (only send what's needed).</p>"
+        },
+        {
+          "id": "ucp-response",
+          "label": "ucp_response Annotation",
+          "description": "Controls field in responses",
+          "content": "<h3>Response Annotations</h3><p><code>\"ucp_response\": \"omit\"</code></p><p>Removes field from response schemas (_resp.json files).</p><p>Useful for internal-only fields that shouldn't be exposed.</p>"
+        },
+        {
+          "id": "ucp-shared-request",
+          "label": "ucp_shared_request Annotation",
+          "description": "Applies to both create and update",
+          "content": "<h3>Shared Request Annotations</h3><p><code>\"ucp_shared_request\": \"optional|required\"</code></p><p>Applies the same rule to both create and update operations.</p><p>Simplifies schemas where create/update behavior is identical.</p>"
+        },
+        {
+          "id": "generation-passes",
+          "label": "3-Pass Generation System",
+          "description": "How schemas are generated",
+          "content": "<h3>Generation Workflow</h3><p><strong>Pass 1-2:</strong> Process annotations → generate per-operation schemas</p><ul><li>type.json → type_create_req.json, type_update_req.json, type_resp.json</li></ul><p><strong>Pass 3:</strong> Generate OpenRPC spec for Embedded Protocol</p><ul><li>Aggregates methods from source/services/shopping/embedded.json</li><li>Combines with extension schemas</li><li>Produces spec/services/shopping/embedded.openrpc.json</li></ul><p><strong>Command:</strong> <code>python generate_schemas.py</code></p>"
+        }
+      ]
+    },
+    {
+      "id": "extensions",
+      "label": "7. Extensions System",
+      "description": "Modular feature enhancement",
+      "content": "<h3>Extension Architecture</h3><p>Extensions provide optional enhancements to core capabilities without bloating the protocol.</p>",
+      "children": [
+        {
+          "id": "discount-extension",
+          "label": "Discount Extension",
+          "description": "Promotions and adjustments",
+          "content": "<h3>Discount Extension</h3><p><strong>Name:</strong> <code>dev.ucp.shopping.discount</code></p><p><strong>Purpose:</strong> Apply promotional discounts to checkout</p><p><strong>Features:</strong></p><ul><li>Coupon codes</li><li>Automatic discounts (cart total thresholds)</li><li>Line item vs order-level discounts</li><li>Discount stacking rules</li></ul>"
+        },
+        {
+          "id": "fulfillment-extension",
+          "label": "Fulfillment Extension",
+          "description": "Advanced shipping features",
+          "content": "<h3>Fulfillment Extension</h3><p><strong>Name:</strong> <code>dev.ucp.shopping.fulfillment</code></p><p><strong>Purpose:</strong> Enhanced shipping and delivery options</p><p><strong>Features:</strong></p><ul><li>Multiple fulfillment groups (split shipments)</li><li>Real-time shipping rates</li><li>Delivery time estimates</li><li>Pickup options (BOPIS - Buy Online Pickup In Store)</li></ul>"
+        },
+        {
+          "id": "declaring-extensions",
+          "label": "Declaring Extensions",
+          "description": "How to advertise support",
+          "content": "<h3>Extension Declaration</h3><p>Businesses declare extensions in their UCP profile:</p><pre>{\n  \"capabilities\": [\n    {\n      \"name\": \"dev.ucp.shopping.checkout\",\n      \"extensions\": [\"dev.ucp.shopping.discount\", \"dev.ucp.shopping.fulfillment\"]\n    }\n  ]\n}</pre><p>Platforms read this to know which optional features are available.</p>"
+        }
+      ]
+    },
+    {
+      "id": "capabilities",
+      "label": "8. Capabilities Deep Dive",
+      "description": "Four foundational capabilities",
+      "content": "<h3>Official UCP Capabilities</h3><p>UCP v1 defines four core capabilities for commerce transactions.</p>",
+      "children": [
+        {
+          "id": "checkout-capability",
+          "label": "dev.ucp.shopping.checkout",
+          "description": "End-to-end checkout flow",
+          "content": "<h3>Checkout Capability</h3><p>The most complex capability - handles entire checkout lifecycle:</p><p><strong>Flow:</strong></p><ol><li><strong>create</strong> - Initialize with items, buyer info</li><li><strong>update</strong> - Iteratively add payment, shipping, apply discounts</li><li><strong>update</strong> - Business calculates tax, validates availability</li><li><strong>complete</strong> - Finalize order, return confirmation</li></ol><p><strong>Transports:</strong> REST, MCP, A2A, Embedded</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/checkout", "label": "Checkout Full Specification" }
+          ]
+        },
+        {
+          "id": "identity-linking",
+          "label": "dev.ucp.common.identity_linking",
+          "description": "OAuth 2.0 authorization",
+          "content": "<h3>Identity Linking Capability</h3><p>OAuth 2.0 flow for platforms to obtain authorization:</p><ul><li>Platform requests authorization to act on user's behalf</li><li>User authenticates with Business</li><li>Business issues access token</li><li>Platform uses token for subsequent API calls</li></ul><p>Enables saved payment methods, order history access, etc.</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/identity-linking", "label": "Identity Linking Spec" }
+          ]
+        },
+        {
+          "id": "order-capability",
+          "label": "dev.ucp.shopping.order",
+          "description": "Post-purchase tracking",
+          "content": "<h3>Order Capability</h3><p>Webhook-based updates for order lifecycle:</p><ul><li><strong>order.shipped</strong> - Item shipped with tracking</li><li><strong>order.delivered</strong> - Item delivered</li><li><strong>order.returned</strong> - Return initiated</li><li><strong>order.cancelled</strong> - Order cancelled</li></ul><p>Businesses push these events to platform webhook endpoints.</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/order", "label": "Order Specification" }
+          ]
+        },
+        {
+          "id": "payment-token-exchange",
+          "label": "Payment Token Exchange",
+          "description": "PSP ↔ CP token flow",
+          "content": "<h3>Token Exchange Capability</h3><p>Secure protocol for PSPs to exchange tokens with Credential Providers:</p><ol><li>PSP receives tokenized payment from Business</li><li>PSP calls CP's token exchange endpoint</li><li>CP validates PSP's identity (signing keys)</li><li>CP returns decrypted payment data</li><li>PSP processes transaction</li></ol><p>Example: Google Pay → Stripe token exchange</p>",
+          "resources": [
+            { "type": "spec", "url": "https://ucp.dev/specification/tokenization-guide", "label": "Tokenization Guide" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "workflow",
+      "label": "9. Development Workflow",
+      "description": "Working with the codebase",
+      "content": "<h3>Developer Workflow Mastery</h3><p>How to effectively work with UCP's schema generation system.</p>",
+      "children": [
+        {
+          "id": "never-edit-spec",
+          "label": "Never Edit spec/ Directly",
+          "description": "Golden rule of UCP development",
+          "content": "<h3>Critical Rule</h3><p><strong>NEVER manually edit files in spec/</strong></p><p>The spec/ directory is generated. Always:</p><ol><li>Edit schemas in <code>source/</code></li><li>Run <code>python generate_schemas.py</code></li><li>Verify outputs in <code>spec/</code></li></ol><p>Manual edits to spec/ will be overwritten on next generation.</p>"
+        },
+        {
+          "id": "schema-workflow",
+          "label": "Schema Development Loop",
+          "description": "Edit → Generate → Validate",
+          "content": "<h3>Complete Workflow</h3><ol><li><strong>Edit:</strong> Modify <code>source/schemas/shopping/types/buyer.json</code></li><li><strong>Generate:</strong> Run <code>python generate_schemas.py</code></li><li><strong>Validate:</strong> Run <code>python validate_specs.py</code></li><li><strong>Docs:</strong> Run <code>mkdocs serve --watch spec</code></li><li><strong>SDK:</strong> Run <code>bash scripts/ci_check_models.sh</code></li></ol>"
+        },
+        {
+          "id": "adding-new-types",
+          "label": "Adding New Schema Types",
+          "description": "Step-by-step guide",
+          "content": "<h3>New Type Workflow</h3><ol><li>Create <code>source/schemas/shopping/types/my_type.json</code></li><li>Add UCP annotations (<code>ucp_request</code>, <code>ucp_response</code>)</li><li>Run <code>python generate_schemas.py</code></li><li>Verify generated files in <code>spec/schemas/shopping/types/</code></li><li>Update documentation if needed</li><li>Check TypeScript generation works</li><li>May need to extend <code>generate_schemas.py</code> for new patterns</li></ol>"
+        },
+        {
+          "id": "documentation-system",
+          "label": "Documentation System",
+          "description": "MkDocs with custom macros",
+          "content": "<h3>Doc Generation</h3><p>UCP docs use custom MkDocs macros in <code>main.py</code>:</p><ul><li><strong>schema_fields</strong> - Generates tables from JSON schemas</li><li><strong>method_fields</strong> - Generates tables from OpenAPI/OpenRPC</li></ul><p>These macros read directly from <code>spec/</code>, so schema changes automatically propagate to docs.</p><p><strong>Commands:</strong></p><ul><li><code>mkdocs serve --watch spec</code> - Local preview</li><li><code>mkdocs build --strict</code> - Production build (fails on warnings)</li></ul>"
+        }
+      ]
+    },
+    {
+      "id": "study-strategy",
+      "label": "10. Study Strategy by Goal",
+      "description": "Learning paths for different roles",
+      "content": "<h3>Role-Based Learning Paths</h3><p>Different developers need different perspectives on UCP.</p>",
+      "children": [
+        {
+          "id": "platform-developer",
+          "label": "Platform Developers",
+          "description": "Building shopping agents/apps",
+          "content": "<h3>For Platform Developers</h3><p>Implementing a shopping agent or app that uses UCP:</p><ol><li><strong>core-concepts.md</strong> → Understand the four actors</li><li><strong>discovery/profile_schema.json</strong> → Parse business profiles</li><li><strong>checkout-mcp.md</strong> → MCP implementation for AI agents</li><li><strong>checkout.json + types/*</strong> → Data models</li><li><strong>buyer-consent.md</strong> → User permission framework</li></ol><p><strong>Key Focus:</strong> Calling UCP APIs, handling responses, UI/UX for checkout</p>"
+        },
+        {
+          "id": "business-integrator",
+          "label": "Business Integrators",
+          "description": "Exposing inventory via UCP",
+          "content": "<h3>For Business Integrators</h3><p>Exposing your inventory and implementing UCP endpoints:</p><ol><li><strong>core-concepts.md</strong> → Understand Merchant of Record role</li><li><strong>checkout-rest.md</strong> → REST endpoint implementation</li><li><strong>embedded-checkout.md</strong> → iframe integration patterns</li><li><strong>fulfillment.json</strong> → Shipping logic</li><li><strong>discount.json</strong> → Promotions system</li></ol><p><strong>Key Focus:</strong> Implementing endpoints, calculating tax/shipping, inventory management</p>"
+        },
+        {
+          "id": "psp-cp-developer",
+          "label": "PSP/CP Developers",
+          "description": "Payment infrastructure",
+          "content": "<h3>For PSP/CP Developers</h3><p>Building payment service providers or credential providers:</p><ol><li><strong>tokenization-guide.md</strong> → Token exchange flows</li><li><strong>payment-handler-guide.md</strong> → Handler integration</li><li><strong>handlers/tokenization/google_pay/</strong> → Reference implementation</li><li><strong>ap2-mandates.md</strong> → Security requirements (3DS, SCA)</li></ol><p><strong>Key Focus:</strong> Secure token exchange, PCI compliance, authentication mandates</p>"
+        },
+        {
+          "id": "protocol-contributor",
+          "label": "Protocol Contributors",
+          "description": "Contributing to UCP itself",
+          "content": "<h3>For Protocol Contributors</h3><p>Contributing schemas, documentation, or SDKs to UCP:</p><ol><li><strong>schema-authoring.md</strong> → Annotation system</li><li><strong>generate_schemas.py</strong> → Generation logic</li><li><strong>CONTRIBUTING.md</strong> → Process and conventions</li><li>All of the above 😄</li></ol><p><strong>Key Focus:</strong> Schema design, backward compatibility, documentation quality</p>"
+        }
+      ]
+    },
+    {
+      "id": "key-insights",
+      "label": "11. Key Insights",
+      "description": "Critical understanding for mastery",
+      "content": "<h3>Core Principles to Internalize</h3><p>These insights represent deep understanding of UCP's design philosophy.</p>",
+      "children": [
+        {
+          "id": "composability",
+          "label": "Composable Architecture",
+          "description": "Capabilities + Extensions",
+          "content": "<h3>Composability Principle</h3><p>UCP breaks commerce into:</p><ul><li><strong>Capabilities</strong> - Complete flows (checkout, order)</li><li><strong>Extensions</strong> - Optional enhancements (discounts, loyalty)</li></ul><p>This allows businesses to implement only what they need while maintaining interoperability.</p><p>New capabilities and extensions can be added without breaking existing implementations.</p>"
+        },
+        {
+          "id": "data-flow",
+          "label": "Typical Data Flow",
+          "description": "End-to-end transaction",
+          "content": "<h3>Standard Checkout Flow</h3><ol><li><strong>Discovery:</strong> Platform discovers Business via /.well-known/ucp</li><li><strong>Capabilities:</strong> Platform reads capabilities[] and payment.handlers[]</li><li><strong>Create:</strong> Platform calls checkout_create with initial state</li><li><strong>Options:</strong> Business responds with fulfillment options, payment methods</li><li><strong>Update:</strong> Platform calls checkout_update iteratively (add payment, select shipping)</li><li><strong>Validate:</strong> Business validates, applies logic (tax calculation, discount)</li><li><strong>Complete:</strong> Platform calls checkout_complete</li><li><strong>Order:</strong> Business places order, returns order_confirmation</li><li><strong>Webhooks:</strong> Business sends order updates (shipped, delivered)</li></ol>"
+        },
+        {
+          "id": "security-layers",
+          "label": "Multi-Layer Security",
+          "description": "Defense in depth",
+          "content": "<h3>Security Architecture</h3><p>UCP implements multiple security layers:</p><ul><li><strong>JWK Signing Keys</strong> - Message verification</li><li><strong>OAuth 2.0</strong> - Identity linking</li><li><strong>PCI-DSS Compliance</strong> - Via tokenization</li><li><strong>AP2 Mandates</strong> - 3DS and risk checks</li><li><strong>Buyer Consent</strong> - Explicit permissions for agents</li></ul><p>Each layer addresses a specific security concern without adding unnecessary complexity.</p>"
+        },
+        {
+          "id": "schema-philosophy",
+          "label": "Schema Design Philosophy",
+          "description": "Minimal requests, rich responses",
+          "content": "<h3>Design Principles</h3><ul><li><strong>Minimal Requests:</strong> Omit fields with sensible defaults</li><li><strong>Rich Responses:</strong> Provide full context to platforms</li><li><strong>Idempotent Operations:</strong> Safe to retry failed requests</li><li><strong>Extensible:</strong> additionalProperties: true allows custom fields</li></ul><p>This reduces bandwidth while giving platforms everything they need.</p>"
+        },
+        {
+          "id": "transport-agnostic",
+          "label": "Transport Agnostic Design",
+          "description": "One protocol, many transports",
+          "content": "<h3>Transport Independence</h3><p>UCP capabilities are defined independently of transport:</p><ul><li>Same checkout capability works over REST, MCP, A2A, or Embedded</li><li>Businesses choose which transports to support</li><li>New transports can be added without changing core protocol</li></ul><p>This future-proofs UCP as new communication protocols emerge.</p>"
+        }
+      ]
+    }
+  ]
+}
