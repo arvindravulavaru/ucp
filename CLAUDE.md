@@ -10,6 +10,19 @@ Universal Commerce Protocol (UCP) is an open standard for commerce interoperabil
 - OpenRPC specifications for the Embedded Commerce Protocol (ECP)
 - Documentation site built with MkDocs
 - Schema generation and validation tooling
+- Interactive learning materials for UCP concepts
+
+## Learning Materials
+
+The `ucp-learning/` directory contains interactive tools for learning UCP:
+
+- **ucp-learning-mindmap.html** - Standalone interactive accordion tree view covering:
+  - 11 major sections of UCP (Foundations, Discovery, Shopping, Protocols, Security, etc.)
+  - 53 topics with detailed explanations
+  - Features: search, progress tracking, deep linking, localStorage persistence
+- **ucp-learning-data.json** - Structured learning data (reusable for multiple view types)
+
+To use: Open `ucp-learning/ucp-learning-mindmap.html` directly in a browser (no server required).
 
 ## Core Architecture
 
@@ -188,6 +201,10 @@ docs/                      # MkDocs documentation
 ├── documentation/         # Guides and concepts
 ├── specification/         # Auto-generated API docs
 └── index.md
+
+ucp-learning/              # Interactive learning materials
+├── ucp-learning-mindmap.html   # Standalone accordion tree view
+└── ucp-learning-data.json      # Structured learning data
 
 generated/                 # Generated SDKs (TypeScript, etc.)
 ```
