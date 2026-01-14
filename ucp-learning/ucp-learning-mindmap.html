@@ -386,6 +386,7 @@
       padding: 20px 24px;
       border-bottom: 1px solid var(--border);
       background: var(--surface);
+      position: relative;
     }
 
     .content-header h2 {
@@ -551,6 +552,112 @@
         padding: 16px;
       }
     }
+
+    /* User Notes Section */
+    .notes-toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .notes-toggle-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .notes-toggle-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .user-notes-section {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+
+    .user-notes-section.visible {
+      display: block;
+    }
+
+    .notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .notes-header h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .clear-notes-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      opacity: 0.6;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .clear-notes-btn:hover {
+      opacity: 1;
+      background: rgba(0,0,0,0.05);
+    }
+
+    .notes-editor {
+      width: 100%;
+      min-height: 200px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    .notes-editor:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    }
+
+    .save-indicator {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      height: 20px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .save-indicator.visible {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -564,6 +671,7 @@
     let mindmapData = null;
     let progressTracker = null;
     let treeState = null;
+    let userNotesTracker = null;
     let currentNodeId = null;
 
     // Progress Tracker
@@ -674,6 +782,44 @@
       }
     }
 
+    // User Notes Tracker - Manages per-topic notes with localStorage
+    class UserNotesTracker {
+      constructor() {
+        this.storageKey = "ucp-learning-notes";
+        this.data = this.load();
+      }
+
+      load() {
+        const stored = localStorage.getItem(this.storageKey);
+        return stored ? JSON.parse(stored) : { notes: {}, version: "1.0" };
+      }
+
+      save() {
+        localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+      }
+
+      setNotes(nodeId, noteContent) {
+        this.data.notes[nodeId] = {
+          content: noteContent,
+          updatedAt: new Date().toISOString()
+        };
+        this.save();
+      }
+
+      getNotes(nodeId) {
+        return this.data.notes[nodeId]?.content || '';
+      }
+
+      clearNotes(nodeId) {
+        delete this.data.notes[nodeId];
+        this.save();
+      }
+
+      getAllNotes() {
+        return this.data.notes;
+      }
+    }
+
     // Load JSON data
     async function loadData() {
       try {
@@ -681,6 +827,7 @@
         mindmapData = await response.json();
         progressTracker = new ProgressTracker();
         treeState = new TreeState();
+        userNotesTracker = new UserNotesTracker();
 
         // Initialize default expanded state if first time
         if (treeState.data.expanded.length === 0) {
@@ -804,11 +951,31 @@
 
       return `
         <div class="content-header">
+          ${node.id !== 'root' ? `
+            <button class="notes-toggle-btn" data-action="toggle-notes" title="Toggle notes">
+              📝
+            </button>
+          ` : ''}
           <h2>${node.label}</h2>
           ${node.description ? `<div class="content-description">${node.description}</div>` : ''}
         </div>
         <div class="content-body">
           ${node.content || '<p>No content available for this topic.</p>'}
+
+          ${node.id !== 'root' ? `
+            <div class="user-notes-section">
+              <div class="notes-header">
+                <h4>My Notes</h4>
+                <button class="clear-notes-btn" data-action="clear-notes" title="Clear notes">🗑️</button>
+              </div>
+              <textarea
+                class="notes-editor"
+                data-node-id="${node.id}"
+                placeholder="Add your notes here... (auto-saves when you click away)"
+              >${userNotesTracker.getNotes(node.id)}</textarea>
+              <div class="save-indicator"></div>
+            </div>
+          ` : ''}
 
           ${node.resources && node.resources.length > 0 ? `
             <div class="resources">
@@ -915,6 +1082,64 @@
 
           // Select node and show content
           selectNode(nodeId);
+        }
+      });
+
+      // Notes auto-save on blur
+      document.addEventListener('blur', (e) => {
+        if (e.target.matches('.notes-editor')) {
+          const nodeId = e.target.dataset.nodeId;
+          const content = e.target.value;
+          userNotesTracker.setNotes(nodeId, content);
+
+          // Show save indicator
+          const indicator = e.target.nextElementSibling;
+          indicator.textContent = 'Saved ✓';
+          indicator.classList.add('visible');
+          setTimeout(() => {
+            indicator.classList.remove('visible');
+          }, 2000);
+        }
+      }, true);
+
+      // Clear notes button
+      document.addEventListener('click', (e) => {
+        if (e.target.matches('[data-action="clear-notes"]')) {
+          const textarea = e.target.closest('.user-notes-section').querySelector('.notes-editor');
+          const nodeId = textarea.dataset.nodeId;
+
+          if (confirm('Clear all notes for this topic?')) {
+            userNotesTracker.clearNotes(nodeId);
+            textarea.value = '';
+
+            const indicator = textarea.nextElementSibling;
+            indicator.textContent = 'Notes cleared';
+            indicator.classList.add('visible');
+            setTimeout(() => {
+              indicator.classList.remove('visible');
+            }, 2000);
+          }
+        }
+      });
+
+      // Toggle notes visibility
+      document.addEventListener('click', (e) => {
+        if (e.target.matches('[data-action="toggle-notes"]')) {
+          const notesSection = document.querySelector('.user-notes-section');
+          const toggleBtn = e.target;
+
+          if (notesSection) {
+            notesSection.classList.toggle('visible');
+            toggleBtn.classList.toggle('active');
+
+            // Focus textarea when opening
+            if (notesSection.classList.contains('visible')) {
+              const textarea = notesSection.querySelector('.notes-editor');
+              if (textarea) {
+                setTimeout(() => textarea.focus(), 100);
+              }
+            }
+          }
         }
       });
     }
