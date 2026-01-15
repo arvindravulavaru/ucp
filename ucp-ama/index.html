@@ -485,6 +485,14 @@
       display: flex;
       gap: 1rem;
       margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .action-group {
+      display: flex;
+      gap: 1rem;
+      flex: 1;
+      min-width: fit-content;
     }
 
     .actions button {
@@ -1022,9 +1030,15 @@
         <div id="source-links"></div>
       </div>
       <div class="actions">
-        <button id="bookmark-action-btn">⭐ Bookmark</button>
-        <button id="share-btn">🔗 Share</button>
-        <button id="slack-answer-btn">💬 Send to Slack</button>
+        <div class="action-group">
+          <button id="prev-question-btn">← Previous</button>
+          <button id="next-question-btn">Next →</button>
+        </div>
+        <div class="action-group">
+          <button id="bookmark-action-btn">⭐ Bookmark</button>
+          <button id="share-btn">🔗 Share</button>
+          <button id="slack-answer-btn">💬 Send to Slack</button>
+        </div>
       </div>
     </main>
   </div>
@@ -1101,6 +1115,8 @@
     let chatHistory = [];
     let currentChatContext = null;
     let currentUser = null;
+    let allQuestions = []; // Flat list of all questions for navigation
+    let currentQuestionIndex = -1; // Current position in allQuestions array
 
     // Database collections
     let bookmarksCollection = null;
@@ -1201,6 +1217,9 @@
         console.log('Knowledge base loaded:', knowledgeBase);
         console.log('marked available:', typeof marked !== 'undefined');
 
+        // Build flat list of all questions for navigation
+        buildAllQuestionsList();
+
         // Initialize user authentication
         await initializeUser();
 
@@ -1209,6 +1228,21 @@
         showError('Failed to load knowledge base');
         console.error('Error loading knowledge base:', error);
       }
+    }
+
+    // Build flat list of all questions from all categories
+    function buildAllQuestionsList() {
+      allQuestions = [];
+      if (knowledgeBase && knowledgeBase.categories) {
+        knowledgeBase.categories.forEach(category => {
+          if (category.questions) {
+            category.questions.forEach(question => {
+              allQuestions.push(question);
+            });
+          }
+        });
+      }
+      console.log(`Total questions for navigation: ${allQuestions.length}`);
     }
 
     // Initialize UI
@@ -1249,6 +1283,8 @@
       document.getElementById('bookmark-action-btn').classList.remove('active');
       document.getElementById('share-btn').classList.remove('active');
       document.getElementById('slack-answer-btn').classList.remove('active');
+      document.getElementById('prev-question-btn').classList.remove('active');
+      document.getElementById('next-question-btn').classList.remove('active');
 
       const questionCard = document.getElementById('question-display');
       questionCard.innerHTML = `
@@ -1394,9 +1430,18 @@
       `;
       questionCard.classList.add('active');
 
+      // Find current question index in allQuestions
+      currentQuestionIndex = allQuestions.findIndex(q => q.id === question.id);
+
+      // Show action buttons
       document.getElementById('bookmark-action-btn').classList.add('active');
       document.getElementById('share-btn').classList.add('active');
       document.getElementById('slack-answer-btn').classList.add('active');
+      document.getElementById('prev-question-btn').classList.add('active');
+      document.getElementById('next-question-btn').classList.add('active');
+
+      // Update navigation button states
+      updateNavigationButtons();
 
       updateBookmarkButton();
     }
@@ -1407,6 +1452,48 @@
         <div class="question-text">${question}</div>
       `;
       questionCard.classList.add('active');
+    }
+
+    // Update navigation button states (disabled/enabled)
+    function updateNavigationButtons() {
+      const prevBtn = document.getElementById('prev-question-btn');
+      const nextBtn = document.getElementById('next-question-btn');
+
+      if (currentQuestionIndex <= 0) {
+        prevBtn.disabled = true;
+        prevBtn.style.opacity = '0.5';
+        prevBtn.style.cursor = 'not-allowed';
+      } else {
+        prevBtn.disabled = false;
+        prevBtn.style.opacity = '1';
+        prevBtn.style.cursor = 'pointer';
+      }
+
+      if (currentQuestionIndex >= allQuestions.length - 1) {
+        nextBtn.disabled = true;
+        nextBtn.style.opacity = '0.5';
+        nextBtn.style.cursor = 'not-allowed';
+      } else {
+        nextBtn.disabled = false;
+        nextBtn.style.opacity = '1';
+        nextBtn.style.cursor = 'pointer';
+      }
+    }
+
+    // Navigate to previous question
+    function navigateToPrevQuestion() {
+      if (currentQuestionIndex > 0) {
+        const prevQuestion = allQuestions[currentQuestionIndex - 1];
+        selectQuestion(prevQuestion);
+      }
+    }
+
+    // Navigate to next question
+    function navigateToNextQuestion() {
+      if (currentQuestionIndex < allQuestions.length - 1) {
+        const nextQuestion = allQuestions[currentQuestionIndex + 1];
+        selectQuestion(nextQuestion);
+      }
     }
 
     function displayFAQAnswer(question) {
@@ -1981,6 +2068,10 @@ Guidelines:
 
     document.getElementById('slack-answer-btn').addEventListener('click', sendAnswerToSlack);
 
+    // Navigation buttons
+    document.getElementById('prev-question-btn').addEventListener('click', navigateToPrevQuestion);
+    document.getElementById('next-question-btn').addEventListener('click', navigateToNextQuestion);
+
     // History
     async function saveToHistory(question, answer) {
       if (!currentUser) return;
@@ -2150,6 +2241,8 @@ Guidelines:
       document.getElementById('bookmark-action-btn').classList.remove('active');
       document.getElementById('share-btn').classList.remove('active');
       document.getElementById('slack-answer-btn').classList.remove('active');
+      document.getElementById('prev-question-btn').classList.remove('active');
+      document.getElementById('next-question-btn').classList.remove('active');
       document.getElementById('error-message').classList.remove('show');
 
       searchInput.value = '';
