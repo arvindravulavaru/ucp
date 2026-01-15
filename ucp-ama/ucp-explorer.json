@@ -106,7 +106,6 @@
             "exploring"
           ],
           "ucp_docs_links": [
-            "https://ucp.dev/...`",
             "https://ucp.dev/documentation/concepts/capabilities/"
           ],
           "source_file": "UCP-Explorer-Fundamentals.md"
@@ -142,8 +141,8 @@
             "understanding"
           ],
           "ucp_docs_links": [
-            "https://ucp.dev/services/shopping/rest.openapi.json\"",
-            "https://ucp.dev/services/shopping/mcp.openrpc.json\"",
+            "https://ucp.dev/services/shopping/rest.openapi.json",
+            "https://ucp.dev/services/shopping/mcp.openrpc.json",
             "https://ucp.dev/documentation/concepts/transports/"
           ],
           "source_file": "UCP-Explorer-Fundamentals.md"

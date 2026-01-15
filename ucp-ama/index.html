@@ -249,11 +249,12 @@
       margin: 0.25rem 0;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 1rem;
+      border: 1px solid transparent;
     }
 
     .category-item:hover {
@@ -261,8 +262,9 @@
     }
 
     .category-item.active {
-      background: var(--text-primary);
-      color: white;
+      background: var(--bg-secondary);
+      border-color: var(--accent);
+      color: var(--text-primary);
     }
 
     .question-count {
@@ -271,7 +273,8 @@
     }
 
     .category-item.active .question-count {
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--accent);
+      font-weight: 500;
     }
 
     /* Main Content */
@@ -343,8 +346,20 @@
       font-size: 1.5rem;
       font-weight: 450;
       color: var(--text-primary);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
       line-height: 1.28;
+    }
+
+    .question-category {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
     }
 
     .question-meta {
@@ -483,45 +498,116 @@
 
     .actions {
       display: flex;
-      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
       margin-bottom: 2rem;
-      flex-wrap: wrap;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
     }
 
     .action-group {
       display: flex;
-      gap: 1rem;
-      flex: 1;
-      min-width: fit-content;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .actions-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      margin: 0 0.5rem;
     }
 
     .actions button {
-      flex: 1;
-      padding: 0.75rem 1.5rem;
+      width: 36px;
+      height: 36px;
+      padding: 0;
       border: 1px solid var(--border);
-      background: var(--bg-secondary);
+      background: var(--bg-primary);
       color: var(--text-primary);
-      border-radius: 50px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 1rem;
-      font-weight: 500;
       transition: all 0.2s;
       display: none;
-      font-family: inherit;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
 
     .actions button.active {
-      display: block;
+      display: flex;
     }
 
     .actions button:hover {
       background: var(--bg-tertiary);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .actions button svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
     }
 
     .actions button.bookmarked {
       background: #fff3cd;
-      color: var(--text-primary);
+      color: #856404;
       border-color: #ffc107;
+    }
+
+    .actions button.bookmarked svg {
+      fill: #ffc107;
+    }
+
+    /* Navigation buttons have text */
+    #prev-question-btn,
+    #next-question-btn {
+      width: auto;
+      padding: 0 1rem;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: inherit;
+    }
+
+    #prev-question-btn svg,
+    #next-question-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Tooltip on hover */
+    .actions button::after {
+      content: attr(title);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: 8px;
+      padding: 0.4rem 0.75rem;
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      font-size: 0.75rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 10;
+    }
+
+    .actions button:hover::after {
+      opacity: 1;
+    }
+
+    /* Don't show tooltip on nav buttons (they have text) */
+    #prev-question-btn::after,
+    #next-question-btn::after {
+      display: none;
     }
 
     /* Modal Base */
@@ -620,13 +706,56 @@
       height: 80vh;
     }
 
-    .chat-messages {
+    .chat-messages-wrapper {
+      position: relative;
       flex: 1;
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      height: 100%;
       overflow-y: auto;
       padding: 1rem 0;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
+    }
+
+    .scroll-to-bottom {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      width: 40px;
+      height: 40px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: all 0.2s;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 10;
+    }
+
+    .scroll-to-bottom.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .scroll-to-bottom:hover {
+      background: var(--accent-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .scroll-to-bottom svg {
+      width: 20px;
+      height: 20px;
     }
 
     .chat-message {
@@ -709,6 +838,28 @@
       font-size: 1rem;
       color: var(--text-secondary);
       padding: 0 0.5rem;
+    }
+
+    .chat-slack-btn {
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      font-family: inherit;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chat-slack-btn:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--accent);
     }
 
     .chat-input-container {
@@ -897,6 +1048,27 @@
         width: 95%;
         max-width: 600px;
       }
+
+      /* Mobile actions toolbar */
+      .actions {
+        padding: 0.5rem;
+        gap: 0.25rem;
+      }
+
+      .actions-divider {
+        margin: 0 0.25rem;
+      }
+
+      #prev-question-btn,
+      #next-question-btn {
+        padding: 0 0.75rem;
+        font-size: 0.85rem;
+      }
+
+      .actions button svg {
+        width: 16px;
+        height: 16px;
+      }
     }
 
     /* Source links styling */
@@ -1031,13 +1203,40 @@
       </div>
       <div class="actions">
         <div class="action-group">
-          <button id="prev-question-btn">← Previous</button>
-          <button id="next-question-btn">Next →</button>
+          <button id="bookmark-action-btn" title="Bookmark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+          </button>
+          <button id="share-btn" title="Share Link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
+          <button id="slack-answer-btn" title="Send to Slack">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 15c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm5 10h8c1.1 0 2-.9 2-2s-.9-2-2-2h-8c-1.1 0-2 .9-2 2s.9 2 2 2zm-3-3v-2H5c-1.1 0-2 .9-2 2s.9 2 2 2h3v-2zm11-4h-8c-1.1 0-2 .9-2 2s.9 2 2 2h8c1.1 0 2-.9 2-2s-.9-2-2-2zm0-6h-8c-1.1 0-2 .9-2 2s.9 2 2 2h8c1.1 0 2-.9 2-2s-.9-2-2-2z"/>
+            </svg>
+          </button>
         </div>
+        <div class="actions-divider"></div>
         <div class="action-group">
-          <button id="bookmark-action-btn">⭐ Bookmark</button>
-          <button id="share-btn">🔗 Share</button>
-          <button id="slack-answer-btn">💬 Send to Slack</button>
+          <button id="prev-question-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+            </svg>
+            Previous
+          </button>
+          <button id="next-question-btn">
+            Next
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+            </svg>
+          </button>
         </div>
       </div>
     </main>
@@ -1051,11 +1250,19 @@
         <button class="modal-close" id="chat-close">×</button>
       </div>
       <div class="modal-body">
-        <div class="chat-messages" id="chat-messages">
-          <div class="chat-empty">
-            <div class="chat-empty-icon">💭</div>
-            <p>Ask AI a question to start a conversation</p>
+        <div class="chat-messages-wrapper">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-empty">
+              <div class="chat-empty-icon">💭</div>
+              <p>Ask AI a question to start a conversation</p>
+            </div>
           </div>
+          <button class="scroll-to-bottom" id="scroll-to-bottom" title="Scroll to bottom">
+            <svg fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 12.5l-4-4h8l-4 4z"/>
+              <path d="M8 8.5l-4-4h8l-4 4z"/>
+            </svg>
+          </button>
         </div>
       </div>
       <div class="chat-input-container">
@@ -1066,6 +1273,12 @@
             placeholder="Ask a follow-up question..."
             rows="1"
           ></textarea>
+          <button class="chat-slack-btn" id="chat-slack-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 15c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm5 10h8c1.1 0 2-.9 2-2s-.9-2-2-2h-8c-1.1 0-2 .9-2 2s.9 2 2 2zm-3-3v-2H5c-1.1 0-2 .9-2 2s.9 2 2 2h3v-2zm11-4h-8c-1.1 0-2 .9-2 2s.9 2 2 2h8c1.1 0 2-.9 2-2s-.9-2-2-2zm0-6h-8c-1.1 0-2 .9-2 2s.9 2 2 2h8c1.1 0 2-.9 2-2s-.9-2-2-2z"/>
+            </svg>
+            Slack
+          </button>
           <button class="chat-send" id="chat-send">Send</button>
         </div>
       </div>
@@ -1118,6 +1331,11 @@
     let allQuestions = []; // Flat list of all questions for navigation
     let currentQuestionIndex = -1; // Current position in allQuestions array
 
+    // Auto-scroll state for chat
+    let autoScrollEnabled = true;
+    let isGenerating = false;
+    let lastScrollTop = 0;
+
     // Database collections
     let bookmarksCollection = null;
     let historyCollection = null;
@@ -1133,9 +1351,19 @@
     // Configure marked.js to open all links in new window
     window.marked.use({
       renderer: {
-        link(href, title, text) {
+        link(token) {
+          // Handle both old API (href, title, text) and new API (token object)
+          const href = token.href || token;
+          const title = token.title || arguments[1];
+          const text = token.text || arguments[2];
+
+          // Debug logging for link rendering
+          console.log('Marked link renderer:', { href, title, text, token, allArgs: arguments });
+
+          // Handle undefined text
+          const linkText = text || href || 'Link';
           const titleAttr = title ? ` title="${title}"` : '';
-          return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+          return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${linkText}</a>`;
         }
       }
     });
@@ -1261,6 +1489,7 @@
       knowledgeBase.categories.forEach(cat => {
         const li = document.createElement('li');
         li.className = 'category-item';
+        li.dataset.categoryId = cat.id; // Add data attribute for easy selection
         li.innerHTML = `
           <span>${cat.title}</span>
           <span class="question-count">${cat.question_count}</span>
@@ -1270,12 +1499,29 @@
       });
     }
 
+    // Highlight active category in sidebar
+    function highlightActiveCategory(categoryId) {
+      // Remove active class from all categories
+      document.querySelectorAll('.category-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      // Add active class to current category
+      const activeCategory = document.querySelector(`.category-item[data-category-id="${categoryId}"]`);
+      if (activeCategory) {
+        activeCategory.classList.add('active');
+      }
+    }
+
     // Show category questions
     function showCategoryQuestions(category) {
       if (abortController) {
         abortController.abort();
         abortController = null;
       }
+
+      // Highlight active category
+      highlightActiveCategory(category.id);
 
       document.getElementById('welcome').style.display = 'none';
       document.getElementById('answer-display').classList.remove('active');
@@ -1288,7 +1534,8 @@
 
       const questionCard = document.getElementById('question-display');
       questionCard.innerHTML = `
-        <div class="question-text">${category.title}</div>
+        <div class="question-category">${category.title}</div>
+        <div class="question-text">Questions in this category</div>
       `;
       questionCard.classList.add('active');
 
@@ -1422,7 +1669,20 @@
 
     function displayQuestion(question) {
       const questionCard = document.getElementById('question-display');
+
+      // Find the category this question belongs to
+      let categoryTitle = '';
+      for (const cat of knowledgeBase.categories) {
+        if (cat.questions.some(q => q.id === question.id)) {
+          categoryTitle = cat.title;
+          // Highlight active category in sidebar
+          highlightActiveCategory(cat.id);
+          break;
+        }
+      }
+
       questionCard.innerHTML = `
+        ${categoryTitle ? `<div class="question-category">${categoryTitle}</div>` : ''}
         <div class="question-text">${question.question}</div>
       `;
       questionCard.classList.add('active');
@@ -1538,7 +1798,13 @@
       answerText.innerHTML = '<div class="streaming-dots"><div class="streaming-dot"></div><div class="streaming-dot"></div><div class="streaming-dot"></div></div>';
       errorEl.classList.remove('show');
 
-      const contextText = context.map(q => `Q: ${q.question}\nA: ${q.answer}`).join('\n\n---\n\n');
+      const contextText = context.map(q => {
+        let text = `Q: ${q.question}\nA: ${q.answer}`;
+        if (q.ucp_docs_links && q.ucp_docs_links.length > 0) {
+          text += `\nDocumentation: ${q.ucp_docs_links.join(', ')}`;
+        }
+        return text;
+      }).join('\n\n---\n\n');
 
       const systemPrompt = `You are an expert on the Universal Commerce Protocol (UCP).
 You help developers understand UCP concepts, architecture, and implementation.
@@ -1553,19 +1819,35 @@ IMPORTANT: Format your responses using Markdown for better readability:
 
 Guidelines:
 - Base your answers on the provided context from UCP documentation
-- If referencing specific concepts, mention relevant ucp.dev documentation links
 - Be concise but comprehensive
 - Use code examples when helpful
-- If you don't know something, say so clearly`;
+- If you don't know something, say so clearly
+
+CRITICAL - Documentation Links:
+- NEVER create or generate documentation URLs yourself
+- NEVER link to any ucp.dev pages unless the EXACT URL is provided in the context above
+- If the context includes "Documentation: [URLs]", you may use ONLY those exact URLs
+- Do not modify, guess, or construct URLs - use them exactly as provided or don't use them at all
+- If you want to reference a concept but don't have a link in the context, just explain it without linking`;
 
       try {
         abortController = new AbortController();
+
+        const userMessage = `Context:\n${contextText}\n\nQuestion: ${question}`;
+
+        // Console log AI inputs
+        console.group('🤖 AI Request (askAIDirect)');
+        console.log('System Prompt:', systemPrompt);
+        console.log('Context Text:', contextText);
+        console.log('User Question:', question);
+        console.log('Full User Message:', userMessage);
+        console.groupEnd();
 
         const stream = await openaiClient.chat.completions.create({
           model: 'gpt-5.1',
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: `Context:\n${contextText}\n\nQuestion: ${question}` }
+            { role: 'user', content: userMessage }
           ],
           temperature: 0.7,
           stream: true,
@@ -1582,13 +1864,39 @@ Guidelines:
           }
         }
 
+        // Console log AI output
+        console.group('✅ AI Response (askAIDirect)');
+        console.log('Full Response:', fullResponse);
+        console.groupEnd();
+
         // Enhance JSON blocks after streaming completes
         enhanceJSONBlocks(answerText);
 
         const links = extractUCPLinks(fullResponse, context);
+
+        console.group('🔗 Extracted Links');
+        console.log('Links found:', links);
+        console.log('Context objects:', context);
+        console.groupEnd();
+
         if (links.length > 0) {
           displaySources(links);
         }
+
+        // Set currentQuestion for AI responses (needed for Slack/share buttons)
+        currentQuestion = {
+          id: 'ai-' + Date.now(),
+          question: question,
+          answer: fullResponse
+        };
+
+        // Show action buttons for AI responses
+        document.getElementById('bookmark-action-btn').classList.add('active');
+        document.getElementById('share-btn').classList.add('active');
+        document.getElementById('slack-answer-btn').classList.add('active');
+        // Don't show prev/next for AI responses since they're not in the FAQ list
+        document.getElementById('prev-question-btn').classList.remove('active');
+        document.getElementById('next-question-btn').classList.remove('active');
 
         saveToHistory(question, fullResponse);
         trackQuestion(question);
@@ -1608,13 +1916,39 @@ Guidelines:
       const links = new Set();
       const urlRegex = /https?:\/\/ucp\.dev\/[^\s\)]+/g;
       const matches = text.match(urlRegex) || [];
-      matches.forEach(link => links.add(link));
+      matches.forEach(link => {
+        // Validate link before adding
+        if (isValidUCPLink(link)) {
+          links.add(link);
+        }
+      });
 
       context.forEach(q => {
-        q.ucp_docs_links?.forEach(link => links.add(link));
+        q.ucp_docs_links?.forEach(link => {
+          // Validate link before adding
+          if (typeof link === 'string' && isValidUCPLink(link)) {
+            links.add(link);
+          }
+        });
       });
 
       return Array.from(links);
+    }
+
+    function isValidUCPLink(link) {
+      // Must be a string
+      if (typeof link !== 'string') return false;
+
+      // Must have valid path after domain
+      if (link === 'https://ucp.dev/' || link === 'https://ucp.dev') return false;
+
+      // Must not contain placeholder patterns
+      if (link.includes('...') || link.includes('undefined')) return false;
+
+      // Must not end with backtick or other invalid characters
+      if (/[`'"<>]$/.test(link)) return false;
+
+      return true;
     }
 
     // Display relevant diagram images based on question content
@@ -1753,6 +2087,11 @@ Guidelines:
       chatHistory = [];
       currentChatContext = question;
 
+      // Reset auto-scroll state
+      autoScrollEnabled = true;
+      isGenerating = false;
+      lastScrollTop = 0;
+
       chatMessages.innerHTML = '';
 
       addMessageToChat('user', `Tell me more about: ${question.question}`);
@@ -1769,6 +2108,11 @@ Guidelines:
       chatModal.classList.remove('active');
       chatHistory = [];
       currentChatContext = null;
+
+      // Reset auto-scroll state
+      autoScrollEnabled = true;
+      isGenerating = false;
+      lastScrollTop = 0;
 
       if (abortController) {
         abortController.abort();
@@ -1811,7 +2155,13 @@ Guidelines:
       }
 
       chatMessages.appendChild(messageDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Only auto-scroll if enabled - use requestAnimationFrame to ensure DOM is updated
+      if (autoScrollEnabled) {
+        requestAnimationFrame(() => {
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+      }
 
       return messageDiv;
     }
@@ -1823,9 +2173,19 @@ Guidelines:
 
       const streamingMsg = addMessageToChat('assistant', '', true);
 
+      // Enable auto-scroll for streaming
+      isGenerating = true;
+      autoScrollEnabled = true;
+
       let contextText = '';
       if (context && context.length > 0) {
-        contextText = context.map(q => `Q: ${q.question}\nA: ${q.answer}`).join('\n\n---\n\n');
+        contextText = context.map(q => {
+          let text = `Q: ${q.question}\nA: ${q.answer}`;
+          if (q.ucp_docs_links && q.ucp_docs_links.length > 0) {
+            text += `\nDocumentation: ${q.ucp_docs_links.join(', ')}`;
+          }
+          return text;
+        }).join('\n\n---\n\n');
       }
 
       const systemPrompt = `You are an expert on the Universal Commerce Protocol (UCP).
@@ -1841,11 +2201,17 @@ IMPORTANT: Always format your responses using Markdown:
 
 Guidelines:
 - Base your answers on the provided context from UCP documentation
-- If referencing specific concepts, mention relevant ucp.dev documentation links
 - Be concise but comprehensive
 - Use code examples when helpful
 - Break down complex topics into digestible sections
-- If you don't know something, say so clearly`;
+- If you don't know something, say so clearly
+
+CRITICAL - Documentation Links:
+- NEVER create or generate documentation URLs yourself
+- NEVER link to any ucp.dev pages unless the EXACT URL is provided in the context above
+- If the context includes "Documentation: [URLs]", you may use ONLY those exact URLs
+- Do not modify, guess, or construct URLs - use them exactly as provided or don't use them at all
+- If you want to reference a concept but don't have a link in the context, just explain it without linking`;
 
       try {
         const messages = [
@@ -1858,6 +2224,14 @@ Guidelines:
 
         messages.push(...chatHistory);
 
+        // Console log AI inputs
+        console.group('💬 AI Chat Request (askAIChat)');
+        console.log('System Prompt:', systemPrompt);
+        console.log('Context Text:', contextText);
+        console.log('Chat History:', chatHistory);
+        console.log('All Messages:', messages);
+        console.groupEnd();
+
         const stream = await openaiClient.chat.completions.create({
           model: 'gpt-5.1',
           messages: messages,
@@ -1869,15 +2243,30 @@ Guidelines:
 
         let fullResponse = '';
         const chatMessages = document.getElementById('chat-messages');
+        let scrollPending = false;
+
         for await (const chunk of stream) {
           const content = chunk.choices[0]?.delta?.content;
           if (content) {
             fullResponse += content;
             const bubble = streamingMsg.querySelector('.chat-bubble');
             bubble.innerHTML = window.marked.parse(fullResponse);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Only auto-scroll if enabled - throttle using requestAnimationFrame
+            if (autoScrollEnabled && !scrollPending) {
+              scrollPending = true;
+              requestAnimationFrame(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                scrollPending = false;
+              });
+            }
           }
         }
+
+        // Console log AI output
+        console.group('✅ AI Chat Response (askAIChat)');
+        console.log('Full Response:', fullResponse);
+        console.groupEnd();
 
         chatHistory.push({ role: 'assistant', content: fullResponse });
 
@@ -1893,8 +2282,11 @@ Guidelines:
         await saveChatConversation();
 
         abortController = null;
+        isGenerating = false;
 
       } catch (error) {
+        isGenerating = false;
+
         if (streamingMsg && streamingMsg.parentNode) {
           streamingMsg.remove();
         }
@@ -2020,10 +2412,22 @@ Guidelines:
 
         if (isBookmarked) {
           btn.classList.add('bookmarked');
-          btn.textContent = '⭐ Bookmarked';
+          btn.title = 'Remove Bookmark';
+          // Change to filled bookmark icon
+          btn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+            </svg>
+          `;
         } else {
           btn.classList.remove('bookmarked');
-          btn.textContent = '⭐ Bookmark';
+          btn.title = 'Bookmark';
+          // Change to outline bookmark icon
+          btn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+          `;
         }
       } catch (error) {
         console.error('Error updating bookmark button:', error);
@@ -2064,6 +2468,39 @@ Guidelines:
     }
 
     document.getElementById('slack-answer-btn').addEventListener('click', sendAnswerToSlack);
+
+    // Send chat conversation to Slack
+    async function sendChatToSlack() {
+      if (!currentUser || chatHistory.length === 0) return;
+
+      try {
+        // Format the chat conversation for Slack
+        let slackMessage = '*UCP Explorer Chat Conversation*\n\n';
+
+        // Add chat messages
+        chatHistory.forEach((msg, index) => {
+          if (msg.role === 'user') {
+            slackMessage += `*You:* ${msg.content}\n\n`;
+          } else if (msg.role === 'assistant') {
+            // Limit assistant response length
+            const content = msg.content.substring(0, 1500);
+            slackMessage += `*AI:* ${content}${msg.content.length > 1500 ? '...' : ''}\n\n`;
+          }
+        });
+
+        slackMessage += '_Shared from UCP Explorer Chat_';
+
+        // Send to user's Slack DM
+        await quick.slack.sendMessage(currentUser.slackId, slackMessage);
+
+        showNotification('✅ Chat sent to your Slack!');
+      } catch (error) {
+        console.error('Error sending chat to Slack:', error);
+        showError('Failed to send chat to Slack. Please try again.');
+      }
+    }
+
+    document.getElementById('chat-slack-btn').addEventListener('click', sendChatToSlack);
 
     // Navigation buttons
     document.getElementById('prev-question-btn').addEventListener('click', navigateToPrevQuestion);
@@ -2263,6 +2700,59 @@ Guidelines:
     document.getElementById('chat-input').addEventListener('input', (e) => {
       e.target.style.height = 'auto';
       e.target.style.height = e.target.scrollHeight + 'px';
+    });
+
+    // Auto-scroll management for chat
+    const chatMessages = document.getElementById('chat-messages');
+    const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
+
+    function isAtBottom(threshold = 20) {
+      return chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < threshold;
+    }
+
+    function scrollChatToBottom(smooth = false) {
+      chatMessages.scrollTo({
+        top: chatMessages.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+      });
+    }
+
+    function updateScrollButton() {
+      if (isAtBottom(100)) {
+        scrollToBottomBtn.classList.remove('visible');
+      } else {
+        scrollToBottomBtn.classList.add('visible');
+      }
+    }
+
+    // Detect user scroll
+    chatMessages.addEventListener('scroll', () => {
+      const currentScrollTop = chatMessages.scrollTop;
+
+      if (!isGenerating) {
+        updateScrollButton();
+        lastScrollTop = currentScrollTop;
+        return;
+      }
+
+      const scrollingUp = currentScrollTop < lastScrollTop;
+
+      if (isAtBottom()) {
+        autoScrollEnabled = true;
+      } else if (scrollingUp && (lastScrollTop - currentScrollTop) > 50) {
+        // User scrolled up significantly (50px threshold)
+        autoScrollEnabled = false;
+      }
+
+      lastScrollTop = currentScrollTop;
+      updateScrollButton();
+    });
+
+    // Scroll to bottom button click
+    scrollToBottomBtn.addEventListener('click', () => {
+      autoScrollEnabled = true;
+      scrollChatToBottom(true);
+      scrollToBottomBtn.classList.remove('visible');
     });
 
     document.getElementById('chat-close').addEventListener('click', closeChat);
