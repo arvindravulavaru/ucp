@@ -1415,8 +1415,11 @@
 
       answerCard.classList.add('active');
 
-      // Strip "Learn more:" lines from answer text since we show them separately
-      const cleanedAnswer = question.answer.replace(/\*\*Learn more\*\*:?\s*https?:\/\/[^\s\n]+/gi, '').replace(/Learn more:?\s*https?:\/\/[^\s\n]+/gi, '');
+      // Strip reference link lines from answer text since we show them separately in Learn More section
+      // Matches patterns like: **Learn more**: url, **Deep dive**: url, etc.
+      const cleanedAnswer = question.answer
+        .replace(/\*\*[^*]+\*\*:\s*https?:\/\/[^\s\n]+/g, '')
+        .replace(/\n\n---\s*$/g, ''); // Also remove trailing separators
       answerText.innerHTML = window.marked.parse(cleanedAnswer);
 
       // Enhance JSON blocks
