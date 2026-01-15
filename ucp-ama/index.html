@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UCP Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;450;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsoneditor@9.10.5/dist/jsoneditor.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.10.5/dist/jsoneditor.min.js"></script>
+  <style>
+    /* UCP.dev Base Styles */
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-tertiary: #e8eaed;
+      --text-primary: #202124;
+      --text-secondary: #5f6368;
+      --text-tertiary: #3c4043;
+      --accent: #8b5cf6;
+      --accent-hover: #7c3aed;
+      --accent-light: #a78bfa;
+      --border: #dadce0;
+      --border-light: #e0e0e0;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --shadow-heavy: rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode {
+      --bg-primary: #202124;
+      --bg-secondary: #292a2d;
+      --bg-tertiary: #3c4043;
+      --text-primary: #e8eaed;
+      --text-secondary: #9aa0a6;
+      --text-tertiary: #bdc1c6;
+      --accent: #a78bfa;
+      --accent-hover: #c4b5fd;
+      --accent-light: #c4b5fd;
+      --border: #5f6368;
+      --border-light: #3c4043;
+      --shadow: rgba(0, 0, 0, 0.3);
+      --shadow-heavy: rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background 0.3s, color 0.3s;
+      font-size: 1rem;
+    }
+
+    /* Header */
+    .app-header {
+      background-color: var(--bg-primary);
+      border-bottom: 0.05rem solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+
+    .logo img {
+      height: 32px;
+    }
+
+    body.dark-mode .logo img {
+      content: url('inverted_logo.svg');
+    }
+
+    .logo h1 {
+      font-size: 1.2rem;
+      font-weight: 450;
+      color: var(--text-primary);
+      transition: color 0.2s;
+    }
+
+    .logo:hover h1 {
+      color: var(--accent);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .header-actions button {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      color: var(--text-primary);
+      font-family: inherit;
+    }
+
+    .header-actions button:hover {
+      background-color: var(--bg-tertiary);
+    }
+
+    /* Search Container */
+    .search-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      position: relative;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 0.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent);
+    }
+
+    #search-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      outline: none;
+      font-family: inherit;
+    }
+
+    #search-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 0.5rem 1.5rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    #search-btn:hover {
+      background: var(--accent-light);
+    }
+
+    #suggestions {
+      position: absolute;
+      top: 100%;
+      left: 1rem;
+      right: 1rem;
+      margin-top: 0.5rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+      box-shadow: 0 4px 12px var(--shadow);
+      z-index: 50;
+    }
+
+    #suggestions.active {
+      display: block;
+    }
+
+    .suggestion-item {
+      padding: 1rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .suggestion-question {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .suggestion-category {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Main Layout */
+    .app-layout {
+      display: flex;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+    }
+
+    .category-nav h3 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+    }
+
+    .category-nav ul {
+      list-style: none;
+    }
+
+    .category-item {
+      padding: 0.75rem 1rem;
+      margin: 0.25rem 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .category-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .category-item.active {
+      background: var(--text-primary);
+      color: white;
+    }
+
+    .question-count {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .category-item.active .question-count {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      max-width: 800px;
+    }
+
+    .welcome-card {
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .welcome-card h2 {
+      font-size: 2rem;
+      font-weight: 450;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .welcome-card p {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .popular-questions {
+      text-align: left;
+      margin-top: 2rem;
+    }
+
+    .popular-questions h3 {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      font-weight: 450;
+    }
+
+    .popular-question {
+      padding: 1rem;
+      margin: 0.5rem 0;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.8rem;
+    }
+
+    .popular-question:hover {
+      transform: translateX(4px);
+      border-color: var(--accent);
+    }
+
+    .question-card {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .question-card.active {
+      display: block;
+    }
+
+    .question-text {
+      font-size: 1.25rem;
+      font-weight: 450;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      line-height: 1.28;
+    }
+
+    .question-meta {
+      display: flex;
+      gap: 1rem;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+    }
+
+    .answer-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      min-height: 200px;
+    }
+
+    .answer-card.active {
+      display: block;
+    }
+
+    #answer-text {
+      color: var(--text-primary);
+      line-height: 1.8;
+      font-size: 0.8rem;
+    }
+
+    #answer-text p {
+      margin-bottom: 1rem;
+    }
+
+    #answer-text h1,
+    #answer-text h2,
+    #answer-text h3,
+    #answer-text h4 {
+      color: var(--text-primary);
+      margin: 1.5rem 0 1rem 0;
+      font-weight: 450;
+    }
+
+    #answer-text code {
+      background: var(--bg-secondary);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 0.75rem;
+    }
+
+    #answer-text pre {
+      background: var(--bg-secondary);
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    #answer-text pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    #answer-text a {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    #answer-text a:hover {
+      color: var(--accent-hover);
+    }
+
+    #answer-text ul, #answer-text ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .ask-ai-button {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--accent);
+      color: white;
+      border: 1px solid var(--accent);
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .ask-ai-button:hover {
+      background: var(--accent-light);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .sources-section {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .sources-section.active {
+      display: block;
+    }
+
+    .sources-section h4 {
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+      font-weight: 450;
+      font-size: 1rem;
+    }
+
+    .source-link {
+      display: block;
+      padding: 0.75rem 1rem;
+      margin: 0.5rem 0;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      transition: all 0.2s;
+      font-size: 0.8rem;
+    }
+
+    .source-link:hover {
+      transform: translateX(4px);
+      border-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .actions button {
+      flex: 1;
+      padding: 0.75rem 1.5rem;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: none;
+      font-family: inherit;
+    }
+
+    .actions button.active {
+      display: block;
+    }
+
+    .actions button:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .actions button.bookmarked {
+      background: #fff3cd;
+      color: var(--text-primary);
+      border-color: #ffc107;
+    }
+
+    /* Modal Base */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal-content {
+      background: var(--bg-primary);
+      border-radius: 16px;
+      max-width: 90%;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px var(--shadow-heavy);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(40px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+    }
+
+    .modal-header h3 {
+      font-size: 1rem;
+      font-weight: 450;
+      margin: 0;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .modal-body {
+      padding: 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* Chat Modal */
+    #chat-modal .modal-content {
+      width: 75%;
+      max-width: 1200px;
+      height: 80vh;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .chat-message {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .chat-message.user {
+      align-items: flex-end;
+    }
+
+    .chat-message.assistant {
+      align-items: flex-start;
+    }
+
+    .chat-bubble {
+      max-width: 85%;
+      padding: 1rem 1.25rem;
+      border-radius: 16px;
+      line-height: 1.6;
+      font-size: 0.8rem;
+    }
+
+    .chat-message.user .chat-bubble {
+      background: var(--accent);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-message.assistant .chat-bubble {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-bubble p {
+      margin: 0 0 0.5rem 0;
+    }
+
+    .chat-bubble p:last-child {
+      margin-bottom: 0;
+    }
+
+    .chat-bubble code {
+      background: rgba(0, 0, 0, 0.1);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    .chat-bubble pre {
+      background: rgba(0, 0, 0, 0.1);
+      padding: 0.75rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 0.5rem 0;
+    }
+
+    .chat-bubble pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    .chat-bubble h1,
+    .chat-bubble h2,
+    .chat-bubble h3,
+    .chat-bubble h4 {
+      margin: 1rem 0 0.5rem 0;
+      font-weight: 450;
+    }
+
+    .chat-bubble ul,
+    .chat-bubble ol {
+      margin-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .chat-timestamp {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      padding: 0 0.5rem;
+    }
+
+    .chat-input-container {
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg-secondary);
+    }
+
+    .chat-input-box {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-end;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.8rem;
+      resize: none;
+      outline: none;
+      max-height: 120px;
+      min-height: 44px;
+    }
+
+    .chat-input:focus {
+      border-color: var(--accent);
+    }
+
+    .chat-send {
+      padding: 0.75rem 1.5rem;
+      background: var(--text-primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.8rem;
+      transition: background 0.2s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .chat-send:hover {
+      background: var(--text-secondary);
+    }
+
+    .chat-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .chat-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .chat-empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .streaming-dots {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      padding: 0.5rem;
+    }
+
+    .streaming-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--text-secondary);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite;
+    }
+
+    .streaming-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .streaming-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+      0%, 60%, 100% {
+        transform: translateY(0);
+      }
+      30% {
+        transform: translateY(-10px);
+      }
+    }
+
+    /* History/Bookmarks Modal */
+    #history-modal .modal-content,
+    #bookmarks-modal .modal-content {
+      width: 600px;
+      max-height: 70vh;
+    }
+
+    .list-item {
+      padding: 1rem 1.5rem;
+      margin: 0.5rem 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.8rem;
+    }
+
+    .list-item:hover {
+      transform: translateX(4px);
+      border-color: var(--accent);
+    }
+
+    .list-empty {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--text-primary);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px var(--shadow-heavy);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s;
+      z-index: 1000;
+      font-size: 0.8rem;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .error-message {
+      background: #dc2626;
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: none;
+      font-size: 0.8rem;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .app-layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        position: static;
+      }
+
+      #chat-modal .modal-content,
+      #history-modal .modal-content,
+      #bookmarks-modal .modal-content {
+        width: 95%;
+        max-width: 600px;
+      }
+    }
+
+    /* Source links styling */
+    .sources-section {
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      display: none;
+    }
+
+    .sources-section.active {
+      display: block;
+    }
+
+    .sources-section h4 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    #source-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .source-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .source-link:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .source-link::before {
+      content: '→';
+      margin-right: 8px;
+      font-weight: bold;
+    }
+
+    /* JSON Editor Styling */
+    .json-viewer-container {
+      margin: 1rem 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .json-viewer-container .jsoneditor {
+      border: none;
+    }
+
+    .json-viewer-container .jsoneditor-menu {
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    body.dark-mode .jsoneditor {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    body.dark-mode .jsoneditor-menu {
+      background-color: var(--bg-tertiary);
+    }
+
+    body.dark-mode .jsoneditor-tree {
+      background-color: var(--bg-secondary);
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo" id="app-title">
+      <img src="main_logo.svg" alt="UCP Logo">
+      <h1>UCP Explorer</h1>
+    </div>
+    <div class="header-actions">
+      <button id="history-btn">📜 Recent</button>
+      <button id="bookmarks-btn">⭐ Bookmarks</button>
+      <button id="theme-toggle" title="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <div class="search-container">
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="Ask anything about UCP..." autocomplete="off">
+      <button id="search-btn">Search</button>
+    </div>
+    <div id="suggestions"></div>
+  </div>
+
+  <div class="app-layout">
+    <aside class="sidebar">
+      <nav class="category-nav">
+        <h3>Browse by Category</h3>
+        <ul id="categories"></ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="welcome-card" id="welcome">
+        <h2>Welcome to UCP Explorer</h2>
+        <p>Discover and explore the Universal Commerce Protocol through interactive Q&A and AI-powered conversations</p>
+        <div class="popular-questions">
+          <h3>Popular Questions</h3>
+          <div id="popular-list"></div>
+        </div>
+      </div>
+
+      <div class="error-message" id="error-message"></div>
+      <div class="question-card" id="question-display"></div>
+      <div class="answer-card" id="answer-display">
+        <div id="answer-text"></div>
+      </div>
+      <div class="sources-section" id="sources">
+        <h4>📚 Learn More</h4>
+        <div id="source-links"></div>
+      </div>
+      <div class="actions">
+        <button id="bookmark-action-btn">⭐ Bookmark</button>
+        <button id="share-btn">🔗 Share</button>
+        <button id="slack-answer-btn">💬 Send to Slack</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Chat Modal -->
+  <div class="modal" id="chat-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>💬 AI Chat</h3>
+        <button class="modal-close" id="chat-close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-empty">
+            <div class="chat-empty-icon">💭</div>
+            <p>Ask AI a question to start a conversation</p>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-container">
+        <div class="chat-input-box">
+          <textarea
+            class="chat-input"
+            id="chat-input"
+            placeholder="Ask a follow-up question..."
+            rows="1"
+          ></textarea>
+          <button class="chat-send" id="chat-send">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="modal" id="history-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📜 Recent Questions</h3>
+        <button class="modal-close" onclick="closeModal('history-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="history-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookmarks Modal -->
+  <div class="modal" id="bookmarks-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>⭐ Bookmarked Questions</h3>
+        <button class="modal-close" onclick="closeModal('bookmarks-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="bookmarks-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification" id="notification"></div>
+
+  <!-- Marked.js for markdown rendering - load BEFORE our script -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <script src="/client/quick.js"></script>
+  <script type="module">
+    import OpenAI from 'https://cdn.jsdelivr.net/npm/openai/+esm';
+
+    // State
+    let knowledgeBase = null;
+    let currentQuestion = null;
+    let openaiClient = null;
+    let abortController = null;
+    let chatHistory = [];
+    let currentChatContext = null;
+    let currentUser = null;
+
+    // Database collections
+    let bookmarksCollection = null;
+    let historyCollection = null;
+    let chatHistoryCollection = null;
+
+    // Initialize OpenAI client
+    openaiClient = new OpenAI({
+      baseURL: `${window.location.origin}/api/ai`,
+      apiKey: 'not-needed',
+      dangerouslyAllowBrowser: true
+    });
+
+    // Configure marked.js to open all links in new window
+    window.marked.use({
+      renderer: {
+        link(href, title, text) {
+          const titleAttr = title ? ` title="${title}"` : '';
+          return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+        }
+      }
+    });
+
+    // Initialize user authentication and database
+    async function initializeUser() {
+      try {
+        currentUser = await quick.id.waitForUser();
+        console.log('User authenticated:', currentUser.email);
+
+        // Initialize database collections
+        bookmarksCollection = quick.db.collection('user_bookmarks');
+        historyCollection = quick.db.collection('user_search_history');
+        chatHistoryCollection = quick.db.collection('user_chat_history');
+
+        // Migrate localStorage data to database (one-time migration)
+        await migrateLocalStorageToDatabase();
+      } catch (error) {
+        console.error('Error initializing user:', error);
+        showError('Failed to initialize user authentication');
+      }
+    }
+
+    // Migrate localStorage data to database (one-time migration)
+    async function migrateLocalStorageToDatabase() {
+      try {
+        // Migrate bookmarks
+        const localBookmarks = JSON.parse(localStorage.getItem('ucp-ama-bookmarks') || '[]');
+        if (localBookmarks.length > 0) {
+          const existingBookmarks = await bookmarksCollection
+            .where({ userId: currentUser.id })
+            .find();
+
+          if (existingBookmarks.length === 0) {
+            for (const questionId of localBookmarks) {
+              await bookmarksCollection.create({
+                userId: currentUser.id,
+                questionId: questionId,
+                timestamp: new Date().toISOString()
+              });
+            }
+            console.log('Migrated bookmarks to database');
+          }
+        }
+
+        // Migrate search history
+        const localHistory = JSON.parse(localStorage.getItem('ucp-ama-history') || '[]');
+        if (localHistory.length > 0) {
+          const existingHistory = await historyCollection
+            .where({ userId: currentUser.id })
+            .find();
+
+          if (existingHistory.length === 0) {
+            for (const item of localHistory) {
+              await historyCollection.create({
+                userId: currentUser.id,
+                questionId: item.id,
+                questionText: item.question,
+                timestamp: item.timestamp || new Date().toISOString()
+              });
+            }
+            console.log('Migrated search history to database');
+          }
+        }
+
+        // Keep theme preference in localStorage (user preference, not critical data)
+      } catch (error) {
+        console.error('Error migrating localStorage:', error);
+      }
+    }
+
+    // Load knowledge base
+    async function loadKnowledgeBase() {
+      try {
+        console.log('Loading knowledge base...');
+        const response = await fetch('ucp-explorer.json');
+        console.log('Response status:', response.status);
+        knowledgeBase = await response.json();
+        console.log('Knowledge base loaded:', knowledgeBase);
+        console.log('marked available:', typeof marked !== 'undefined');
+
+        // Initialize user authentication
+        await initializeUser();
+
+        initializeUI();
+      } catch (error) {
+        showError('Failed to load knowledge base');
+        console.error('Error loading knowledge base:', error);
+      }
+    }
+
+    // Initialize UI
+    function initializeUI() {
+      renderCategories();
+      renderPopularQuestions();
+      loadBookmarks();
+      loadHistory();
+      loadTheme();
+      loadFromURL();
+    }
+
+    // Render categories in sidebar
+    function renderCategories() {
+      const categoriesEl = document.getElementById('categories');
+      knowledgeBase.categories.forEach(cat => {
+        const li = document.createElement('li');
+        li.className = 'category-item';
+        li.innerHTML = `
+          <span>${cat.title}</span>
+          <span class="question-count">${cat.question_count}</span>
+        `;
+        li.onclick = () => showCategoryQuestions(cat);
+        categoriesEl.appendChild(li);
+      });
+    }
+
+    // Show category questions
+    function showCategoryQuestions(category) {
+      if (abortController) {
+        abortController.abort();
+        abortController = null;
+      }
+
+      document.getElementById('welcome').style.display = 'none';
+      document.getElementById('answer-display').classList.remove('active');
+      document.getElementById('sources').classList.remove('active');
+      document.getElementById('bookmark-action-btn').classList.remove('active');
+      document.getElementById('share-btn').classList.remove('active');
+      document.getElementById('slack-answer-btn').classList.remove('active');
+
+      const questionCard = document.getElementById('question-display');
+      questionCard.innerHTML = `
+        <div class="question-text">${category.title}</div>
+        <div class="question-meta">
+          <span>📂 ${category.question_count} questions</span>
+        </div>
+      `;
+      questionCard.classList.add('active');
+
+      const answerCard = document.getElementById('answer-display');
+      const answerText = document.getElementById('answer-text');
+
+      answerText.innerHTML = '<div style="margin-top: 1rem;">';
+      category.questions.forEach(q => {
+        answerText.innerHTML += `
+          <div class="popular-question">
+            ${q.question}
+          </div>
+        `;
+      });
+      answerText.innerHTML += '</div>';
+      answerCard.classList.add('active');
+
+      const questionDivs = answerText.querySelectorAll('.popular-question');
+      questionDivs.forEach((div, index) => {
+        div.onclick = () => selectQuestion(category.questions[index]);
+      });
+
+      window.location.hash = '';
+    }
+
+    // Render popular questions
+    function renderPopularQuestions() {
+      const popularEl = document.getElementById('popular-list');
+      const questions = [];
+      knowledgeBase.categories.forEach(cat => {
+        questions.push(...cat.questions.slice(0, 2));
+      });
+      questions.slice(0, 5).forEach(q => {
+        const div = document.createElement('div');
+        div.className = 'popular-question';
+        div.textContent = q.question;
+        div.onclick = () => selectQuestion(q);
+        popularEl.appendChild(div);
+      });
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
+    const suggestionsEl = document.getElementById('suggestions');
+
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      if (query.length < 2) {
+        suggestionsEl.classList.remove('active');
+        return;
+      }
+
+      const matches = findRelevantQuestions(query);
+      renderSuggestions(matches.slice(0, 10));
+    });
+
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        handleSearch();
+      }
+    });
+
+    searchBtn.addEventListener('click', handleSearch);
+
+    function findRelevantQuestions(query) {
+      const results = [];
+      knowledgeBase.categories.forEach(cat => {
+        cat.questions.forEach(q => {
+          let score = 0;
+          const qLower = q.question.toLowerCase();
+          if (qLower.includes(query)) score += 10;
+          q.keywords.forEach(kw => {
+            if (kw.includes(query) || query.includes(kw)) score += 5;
+          });
+          if (score > 0) {
+            results.push({ ...q, category: cat.title, score });
+          }
+        });
+      });
+      return results.sort((a, b) => b.score - a.score);
+    }
+
+    function renderSuggestions(matches) {
+      suggestionsEl.innerHTML = '';
+      if (matches.length === 0) {
+        suggestionsEl.innerHTML = '<div class="suggestion-item">No matches found</div>';
+      } else {
+        matches.forEach(q => {
+          const div = document.createElement('div');
+          div.className = 'suggestion-item';
+          div.innerHTML = `
+            <div class="suggestion-question">${q.question}</div>
+            <div class="suggestion-category">${q.category}</div>
+          `;
+          div.onclick = () => selectQuestion(q);
+          suggestionsEl.appendChild(div);
+        });
+      }
+      suggestionsEl.classList.add('active');
+    }
+
+    async function handleSearch() {
+      const query = searchInput.value.trim();
+      if (!query) return;
+
+      suggestionsEl.classList.remove('active');
+      document.getElementById('welcome').style.display = 'none';
+
+      const relevantQA = findRelevantQuestions(query).slice(0, 5);
+      displayCustomQuestion(query);
+      await askAIDirect(query, relevantQA);
+    }
+
+    function selectQuestion(question) {
+      if (abortController) {
+        abortController.abort();
+        abortController = null;
+      }
+
+      currentQuestion = question;
+      searchInput.value = question.question;
+      suggestionsEl.classList.remove('active');
+      document.getElementById('welcome').style.display = 'none';
+
+      displayQuestion(question);
+      displayFAQAnswer(question);
+
+      window.location.hash = `q=${question.id}`;
+    }
+
+    function displayQuestion(question) {
+      const questionCard = document.getElementById('question-display');
+      questionCard.innerHTML = `
+        <div class="question-text">${question.question}</div>
+      `;
+      questionCard.classList.add('active');
+
+      document.getElementById('bookmark-action-btn').classList.add('active');
+      document.getElementById('share-btn').classList.add('active');
+      document.getElementById('slack-answer-btn').classList.add('active');
+
+      updateBookmarkButton();
+    }
+
+    function displayCustomQuestion(question) {
+      const questionCard = document.getElementById('question-display');
+      questionCard.innerHTML = `
+        <div class="question-text">${question}</div>
+      `;
+      questionCard.classList.add('active');
+    }
+
+    function displayFAQAnswer(question) {
+      const answerCard = document.getElementById('answer-display');
+      const answerText = document.getElementById('answer-text');
+
+      answerCard.classList.add('active');
+
+      // Strip "Learn more:" lines from answer text since we show them separately
+      const cleanedAnswer = question.answer.replace(/\*\*Learn more\*\*:?\s*https?:\/\/[^\s\n]+/gi, '').replace(/Learn more:?\s*https?:\/\/[^\s\n]+/gi, '');
+      answerText.innerHTML = window.marked.parse(cleanedAnswer);
+
+      // Enhance JSON blocks
+      enhanceJSONBlocks(answerText);
+
+      const followUpButton = document.createElement('div');
+      followUpButton.innerHTML = `
+        <button id="ask-ai-btn" class="ask-ai-button">
+          💬 Ask AI
+        </button>
+      `;
+      answerText.appendChild(followUpButton);
+
+      document.getElementById('ask-ai-btn').addEventListener('click', () => {
+        openChat(question);
+      });
+
+      const links = question.ucp_docs_links || [];
+      if (links.length > 0) {
+        displaySources(links);
+      }
+
+      // Display relevant diagram if available
+      displayDiagram(question);
+
+      saveToHistory(question.question, cleanedAnswer);
+      trackQuestion(question.question);
+    }
+
+    async function askAIDirect(question, context) {
+      const answerCard = document.getElementById('answer-display');
+      const answerText = document.getElementById('answer-text');
+      const errorEl = document.getElementById('error-message');
+
+      answerCard.classList.add('active');
+      answerText.innerHTML = '<div class="streaming-dots"><div class="streaming-dot"></div><div class="streaming-dot"></div><div class="streaming-dot"></div></div>';
+      errorEl.classList.remove('show');
+
+      const contextText = context.map(q => `Q: ${q.question}\nA: ${q.answer}`).join('\n\n---\n\n');
+
+      const systemPrompt = `You are an expert on the Universal Commerce Protocol (UCP).
+You help developers understand UCP concepts, architecture, and implementation.
+
+IMPORTANT: Format your responses using Markdown for better readability:
+- Use **bold** for emphasis
+- Use \`code\` for inline code and technical terms
+- Use code blocks with \`\`\` for multi-line code examples
+- Use headings (##) to organize longer responses
+- Use bullet points and numbered lists when appropriate
+- Use [links](url) for references
+
+Guidelines:
+- Base your answers on the provided context from UCP documentation
+- If referencing specific concepts, mention relevant ucp.dev documentation links
+- Be concise but comprehensive
+- Use code examples when helpful
+- If you don't know something, say so clearly`;
+
+      try {
+        abortController = new AbortController();
+
+        const stream = await openaiClient.chat.completions.create({
+          model: 'gpt-5.1',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: `Context:\n${contextText}\n\nQuestion: ${question}` }
+          ],
+          temperature: 0.7,
+          stream: true,
+        }, {
+          signal: abortController.signal
+        });
+
+        let fullResponse = '';
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content;
+          if (content) {
+            fullResponse += content;
+            answerText.innerHTML = window.marked.parse(fullResponse);
+          }
+        }
+
+        // Enhance JSON blocks after streaming completes
+        enhanceJSONBlocks(answerText);
+
+        const links = extractUCPLinks(fullResponse, context);
+        if (links.length > 0) {
+          displaySources(links);
+        }
+
+        saveToHistory(question, fullResponse);
+        trackQuestion(question);
+
+        abortController = null;
+
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          showError('Failed to get AI response. Please try again.');
+          console.error(error);
+        }
+        abortController = null;
+      }
+    }
+
+    function extractUCPLinks(text, context) {
+      const links = new Set();
+      const urlRegex = /https?:\/\/ucp\.dev\/[^\s\)]+/g;
+      const matches = text.match(urlRegex) || [];
+      matches.forEach(link => links.add(link));
+
+      context.forEach(q => {
+        q.ucp_docs_links?.forEach(link => links.add(link));
+      });
+
+      return Array.from(links);
+    }
+
+    // Display relevant diagram images based on question content
+    function displayDiagram(question) {
+      const questionLower = question.question.toLowerCase();
+      const answerLower = question.answer.toLowerCase();
+      let imagePath = null;
+      let altText = '';
+
+      // Map keywords to images
+      if (questionLower.includes('checkout') || answerLower.includes('checkout flow')) {
+        imagePath = 'ucp-checkout-flow.png';
+        altText = 'UCP Checkout Flow Diagram';
+      } else if (questionLower.includes('payment') && questionLower.includes('flow')) {
+        imagePath = 'ucp-payment-flow.png';
+        altText = 'UCP Payment Flow Diagram';
+      } else if (questionLower.includes('discovery') || questionLower.includes('negotiation')) {
+        imagePath = 'ucp-discovery-negotiation.png';
+        altText = 'UCP Discovery and Negotiation Diagram';
+      } else if (questionLower.includes('ap2') || answerLower.includes('account payable')) {
+        imagePath = 'ucp-ap2-checkout-flow.png';
+        altText = 'UCP AP2 Checkout Flow Diagram';
+      } else if (questionLower.includes('architecture') || questionLower.includes('overview')) {
+        imagePath = 'ucp-diagram.jpg';
+        altText = 'UCP Architecture Overview';
+      }
+
+      if (imagePath) {
+        const answerText = document.getElementById('answer-text');
+        const imageContainer = document.createElement('div');
+        imageContainer.style.margin = '1.5rem 0';
+        imageContainer.style.textAlign = 'center';
+        imageContainer.innerHTML = `
+          <img src="${imagePath}" alt="${altText}" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border);">
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">${altText}</p>
+        `;
+        answerText.appendChild(imageContainer);
+      }
+    }
+
+    // Enhance JSON code blocks with interactive viewer
+    function enhanceJSONBlocks(container) {
+      const codeBlocks = container.querySelectorAll('pre code.language-json, pre code.language-jsonc');
+
+      codeBlocks.forEach((codeBlock, index) => {
+        try {
+          const jsonText = codeBlock.textContent;
+          const jsonData = JSON.parse(jsonText);
+
+          // Create container for JSON editor
+          const editorContainer = document.createElement('div');
+          editorContainer.className = 'json-viewer-container';
+          editorContainer.id = `json-editor-${Date.now()}-${index}`;
+          editorContainer.style.height = '400px';
+
+          // Replace code block with editor
+          const preElement = codeBlock.parentElement;
+          preElement.parentElement.replaceChild(editorContainer, preElement);
+
+          // Initialize JSON editor
+          const options = {
+            mode: 'tree',
+            modes: ['tree', 'code', 'view'],
+            search: true,
+            navigationBar: true,
+            statusBar: true,
+            mainMenuBar: true,
+            onError: function (err) {
+              console.error('JSON Editor error:', err);
+            }
+          };
+
+          const editor = new JSONEditor(editorContainer, options);
+          editor.set(jsonData);
+          editor.expandAll();
+        } catch (e) {
+          // If JSON is invalid, leave the code block as is
+          console.log('Non-JSON or invalid JSON, keeping as code block');
+        }
+      });
+    }
+
+    function displaySources(links) {
+      const sourcesEl = document.getElementById('sources');
+      const linksEl = document.getElementById('source-links');
+      linksEl.innerHTML = '';
+
+      // Filter out any undefined/null links
+      const validLinks = links.filter(link => link && typeof link === 'string');
+
+      if (validLinks.length === 0) {
+        sourcesEl.classList.remove('active');
+        return;
+      }
+
+      // Fix known broken URL patterns
+      const fixedLinks = validLinks.map(link => {
+        // Fix incorrect documentation paths based on mkdocs.yml structure
+        return link
+          // Fix overview path
+          .replace('https://ucp.dev/documentation/overview/', 'https://ucp.dev/specification/overview/')
+          // Fix architecture/concepts paths - redirect to core-concepts
+          .replace(/https:\/\/ucp\.dev\/documentation\/(architecture|concepts|discovery|flows|implementation)\/[^\/]*\/?/, 'https://ucp.dev/documentation/core-concepts/')
+          // Ensure trailing slash for consistency
+          .replace(/([^\/])$/, '$1/');
+      });
+
+      fixedLinks.forEach(link => {
+        const a = document.createElement('a');
+        a.href = link;
+        a.className = 'source-link';
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+
+        // Extract readable link text from URL
+        const linkText = link
+          .replace('https://ucp.dev/', '')
+          .replace(/\/$/, '') // Remove trailing slash
+          .split('/')
+          .map(part => part.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
+          .join(' > ');
+
+        a.textContent = linkText || link;
+        linksEl.appendChild(a);
+      });
+
+      sourcesEl.classList.add('active');
+    }
+
+    // Chat functions
+    function openChat(question) {
+      const chatModal = document.getElementById('chat-modal');
+      const chatMessages = document.getElementById('chat-messages');
+      const chatInput = document.getElementById('chat-input');
+
+      chatHistory = [];
+      currentChatContext = question;
+
+      chatMessages.innerHTML = '';
+
+      addMessageToChat('user', `Tell me more about: ${question.question}`);
+
+      chatModal.classList.add('active');
+
+      askAIChat(`Tell me more about: ${question.question}`, [question]);
+
+      chatInput.focus();
+    }
+
+    function closeChat() {
+      const chatModal = document.getElementById('chat-modal');
+      chatModal.classList.remove('active');
+      chatHistory = [];
+      currentChatContext = null;
+
+      if (abortController) {
+        abortController.abort();
+        abortController = null;
+      }
+    }
+
+    function addMessageToChat(role, content, streaming = false) {
+      const chatMessages = document.getElementById('chat-messages');
+
+      const emptyState = chatMessages.querySelector('.chat-empty');
+      if (emptyState) {
+        emptyState.remove();
+      }
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${role}`;
+
+      const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      if (streaming) {
+        messageDiv.innerHTML = `
+          <div class="chat-bubble">
+            <div class="streaming-dots">
+              <div class="streaming-dot"></div>
+              <div class="streaming-dot"></div>
+              <div class="streaming-dot"></div>
+            </div>
+          </div>
+          <div class="chat-timestamp">${timestamp}</div>
+        `;
+        messageDiv.id = 'streaming-message';
+      } else {
+        messageDiv.innerHTML = `
+          <div class="chat-bubble">
+            ${window.marked.parse(content)}
+          </div>
+          <div class="chat-timestamp">${timestamp}</div>
+        `;
+      }
+
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      return messageDiv;
+    }
+
+    async function askAIChat(userMessage, context) {
+      abortController = new AbortController();
+
+      chatHistory.push({ role: 'user', content: userMessage });
+
+      const streamingMsg = addMessageToChat('assistant', '', true);
+
+      let contextText = '';
+      if (context && context.length > 0) {
+        contextText = context.map(q => `Q: ${q.question}\nA: ${q.answer}`).join('\n\n---\n\n');
+      }
+
+      const systemPrompt = `You are an expert on the Universal Commerce Protocol (UCP).
+You help developers understand UCP concepts, architecture, and implementation.
+
+IMPORTANT: Always format your responses using Markdown:
+- Use **bold** for key terms and emphasis
+- Use \`code\` for inline code, technical terms, and property names
+- Use code blocks with \`\`\`language\` for multi-line code examples
+- Use ## for section headings in longer responses
+- Use bullet points (-) and numbered lists (1.) for better organization
+- Use [links](url) when referencing documentation
+
+Guidelines:
+- Base your answers on the provided context from UCP documentation
+- If referencing specific concepts, mention relevant ucp.dev documentation links
+- Be concise but comprehensive
+- Use code examples when helpful
+- Break down complex topics into digestible sections
+- If you don't know something, say so clearly`;
+
+      try {
+        const messages = [
+          { role: 'system', content: systemPrompt }
+        ];
+
+        if (contextText) {
+          messages.push({ role: 'user', content: `Context:\n${contextText}` });
+        }
+
+        messages.push(...chatHistory);
+
+        const stream = await openaiClient.chat.completions.create({
+          model: 'gpt-5.1',
+          messages: messages,
+          temperature: 0.7,
+          stream: true,
+        }, {
+          signal: abortController.signal
+        });
+
+        let fullResponse = '';
+        const chatMessages = document.getElementById('chat-messages');
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content;
+          if (content) {
+            fullResponse += content;
+            const bubble = streamingMsg.querySelector('.chat-bubble');
+            bubble.innerHTML = window.marked.parse(fullResponse);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }
+        }
+
+        chatHistory.push({ role: 'assistant', content: fullResponse });
+
+        streamingMsg.removeAttribute('id');
+
+        // Enhance JSON blocks in chat
+        const bubble = streamingMsg.querySelector('.chat-bubble');
+        if (bubble) {
+          enhanceJSONBlocks(bubble);
+        }
+
+        // Save chat history to database
+        await saveChatConversation();
+
+        abortController = null;
+
+      } catch (error) {
+        if (streamingMsg && streamingMsg.parentNode) {
+          streamingMsg.remove();
+        }
+
+        if (error.name !== 'AbortError') {
+          addMessageToChat('assistant', '❌ Sorry, I encountered an error. Please try again.');
+          console.error(error);
+        }
+
+        abortController = null;
+      }
+    }
+
+    async function sendChatMessage() {
+      const chatInput = document.getElementById('chat-input');
+      const message = chatInput.value.trim();
+
+      if (!message) return;
+
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+
+      addMessageToChat('user', message);
+
+      await askAIChat(message, currentChatContext ? [currentChatContext] : []);
+    }
+
+    // Modal functions
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    };
+
+    // Close modal on backdrop click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+
+    // Bookmarks
+    async function toggleBookmark() {
+      if (!currentQuestion || !currentUser) return;
+
+      try {
+        const existingBookmarks = await bookmarksCollection
+          .where({ userId: currentUser.id, questionId: currentQuestion.id })
+          .find();
+
+        if (existingBookmarks.length > 0) {
+          // Remove bookmark
+          await bookmarksCollection.delete(existingBookmarks[0].id);
+          showNotification('Bookmark removed');
+        } else {
+          // Add bookmark
+          await bookmarksCollection.create({
+            userId: currentUser.id,
+            questionId: currentQuestion.id,
+            questionText: currentQuestion.question,
+            questionAnswer: currentQuestion.answer,
+            timestamp: new Date().toISOString()
+          });
+          showNotification('Question bookmarked');
+        }
+
+        await loadBookmarks();
+        await updateBookmarkButton();
+      } catch (error) {
+        console.error('Error toggling bookmark:', error);
+        showError('Failed to update bookmark');
+      }
+    }
+
+    async function loadBookmarks() {
+      if (!currentUser) return;
+
+      try {
+        const bookmarks = await bookmarksCollection
+          .where({ userId: currentUser.id })
+          .find();
+
+        const bookmarksEl = document.getElementById('bookmarks-list');
+
+        if (bookmarks.length === 0) {
+          bookmarksEl.innerHTML = '<div class="list-empty">No bookmarks yet</div>';
+          return;
+        }
+
+        // Sort by timestamp (most recent first)
+        bookmarks.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        bookmarksEl.innerHTML = '';
+        bookmarks.forEach(bookmark => {
+          const div = document.createElement('div');
+          div.className = 'list-item';
+          div.textContent = bookmark.questionText;
+          div.onclick = () => {
+            closeModal('bookmarks-modal');
+            // Find the full question object from knowledgeBase
+            const question = findQuestionById(bookmark.questionId);
+            if (question) {
+              selectQuestion(question);
+            }
+          };
+          bookmarksEl.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Error loading bookmarks:', error);
+      }
+    }
+
+    async function updateBookmarkButton() {
+      if (!currentQuestion || !currentUser) return;
+
+      try {
+        const existingBookmarks = await bookmarksCollection
+          .where({ userId: currentUser.id, questionId: currentQuestion.id })
+          .find();
+
+        const isBookmarked = existingBookmarks.length > 0;
+        const btn = document.getElementById('bookmark-action-btn');
+
+        if (isBookmarked) {
+          btn.classList.add('bookmarked');
+          btn.textContent = '⭐ Bookmarked';
+        } else {
+          btn.classList.remove('bookmarked');
+          btn.textContent = '⭐ Bookmark';
+        }
+      } catch (error) {
+        console.error('Error updating bookmark button:', error);
+      }
+    }
+
+    document.getElementById('bookmark-action-btn').addEventListener('click', toggleBookmark);
+
+    // Share link
+    function shareLink() {
+      if (!currentQuestion) return;
+
+      const url = `${window.location.origin}${window.location.pathname}#q=${currentQuestion.id}`;
+      navigator.clipboard.writeText(url);
+      showNotification('Link copied to clipboard!');
+    }
+
+    document.getElementById('share-btn').addEventListener('click', shareLink);
+
+    // Send to Slack
+    async function sendAnswerToSlack() {
+      if (!currentQuestion || !currentUser) return;
+
+      try {
+        const answerText = document.getElementById('answer-text').textContent || currentQuestion.answer;
+
+        // Format the message for Slack
+        const slackMessage = `*UCP Explorer Q&A*\n\n*Q:* ${currentQuestion.question}\n\n*A:* ${answerText.substring(0, 2000)}${answerText.length > 2000 ? '...' : ''}\n\n_Shared from UCP Explorer_`;
+
+        // Send to user's Slack DM
+        await quick.slack.sendMessage(currentUser.slackId, slackMessage);
+
+        showNotification('✅ Sent to your Slack!');
+      } catch (error) {
+        console.error('Error sending to Slack:', error);
+        showError('Failed to send to Slack. Please try again.');
+      }
+    }
+
+    document.getElementById('slack-answer-btn').addEventListener('click', sendAnswerToSlack);
+
+    // History
+    async function saveToHistory(question, answer) {
+      if (!currentUser) return;
+
+      try {
+        await historyCollection.create({
+          userId: currentUser.id,
+          questionText: question,
+          answerPreview: answer.substring(0, 200),
+          timestamp: new Date().toISOString()
+        });
+
+        await loadHistory();
+      } catch (error) {
+        console.error('Error saving to history:', error);
+      }
+    }
+
+    async function loadHistory() {
+      if (!currentUser) return;
+
+      try {
+        const history = await historyCollection
+          .where({ userId: currentUser.id })
+          .limit(20)
+          .find();
+
+        // Sort by timestamp (most recent first)
+        history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        const historyEl = document.getElementById('history-list');
+
+        if (history.length === 0) {
+          historyEl.innerHTML = '<div class="list-empty">No recent questions</div>';
+          return;
+        }
+
+        historyEl.innerHTML = '';
+        history.slice(0, 10).forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'list-item';
+          div.textContent = item.questionText.substring(0, 100) + (item.questionText.length > 100 ? '...' : '');
+          div.onclick = () => {
+            closeModal('history-modal');
+            searchInput.value = item.questionText;
+            handleSearch();
+          };
+          historyEl.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Error loading history:', error);
+      }
+    }
+
+    // Chat history storage
+    async function saveChatConversation() {
+      if (!currentUser || !currentChatContext || chatHistory.length === 0) return;
+
+      try {
+        // Save or update the chat conversation
+        await chatHistoryCollection.create({
+          userId: currentUser.id,
+          questionId: currentChatContext.id,
+          questionText: currentChatContext.question,
+          messages: chatHistory,
+          timestamp: new Date().toISOString(),
+          messageCount: chatHistory.length
+        });
+      } catch (error) {
+        console.error('Error saving chat conversation:', error);
+      }
+    }
+
+    document.getElementById('history-btn').addEventListener('click', () => {
+      document.getElementById('history-modal').classList.add('active');
+    });
+
+    document.getElementById('bookmarks-btn').addEventListener('click', () => {
+      document.getElementById('bookmarks-modal').classList.add('active');
+    });
+
+    // Dark mode
+    function toggleDarkMode() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('ucp-ama-theme', isDark ? 'dark' : 'light');
+      document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
+    }
+
+    function loadTheme() {
+      const theme = localStorage.getItem('ucp-ama-theme') || 'light';
+      if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('theme-toggle').textContent = '☀️';
+      }
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', toggleDarkMode);
+
+    // Deep linking
+    function loadFromURL() {
+      const hash = window.location.hash;
+      if (hash.startsWith('#q=')) {
+        const questionId = hash.substring(3);
+        const question = findQuestionById(questionId);
+        if (question) {
+          selectQuestion(question);
+        }
+      }
+    }
+
+    function findQuestionById(id) {
+      for (const cat of knowledgeBase.categories) {
+        const q = cat.questions.find(q => q.id === id);
+        if (q) return q;
+      }
+      return null;
+    }
+
+    window.addEventListener('hashchange', loadFromURL);
+
+    // Analytics
+    async function trackQuestion(question) {
+      try {
+        const analytics = quick.db.collection('ama-analytics');
+        await analytics.create({
+          question_text: question,
+          timestamp: new Date().toISOString(),
+          user_id: quick.id.email || 'anonymous'
+        });
+      } catch (error) {
+        console.error('Analytics error:', error);
+      }
+    }
+
+    // Notifications
+    function showNotification(message) {
+      const notif = document.getElementById('notification');
+      notif.textContent = message;
+      notif.classList.add('show');
+      setTimeout(() => notif.classList.remove('show'), 3000);
+    }
+
+    function showError(message) {
+      const errorEl = document.getElementById('error-message');
+      errorEl.textContent = message;
+      errorEl.classList.add('show');
+    }
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-container')) {
+        suggestionsEl.classList.remove('active');
+      }
+    });
+
+    // Go back to home
+    function goHome() {
+      if (abortController) {
+        abortController.abort();
+        abortController = null;
+      }
+
+      document.getElementById('welcome').style.display = 'block';
+      document.getElementById('question-display').classList.remove('active');
+      document.getElementById('answer-display').classList.remove('active');
+      document.getElementById('sources').classList.remove('active');
+      document.getElementById('bookmark-action-btn').classList.remove('active');
+      document.getElementById('share-btn').classList.remove('active');
+      document.getElementById('slack-answer-btn').classList.remove('active');
+      document.getElementById('error-message').classList.remove('show');
+
+      searchInput.value = '';
+      window.location.hash = '';
+      currentQuestion = null;
+    }
+
+    document.getElementById('app-title').addEventListener('click', goHome);
+
+    // Chat event listeners
+    document.getElementById('chat-send').addEventListener('click', sendChatMessage);
+
+    document.getElementById('chat-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+      }
+    });
+
+    // Auto-resize textarea
+    document.getElementById('chat-input').addEventListener('input', (e) => {
+      e.target.style.height = 'auto';
+      e.target.style.height = e.target.scrollHeight + 'px';
+    });
+
+    document.getElementById('chat-close').addEventListener('click', closeChat);
+
+    // Initialize
+    loadKnowledgeBase();
+  </script>
+</body>
+</html>

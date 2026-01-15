@@ -24,6 +24,59 @@ The `ucp-learning/` directory contains interactive tools for learning UCP:
 
 To use: Open `ucp-learning/ucp-learning-mindmap.html` directly in a browser (no server required).
 
+## UCP Explorer
+
+The `ucp-ama/` directory contains **UCP Explorer**, an interactive learning application for discovering and exploring Universal Commerce Protocol concepts:
+
+- **index.html** - AI-powered Q&A search interface with Quick AI integration and multi-turn chat
+- **ama-knowledge.json** - Structured knowledge base (53 questions across 17 categories)
+- **UCP-AMA-QA.md** - Basic Q&A covering fundamentals, architecture, security, and use cases
+- **UCP-AMA-Advanced-QA.md** - Complex technical Q&A on scaling, edge cases, and implementation
+
+**Features:**
+- **3-column layout**: Categories (20%), content (50%), AI chat sidebar (30%)
+- Natural language question answering using Quick AI (GPT-5.1)
+- **Multi-turn AI conversations** with full conversational context
+- FAQ answers displayed first, then optional AI deep-dive via chat
+- Real-time search with intelligent suggestions
+- Browse questions by category
+- Search history and bookmarks
+- Dark mode
+- Share links with deep linking support (#q=question-id)
+- Analytics tracking via Quick Database
+- Source citations linking to ucp.dev documentation
+- Responsive design (chat becomes overlay on tablets/mobile)
+
+**User Flow:**
+1. Browse categories or search for questions
+2. View curated FAQ answer immediately
+3. Click "💬 Ask AI" to open chat sidebar for deeper exploration
+4. Engage in multi-turn conversation to dig deeper into concepts
+
+**Knowledge Base Generation:**
+The knowledge base is generated from markdown files using `parse_ama_docs.py`:
+
+```bash
+# Regenerate knowledge base after updating AMA markdown files
+python parse_ama_docs.py
+```
+
+**Local Development:**
+```bash
+cd ucp-ama
+quick serve
+# Opens at http://ucp-ama.quick.localhost:1337
+```
+
+**Deployment:**
+```bash
+cd ucp-ama
+quick deploy . ucp-ama-search
+# Deployed at https://ucp-ama-search.quick.shopify.io
+```
+
+**Note:** Requires Shopify internal access (Quick platform). Uses Quick AI API for LLM integration and Quick DB for analytics.
+
 ## Core Architecture
 
 ### Schema Source System (`source/` → `spec/`)
@@ -205,6 +258,12 @@ docs/                      # MkDocs documentation
 ucp-learning/              # Interactive learning materials
 ├── ucp-learning-mindmap.html   # Standalone accordion tree view
 └── ucp-learning-data.json      # Structured learning data
+
+ucp-ama/                   # AMA Search Application
+├── index.html            # AI-powered Q&A search interface
+├── ama-knowledge.json    # Generated knowledge base
+├── UCP-AMA-QA.md        # Basic Q&A markdown
+└── UCP-AMA-Advanced-QA.md # Advanced Q&A markdown
 
 generated/                 # Generated SDKs (TypeScript, etc.)
 ```
