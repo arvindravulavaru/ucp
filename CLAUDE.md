@@ -218,6 +218,68 @@ When making changes:
 3. Check `scripts/ci_check_models.sh` passes for schema changes
 4. Use pre-commit hooks to catch formatting issues early
 
+## Quick Deployment (Internal Shopify Tool)
+
+Quick (https://quick.shopify.io) is Shopify's internal platform for hosting prototypes and demos. It's useful for deploying UCP learning materials, examples, and interactive demos.
+
+### Key Features
+
+- **Instant deployment**: Drag-and-drop or CLI deployment to `[name].quick.shopify.io`
+- **Internal only**: Sites require Shopify authentication
+- **Static hosting**: HTML, JS, CSS files (build locally first)
+- **Serverless APIs**: Add backend capabilities without server management
+
+### Quick API Capabilities
+
+Quick provides serverless APIs accessible from the browser:
+
+- **Database** (`quick.db`) - Firebase-like JSON storage with real-time updates
+- **AI** (`quick.ai`) - LLM proxy with OpenAI client libraries, no API keys needed
+- **File Storage** (`quick.fs`) - CDN-backed file uploads
+- **WebSocket** (`quick.socket`) - Multiplayer rooms with presence and per-user state
+- **Identity** (`quick.id`) - Current user info (email, name, Slack)
+- **Site Management** (`quick.site`) - Programmatic site creation/deletion
+- **Data Warehouse** (`quick.dw`) - BigQuery access with user permissions
+- **Slack** (`quick.slack`) - Send messages to channels/users
+
+### CLI Usage
+
+```bash
+# Install CLI
+npm install -g @shopify/quick
+
+# Initialize for AI-powered development
+quick init
+
+# Local development with API access
+quick serve
+
+# Deploy to Quick
+quick deploy ucp-learning ucp-learning-demo
+# Deploys to https://ucp-learning-demo.quick.shopify.io
+```
+
+### Example: Deploying UCP Learning Materials
+
+```bash
+# Deploy the interactive learning materials
+quick deploy ucp-learning ucp-learning
+
+# Deploy documentation site
+mkdocs build
+quick deploy site/html ucp-docs
+```
+
+### Quick API Examples
+
+Detailed API documentation available at https://quick.shopify.io/docs.html including:
+- Database operations with real-time updates
+- AI integration with OpenAI Agents SDK
+- MCP server integration via QuickMCPServerStreamableHttp.js
+- WebSocket multiplayer functionality
+
+**Note**: Quick is for internal Shopify prototypes only. For public demos, use standard web hosting.
+
 ## Python Environment
 
 Recommended: Use virtual environment to avoid polluting global Python:
