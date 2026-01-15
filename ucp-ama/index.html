@@ -1594,17 +1594,14 @@ Guidelines:
           const preElement = codeBlock.parentElement;
           preElement.parentElement.replaceChild(editorContainer, preElement);
 
-          // Initialize JSON editor (read-only)
+          // Initialize JSON editor (read-only view mode)
           const options = {
-            mode: 'tree',
-            modes: ['tree', 'code', 'view'],
+            mode: 'view',
+            modes: ['view'],
             search: true,
-            navigationBar: true,
+            navigationBar: false,
             statusBar: true,
-            mainMenuBar: true,
-            onEditable: function () {
-              return false; // Make tree view read-only
-            },
+            mainMenuBar: false,
             onError: function (err) {
               console.error('JSON Editor error:', err);
             }
