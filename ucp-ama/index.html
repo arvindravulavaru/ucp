@@ -1415,12 +1415,8 @@
 
       answerCard.classList.add('active');
 
-      // Strip reference link lines from answer text since we show them separately in Learn More section
-      // Matches patterns like: **Learn more**: url, **Deep dive**: url, etc.
-      const cleanedAnswer = question.answer
-        .replace(/\*\*[^*]+\*\*:\s*https?:\/\/[^\s\n]+/g, '')
-        .replace(/\n\n---\s*$/g, ''); // Also remove trailing separators
-      answerText.innerHTML = window.marked.parse(cleanedAnswer);
+      // Display answer as-is (content is pre-cleaned in JSON)
+      answerText.innerHTML = window.marked.parse(question.answer);
 
       // Enhance JSON blocks
       enhanceJSONBlocks(answerText);
@@ -1445,7 +1441,7 @@
       // Display relevant diagram if available
       displayDiagram(question);
 
-      saveToHistory(question.question, cleanedAnswer);
+      saveToHistory(question.question, question.answer);
       trackQuestion(question.question);
     }
 
