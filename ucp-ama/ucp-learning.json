@@ -1,0 +1,573 @@
+{
+  "version": "2026-01-15",
+  "metadata": {
+    "total_questions": 65,
+    "categories": 13,
+    "last_updated": "2026-01-15",
+    "sources": [
+      "ucp-learning.md"
+    ]
+  },
+  "categories": [
+    {
+      "id": "foundations-why",
+      "title": "Part 1: Foundations - Understanding the Why",
+      "question_count": 3,
+      "questions": [
+        {
+          "id": "what-problem-does-ucp-solve",
+          "question": "What problem does UCP solve?",
+          "answer": "**The Current Reality:**\nToday's commerce landscape is fragmented. Every platform that wants to enable commerce (AI agents, apps, social media) needs to build custom integrations with each business. A platform supporting 100 businesses needs 100 different integrations. This doesn't scale.\n\n**The UCP Solution:**\nUCP provides a standardized common language - like HTTP for commerce. Instead of building custom integrations, everyone speaks the same protocol.\n\n**Key Benefits:**\n- **For Platforms:** One integration works with all UCP-compliant businesses\n- **For Businesses:** Expose commerce capabilities once, be discovered by any platform\n- **For Users:** Seamless commerce across any surface (chat, voice, visual)\n- **For Payment Providers:** Standardized, secure payment flows\n\n**Real-World Analogy:**\nThink of electrical outlets. Before standardization, every appliance needed its own custom socket. UCP is that standardization for commerce - one \"socket\" that works everywhere.",
+          "keywords": ["problem", "fragmentation", "integration", "scalability"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "four-actors-model",
+          "question": "What is the Four Actors model?",
+          "answer": "UCP defines four distinct roles in any commerce transaction:\n\n**1. Platform (Application/Agent)**\n- **Role:** Consumer-facing surface acting on behalf of users\n- **Examples:** AI Shopping Assistants, Super Apps, Search Engines, Social Commerce\n\n**2. Business (Merchant)**\n- **Role:** Seller of goods/services, always the Merchant of Record (MoR)\n- **Key Point:** Business retains financial liability and customer relationship\n\n**3. Credential Provider (CP)**\n- **Role:** Manages sensitive user data securely\n- **Responsibility:** Issues payment tokens - raw card data never touches Platform/Business\n- **Examples:** Digital Wallets (Google Wallet, Apple Pay)\n\n**4. Payment Service Provider (PSP)**\n- **Role:** Financial infrastructure provider\n- **Examples:** Stripe, Adyen, PayPal, Braintree\n\n**Why This Separation Matters:**\n1. **Security:** Raw payment data never touches Platform or Business\n2. **Compliance:** Reduces PCI scope for Platform and Business\n3. **Flexibility:** Mix and match any Platform + Business + PSP/CP\n4. **Separation of Concerns:** Each actor focuses on their expertise",
+          "keywords": ["actors", "platform", "business", "credential provider", "psp", "architecture"],
+          "ucp_docs_links": [
+            "https://ucp.dev/documentation/core-concepts/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "ucp-vs-existing-standards",
+          "question": "How does UCP differ from existing payment standards?",
+          "answer": "**Common Question:** \"We already have Payment Request API, Apple Pay, Google Pay. Why UCP?\"\n\n**The Key Difference:**\n- **Payment Request API / Apple Pay / Google Pay:** Focus on payment instrument collection and tokenization (the CP role in UCP)\n- **UCP:** Provides the full commerce lifecycle\n\n**What UCP Covers:**\n1. Product discovery\n2. Cart management\n3. Tax calculation\n4. Checkout orchestration\n5. Order management\n6. Post-purchase support (returns, tracking)\n7. Webhooks for real-time updates\n\n**Complementary, Not Competitive:**\nUCP actually *uses* existing payment standards. Example flow:\n1. Platform initiates UCP checkout\n2. Business calculates tax/shipping via UCP\n3. Payment collected via Google Pay (which issues a token)\n4. Business's PSP exchanges token with Google to process payment\n5. Order updates flow through UCP webhooks\n\n**Key Insight:** UCP is higher-level - it's about the entire commerce interaction, not just payments.",
+          "keywords": ["payment", "standards", "comparison", "difference", "ap2"],
+          "ucp_docs_links": [
+            "https://ucp.dev/documentation/ucp-and-ap2/"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "core-concepts",
+      "title": "Part 2: Core Concepts - The Building Blocks",
+      "question_count": 3,
+      "questions": [
+        {
+          "id": "capabilities-extensions-services",
+          "question": "What are Capabilities, Extensions, and Services?",
+          "answer": "UCP is built on three fundamental constructs:\n\n**Capabilities**\nStandalone core features that a business supports. These are the \"verbs\" of the protocol.\n- `dev.ucp.shopping.checkout` - Complete checkout session management\n- `dev.ucp.common.identity_linking` - OAuth 2.0 based identity\n- `dev.ucp.shopping.order` - Order lifecycle management\n\n**Format:** `{reverse-domain}.{service}.{capability}`\n\n**Extensions**\nOptional capabilities that augment another capability using the `extends` field.\n- `dev.ucp.shopping.discount` (extends checkout) - Adds discount handling\n- `dev.ucp.shopping.fulfillment` (extends checkout) - Adds shipping/pickup options\n- `com.example.loyalty` (extends checkout) - Vendor-specific loyalty program\n\n**Services**\nLower-level communication layers for data exchange.\n- **REST API** (primary) - OpenAPI 3.x spec\n- **MCP** (Model Context Protocol) - OpenRPC spec\n- **A2A** (Agent2Agent) - Agent Card spec\n- **Embedded Protocol** - OpenRPC for iframe communication",
+          "keywords": ["capabilities", "extensions", "services", "protocol", "building blocks"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "discovery-negotiation",
+          "question": "How does discovery and negotiation work?",
+          "answer": "**Discovery Process:**\n\n**Step 1: Platform Profile**\nPlatform declares what it supports in requests.\n\n**Step 2: Business Profile**\nBusiness publishes capabilities at `/.well-known/ucp-profile.json`\n\n**Step 3: Negotiation (Server-Selects)**\nThe business (server) chooses the version from the intersection:\n1. Platform says \"I support versions X, Y, Z\"\n2. Business says \"I support versions Y, Z, W\"\n3. Business selects Y or Z (usually latest both support)\n4. Business uses that version for the session\n\n**Benefits of Server-Selects:**\n- Business controls rollout\n- Easier A/B testing\n- Simpler platform code (no fallback chains)\n- Gradual evolution without breaking changes\n\n**Profiles are cached** by both parties, allowing efficient capability negotiation within normal request/response flow.",
+          "keywords": ["discovery", "negotiation", "profile", "server-selects", "versioning"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/#discovery-governance-and-negotiation"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "governance-without-authority",
+          "question": "How does UCP govern without a central authority?",
+          "answer": "**The Challenge:** How do you govern an open protocol without a central registry?\n\n**UCP Solution:** Reverse-domain namespacing + DNS-based authority\n\n**Namespace Format:**\n```\n{reverse-domain}.{service}.{capability}\n```\n\n**Examples:**\n- `dev.ucp.shopping.checkout` - Official UCP capability\n- `com.shopify.payments.installments` - Shopify-specific extension\n- `com.example.loyalty.rewards` - Example vendor capability\n\n**Security Binding:**\nThe `spec` and `schema` URLs **MUST** have origins matching the namespace authority:\n\n| Namespace | Required Origin |\n|-----------|----------------|\n| `dev.ucp.*` | `https://ucp.dev/...` |\n| `com.shopify.*` | `https://shopify.com/...` |\n\n**Why This Matters:**\n- Prevents capability hijacking\n- Domain ownership proves authority\n- DNS is the governance mechanism\n- No central registry needed",
+          "keywords": ["governance", "namespace", "authority", "dns", "security"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/#namespace-governance"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "checkout-core",
+      "title": "Part 3: Checkout - The Core Capability",
+      "question_count": 4,
+      "questions": [
+        {
+          "id": "checkout-session-lifecycle",
+          "question": "What is the Checkout Session lifecycle?",
+          "answer": "A checkout session goes through several states:\n\n```\ncreated → ready_for_complete → completing → completed\n                             ↓\n                          cancelled\n```\n\n**State Descriptions:**\n\n**created:** Session initialized, buyer can modify items/address\n\n**ready_for_complete:** All data collected, ready for payment\n\n**completing:** Payment processing in progress\n\n**completed:** Order created successfully\n\n**cancelled:** Session abandoned or failed\n\nThe session state determines what operations are available (e.g., you can only complete a session in `ready_for_complete` state).",
+          "keywords": ["checkout", "session", "lifecycle", "states", "flow"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "rest-checkout-flow",
+          "question": "How does REST Checkout work?",
+          "answer": "**When to Use:** Platform wants full control over checkout UI and experience.\n\n**Step-by-Step Flow:**\n\n**Step 1: Create Session**\n```\nPOST /checkout-sessions\n```\nWith buyer info and line items. Response includes checkout ID.\n\n**Step 2: Update Session**\n```\nPATCH /checkout-sessions/{id}\n```\nAs user adds shipping address, selects options, etc.\n\n**Step 3: Complete Checkout**\n```\nPOST /checkout-sessions/{id}/complete\n```\nWith payment handler result from AP2 flow.\n\n**Key Features:**\n- Platform controls entire UI\n- Business provides data and business logic\n- RESTful patterns (GET, POST, PATCH)\n- JSON payloads with UCP schemas",
+          "keywords": ["rest", "checkout", "api", "platform-driven", "ui"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout-rest/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "embedded-checkout-flow",
+          "question": "How does Embedded Checkout work?",
+          "answer": "**When to Use:** Business needs to handle complex checkout logic (subscriptions, bundles, promotions) with their own UI.\n\n**How It Works:**\n\n**Step 1: Platform Creates Session**\nResponse includes `embedded_url`\n\n**Step 2: Platform Embeds in iframe**\n```html\n<iframe src=\"{embedded_url}\" />\n```\n\n**Step 3: Bidirectional Communication**\nPlatform and Business communicate via postMessage.\n\nBusiness can delegate payment collection to Platform:\n```json\n{\n  \"type\": \"delegatePayment\",\n  \"data\": {\n    \"amount\": 9999,\n    \"currency\": \"USD\"\n  }\n}\n```\n\n**Key Features:**\n- Business controls UI and validation\n- Platform handles payment collection\n- Real-time communication during checkout\n- Supports complex flows (subscriptions, tax exemptions)",
+          "keywords": ["embedded", "checkout", "iframe", "business-driven", "postmessage"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/embedded-checkout/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "mcp-checkout-flow",
+          "question": "How does MCP Checkout work?",
+          "answer": "**When to Use:** AI agents acting on behalf of users, conversational commerce.\n\n**How It Works:**\nAgents call UCP functions via Model Context Protocol:\n\n```typescript\nawait mcpClient.call('create_checkout_session', {\n  buyer: { email: 'user@example.com' },\n  line_items: [...]\n});\n```\n\n**Key Differences from REST:**\n- Natural language → structured calls\n- No traditional UI\n- Agent makes decisions based on user intent\n- Uses same UCP data models as REST\n\n**Agent Flow:**\n1. User: \"Buy wireless headphones under $100\"\n2. Agent searches inventory via MCP\n3. Agent presents options conversationally\n4. Agent creates checkout session via MCP\n5. Agent delegates payment to user's wallet\n6. Order confirmation sent to user",
+          "keywords": ["mcp", "agent", "ai", "conversational", "model context protocol"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout-mcp/"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "transport-protocols",
+      "title": "Part 4: Transport Protocols",
+      "question_count": 3,
+      "questions": [
+        {
+          "id": "rest-api-transport",
+          "question": "What is the REST API transport?",
+          "answer": "**Design Principles:**\n- RESTful patterns (GET, POST, PATCH)\n- JSON payloads\n- HTTPS required\n- OpenAPI 3.x specifications\n\n**Common Patterns:**\n\n**Resource Creation:**\n```\nPOST /{resource}\nReturns: 201 Created with resource\n```\n\n**Resource Update:**\n```\nPATCH /{resource}/{id}\nReturns: 200 OK with updated resource\n```\n\n**Resource Retrieval:**\n```\nGET /{resource}/{id}\nReturns: 200 OK with resource\n```\n\n**Error Handling:**\nStandardized error format with code, message, param, and details fields.\n\n**Why REST is Primary:**\n- Widely understood\n- Excellent tooling\n- Works everywhere (web, mobile, server)\n- Easy to cache and optimize",
+          "keywords": ["rest", "api", "http", "transport", "openapi"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout-rest/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "mcp-transport",
+          "question": "What is the Model Context Protocol (MCP)?",
+          "answer": "**Purpose:** Enable AI agents to discover and invoke UCP capabilities as tools.\n\n**How It Works:**\n1. Agent discovers UCP server via MCP protocol\n2. Server exposes UCP operations as callable tools\n3. Agent invokes tools to complete commerce tasks\n\n**Example Tool Definition:**\n```json\n{\n  \"name\": \"create_checkout_session\",\n  \"description\": \"Create a new checkout session\",\n  \"inputSchema\": {\n    \"$ref\": \"https://ucp.dev/schemas/shopping/checkout_create_req.json\"\n  }\n}\n```\n\n**Benefits:**\n- Agents can \"learn\" commerce capabilities\n- Same data models as REST\n- Optimized for conversational flows\n- Natural integration with LLMs\n\n**Use Cases:**\n- AI shopping assistants\n- Voice commerce\n- Conversational checkouts\n- Autonomous agents",
+          "keywords": ["mcp", "model context protocol", "agents", "ai", "tools"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout-mcp/",
+            "https://modelcontextprotocol.io/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "a2a-transport",
+          "question": "What is the Agent2Agent (A2A) Protocol?",
+          "answer": "**Purpose:** Peer-to-peer agent communication for commerce.\n\n**Key Concepts:**\n- Agents publish Agent Cards (capability declarations)\n- Other agents discover and invoke capabilities\n- Decentralized, no central broker\n\n**Example Agent Card:**\n```json\n{\n  \"id\": \"business-agent-123\",\n  \"name\": \"Acme Store Agent\",\n  \"capabilities\": [\n    \"dev.ucp.shopping.checkout\"\n  ],\n  \"methods\": {\n    \"create_checkout\": {\n      \"description\": \"...\",\n      \"parameters\": {...}\n    }\n  }\n}\n```\n\n**Use Cases:**\n- Agent-to-agent negotiations\n- Autonomous commerce\n- Multi-agent orchestration\n- Decentralized marketplaces\n\n**Benefits:**\n- No central coordinator needed\n- Direct agent communication\n- Scales horizontally",
+          "keywords": ["a2a", "agent2agent", "peer-to-peer", "agents", "decentralized"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout-a2a/",
+            "https://a2a-protocol.org/"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "security-privacy",
+      "title": "Part 5: Security & Privacy",
+      "question_count": 3,
+      "questions": [
+        {
+          "id": "identity-linking-oauth",
+          "question": "How does Identity Linking work with OAuth 2.0?",
+          "answer": "**Purpose:** Secure, authorized relationships between Platforms and Businesses without sharing credentials.\n\n**Standard:** OAuth 2.0 Authorization Code Flow\n\n**Scope Format:**\n```\nucp:scopes:{capability_name}\n```\n\n**Flow:**\n\n**Step 1: Authorization Request**\nPlatform redirects user to Business authorization endpoint\n\n**Step 2: User Authorizes**\nBusiness authenticates user and shows consent screen\n\n**Step 3: Token Exchange**\nPlatform exchanges authorization code for access token\n\n**Step 4: Use Access Token**\nPlatform includes token in API requests:\n```\nAuthorization: Bearer {access_token}\n```\n\n**Benefits:**\n- Standard, well-understood protocol\n- User controls what Platforms can access\n- Tokens can be revoked\n- No credential sharing\n- Fine-grained permissions via scopes",
+          "keywords": ["identity", "oauth", "authorization", "authentication", "linking"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/identity-linking/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "payment-security-ap2",
+          "question": "How does Payment Security work with AP2?",
+          "answer": "**Agent Payments Protocol (AP2):** A verifiable credential system for secure, provable payments.\n\n**Key Concepts:**\n- **Payment Mandates:** Cryptographically signed authorizations\n- **Payment Handlers:** Execute mandates (can be Business or Platform)\n- **Verifiable Credentials:** Proof of user consent\n\n**Payment Flow with AP2:**\n\n1. Platform collects payment intent from user\n2. CP (e.g., Google Wallet) issues payment mandate with cryptographic signature\n3. Payment handler uses mandate with PSP\n4. PSP verifies signature and processes payment\n\n**Security Benefits:**\n- Cryptographic proof of user consent\n- No raw card data exposed to Platform/Business\n- PSP can independently verify authorization\n- Prevents unauthorized charges\n- Non-repudiation (can't deny authorization)",
+          "keywords": ["payment", "security", "ap2", "mandates", "verifiable credentials"],
+          "ucp_docs_links": [
+            "https://ucp.dev/documentation/ucp-and-ap2/",
+            "https://ucp.dev/specification/ap2-mandates/",
+            "https://ap2-protocol.org/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "payment-handler-patterns",
+          "question": "What are the Payment Handler patterns?",
+          "answer": "Three common patterns for payment processing:\n\n**Pattern 1: Business as Payment Handler**\n- Business owns PSP relationship\n- Business receives payment mandate\n- Business submits to their PSP\n- **Pros:** Full control, existing relationships\n- **Cons:** Business handles payment complexity\n\n**Pattern 2: Platform as Payment Handler**\n- Platform facilitates payment on behalf of Business\n- Platform receives mandate, submits to Business's PSP\n- Business remains MoR\n- **Pros:** Simplified for Business, Platform handles payment UX\n- **Cons:** Platform needs PSP integrations\n\n**Pattern 3: Encrypted Credentials**\n- CP encrypts payment credentials for Business's PSP\n- Only PSP can decrypt\n- Credentials never exposed to Platform or Business\n- **Pros:** Maximum security, minimal scope\n- **Cons:** Requires CP-PSP integration\n\nChoice depends on your business model, existing relationships, and compliance requirements.",
+          "keywords": ["payment handler", "patterns", "psp", "integration", "security"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/payment-handler-guide/",
+            "https://ucp.dev/specification/examples/business-tokenizer-payment-handler/"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "order-management",
+      "title": "Part 6: Order Management",
+      "question_count": 4,
+      "questions": [
+        {
+          "id": "order-lifecycle",
+          "question": "What is the Order lifecycle?",
+          "answer": "After checkout completes, the order enters post-purchase lifecycle:\n\n```\ncreated → fulfilling → fulfilled\n                    ↓\n                cancelled/refunded\n```\n\n**Order Object Contains:**\n- Link to original checkout\n- Line items purchased\n- Fulfillment expectations (when items will arrive)\n- Fulfillment events (shipped, delivered)\n- Adjustments (refunds, cancellations)\n- Current totals\n\n**Key Capabilities:**\n- Real-time tracking updates\n- Partial fulfillment support\n- Multiple fulfillment methods\n- Adjustment history\n- Permalink for order status page",
+          "keywords": ["order", "lifecycle", "post-purchase", "fulfillment", "states"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/order/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "fulfillment-tracking",
+          "question": "How does Fulfillment Tracking work?",
+          "answer": "**Fulfillment Expectations:**\nTell buyer when/how items will arrive:\n- Method type (shipping, pickup, digital)\n- Destination address\n- Description (\"Arrives in 2-3 business days\")\n- Fulfillable date\n\n**Fulfillment Events:**\nTrack actual fulfillment progress:\n\n**Event Types:**\n- `shipped` - Package left facility\n- `in_transit` - En route to destination\n- `out_for_delivery` - On delivery vehicle\n- `delivered` - Received by customer\n- `failed_delivery` - Delivery unsuccessful\n- `ready_for_pickup` - Available at pickup location\n- `picked_up` - Collected by customer\n\n**Each Event Includes:**\n- Timestamp\n- Affected line items\n- Tracking number (if applicable)\n- Tracking URL (if applicable)\n- Description\n\n**Benefits:**\n- Proactive customer communication\n- Reduced \"where's my order\" support tickets\n- Better delivery experience",
+          "keywords": ["fulfillment", "tracking", "shipping", "delivery", "events"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/order/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "adjustments-refunds",
+          "question": "How do Adjustments and Refunds work?",
+          "answer": "**Adjustment Types:**\n- `refund` - Money returned to customer\n- `cancellation` - Order cancelled before fulfillment\n- `partial_cancellation` - Some items cancelled\n- `price_adjustment` - Price correction\n\n**Refund Example:**\n```json\n{\n  \"id\": \"adj_1\",\n  \"type\": \"refund\",\n  \"occurred_at\": \"2026-01-22T10:00:00Z\",\n  \"status\": \"completed\",\n  \"line_items\": [{\"id\": \"li_1\", \"quantity\": 1}],\n  \"amount\": 9999,\n  \"description\": \"Defective item\"\n}\n```\n\n**Status Values:**\n- `pending` - Initiated but not processed\n- `completed` - Successfully processed\n- `failed` - Processing failed\n\n**Benefits:**\n- Transparent refund tracking\n- Partial refund support\n- Audit trail for adjustments\n- Customer self-service visibility",
+          "keywords": ["adjustments", "refunds", "cancellation", "returns"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/order/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "webhooks-realtime",
+          "question": "How do Webhooks provide real-time updates?",
+          "answer": "**Purpose:** Notify Platform of order changes in real-time.\n\n**How It Works:**\n\n**Step 1: Platform Registers Webhook**\nProvides endpoint URL and event types:\n```json\n{\n  \"webhook_endpoint\": \"https://platform.example.com/webhooks/ucp\",\n  \"events\": [\"order.updated\", \"order.fulfilled\"]\n}\n```\n\n**Step 2: Business Sends Updates**\nPOST to webhook endpoint when events occur:\n```json\n{\n  \"event\": \"order.updated\",\n  \"occurred_at\": \"2026-01-20T14:30:00Z\",\n  \"order\": {...}\n}\n```\n\n**Webhook Security:**\n- HTTPS required\n- Signature verification (HMAC)\n- Retry with exponential backoff\n- Idempotency keys\n\n**Event Types:**\n- `order.created`\n- `order.updated`\n- `order.fulfilled`\n- `order.cancelled`\n\n**Benefits:**\n- Real-time order status\n- Reduced polling\n- Better user experience\n- Lower API load",
+          "keywords": ["webhooks", "events", "real-time", "notifications", "callbacks"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/order/"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "extensions-customization",
+      "title": "Part 7: Extensions & Customization",
+      "question_count": 3,
+      "questions": [
+        {
+          "id": "discount-extensions",
+          "question": "How do Discount Extensions work?",
+          "answer": "**Purpose:** Support promotional pricing, coupons, loyalty points.\n\n**Schema Additions:**\nAdds `discount` to `totals.type`:\n```json\n{\n  \"totals\": [\n    {\"type\": \"subtotal\", \"amount\": 15000},\n    {\"type\": \"discount\", \"amount\": -2000, \"title\": \"SAVE20\"},\n    {\"type\": \"shipping\", \"amount\": 500},\n    {\"type\": \"tax\", \"amount\": 1050},\n    {\"type\": \"total\", \"amount\": 14550}\n  ]\n}\n```\n\n**Discount Application:**\n```json\n{\n  \"applied_discounts\": [\n    {\n      \"code\": \"SAVE20\",\n      \"type\": \"percentage\",\n      \"value\": 20,\n      \"amount\": 2000,\n      \"line_item_ids\": [\"li_1\", \"li_2\"]\n    }\n  ]\n}\n```\n\n**Discount Types:**\n- `percentage` - Percentage off\n- `fixed_amount` - Fixed dollar amount off\n- `shipping` - Free/discounted shipping\n- `bogo` - Buy one get one\n\n**Use Cases:**\n- Promo codes\n- Seasonal sales\n- Loyalty rewards\n- Cart-level vs item-level discounts",
+          "keywords": ["discount", "promotion", "coupon", "extension"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/discount/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "fulfillment-extensions",
+          "question": "How do Fulfillment Extensions work?",
+          "answer": "**Purpose:** Advanced shipping/pickup options.\n\n**Method Types:**\n- `shipping` - Delivery to address\n- `pickup` - Customer picks up\n- `digital` - Digital delivery (email, download)\n\n**Schema Structure:**\n```json\n{\n  \"fulfillment\": {\n    \"methods\": [\n      {\n        \"id\": \"method_1\",\n        \"type\": \"shipping\",\n        \"line_item_ids\": [\"li_1\"],\n        \"selected_destination_id\": \"dest_1\",\n        \"destinations\": [...],\n        \"groups\": [\n          {\n            \"id\": \"group_1\",\n            \"line_item_ids\": [\"li_1\"],\n            \"selected_option_id\": \"standard\",\n            \"options\": [\n              {\n                \"id\": \"standard\",\n                \"title\": \"Standard Shipping (5-7 days)\",\n                \"totals\": [{\"type\": \"shipping\", \"amount\": 500}]\n              },\n              {\n                \"id\": \"express\",\n                \"title\": \"Express Shipping (2-3 days)\",\n                \"totals\": [{\"type\": \"shipping\", \"amount\": 1500}]\n              }\n            ]\n          }\n        ]\n      }\n    ]\n  }\n}\n```\n\n**Features:**\n- Multiple destinations per order\n- Mixed fulfillment methods\n- Shipping options with pricing\n- Store pickup locations\n- Split shipments",
+          "keywords": ["fulfillment", "shipping", "pickup", "delivery", "extension"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/fulfillment/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "creating-custom-extensions",
+          "question": "How do I create custom extensions?",
+          "answer": "**When to Create:**\n- Your business needs capabilities not in core UCP\n- Industry-specific features (subscriptions, rentals)\n- Vendor-specific services (loyalty programs)\n\n**Steps:**\n\n**Step 1: Define Namespace**\n```\ncom.yourcompany.{service}.{capability}\n```\n\n**Step 2: Create Schema**\nUse JSON Schema with `extends` field and `allOf` composition to augment base types.\n\n**Step 3: Publish Spec**\nHost documentation at `https://yourcompany.com/specs/{capability}`\n\n**Step 4: Declare in Profile**\nAdd to your UCP profile at `/.well-known/ucp-profile.json`:\n```json\n{\n  \"name\": \"com.yourcompany.shopping.loyalty\",\n  \"version\": \"2026-01-15\",\n  \"spec\": \"https://yourcompany.com/specs/loyalty\",\n  \"schema\": \"https://yourcompany.com/schemas/loyalty.json\",\n  \"extends\": \"dev.ucp.shopping.checkout\"\n}\n```\n\n**Best Practices:**\n- Use clear, descriptive names\n- Document thoroughly\n- Provide examples\n- Version carefully\n- Consider contributing to official UCP if generally useful",
+          "keywords": ["custom", "extension", "schema", "namespace", "vendor"],
+          "ucp_docs_links": [
+            "https://ucp.dev/documentation/schema-authoring/"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "implementation-guide",
+      "title": "Part 8: Implementation Guide",
+      "question_count": 4,
+      "questions": [
+        {
+          "id": "implementing-for-businesses",
+          "question": "How do Businesses implement UCP?",
+          "answer": "**Step 1: Decide Your Capabilities**\nChoose what you'll support:\n- ✅ `dev.ucp.shopping.checkout` (required)\n- ✅ `dev.ucp.common.identity_linking` (recommended)\n- ✅ `dev.ucp.shopping.order` (recommended)\n- ✅ Extensions: discount, fulfillment, etc.\n\n**Step 2: Choose Transport(s)**\n- REST API (required for most integrations)\n- MCP (if targeting AI agents)\n- A2A (if building agent capabilities)\n- Embedded (if need complex checkout UI)\n\n**Step 3: Implement Core APIs**\n```\nPOST /checkout-sessions\nPATCH /checkout-sessions/{id}\nPOST /checkout-sessions/{id}/complete\nGET /orders/{id}\n```\n\n**Step 4: Publish Profile**\nHost `/.well-known/ucp-profile.json` with your capabilities\n\n**Step 5: Test with Platforms**\nUse UCP Playground or partner with platforms\n\n**Resources:**\n- Code samples in multiple languages\n- OpenAPI specifications\n- Testing sandbox",
+          "keywords": ["implementation", "business", "merchant", "integration", "api"],
+          "ucp_docs_links": [
+            "https://ucp.dev/",
+            "https://github.com/Universal-Commerce-Protocol/samples"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "implementing-for-platforms",
+          "question": "How do Platforms consume UCP?",
+          "answer": "**Step 1: Discover Businesses**\nFetch `https://business.example.com/.well-known/ucp-profile.json`\n\n**Step 2: Negotiate Capabilities**\nFind intersection of your capabilities and business capabilities.\n\n**Step 3: Fetch and Compose Schemas**\n- Fetch base schema from UCP\n- Fetch extension schemas from business\n- Compose schemas client-side\n\n**Step 4: Make API Calls**\nUse negotiated version and capabilities:\n```typescript\nconst session = await createCheckoutSession({\n  ucp: {\n    version: selectedVersion,\n    capabilities: supported\n  },\n  buyer: {...},\n  line_items: [...]\n});\n```\n\n**Step 5: Handle Webhooks**\nListen for order updates and refresh UI\n\n**Key Principles:**\n- Cache profiles for performance\n- Validate spec URL origins\n- Handle errors gracefully\n- Respect rate limits\n- Implement retry logic",
+          "keywords": ["implementation", "platform", "agent", "consumption", "integration"],
+          "ucp_docs_links": [
+            "https://ucp.dev/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "implementing-for-psps",
+          "question": "How do PSPs integrate with UCP?",
+          "answer": "**As a PSP, you integrate with:**\n1. **Businesses** (your existing relationship)\n2. **Credential Providers** (token exchange)\n\n**Token Exchange Flow:**\n1. Receive payment mandate from Business\n2. Exchange token with CP (e.g., Google Wallet)\n3. Process payment through your infrastructure\n4. Return authorization result\n\n**Key Responsibilities:**\n- Verify payment mandate signatures\n- Exchange tokens with CPs\n- Process payments\n- Handle 3D Secure authentication\n- Return standardized auth results\n\n**Integration Points:**\n- AP2 mandate verification\n- Token exchange APIs (CP-specific)\n- Your existing payment processing\n- Authorization result formatting\n\n**Benefits:**\n- Works with your existing infrastructure\n- No need to change business relationships\n- Clear security boundaries\n- Standardized mandate format",
+          "keywords": ["implementation", "psp", "payment", "integration", "tokenization"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/payment-handler-guide/",
+            "https://ucp.dev/specification/tokenization-guide/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "testing-validation",
+          "question": "How do I test and validate my UCP implementation?",
+          "answer": "**UCP Playground:**\nInteractive testing environment for all actors:\n- Test as Platform (initiate checkouts)\n- Test as Business (respond to requests)\n- Test as PSP (handle payments)\n- Inspect payloads and flows\n\n**Access:** https://ucp.dev/playground/\n\n**JSON Schema Validation:**\nValidate your payloads against UCP schemas:\n```typescript\nimport Ajv from 'ajv';\n\nconst schema = await fetch(\n  'https://ucp.dev/schemas/shopping/checkout.json'\n).then(r => r.json());\n\nconst validate = ajv.compile(schema);\nconst valid = validate(checkoutData);\n```\n\n**Code Samples Repository:**\nReference implementations in:\n- Node.js / TypeScript\n- Python\n- Go\n- Java\n\n**Repo:** https://github.com/Universal-Commerce-Protocol/samples\n\n**Best Practices:**\n- Validate all inputs/outputs\n- Test error scenarios\n- Check all required fields\n- Verify enum values\n- Test edge cases",
+          "keywords": ["testing", "validation", "playground", "schemas", "samples"],
+          "ucp_docs_links": [
+            "https://ucp.dev/playground/",
+            "https://github.com/Universal-Commerce-Protocol/samples"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "advanced-topics",
+      "title": "Part 9: Advanced Topics",
+      "question_count": 4,
+      "questions": [
+        {
+          "id": "schema-composition-deep-dive",
+          "question": "How does Schema Composition work in detail?",
+          "answer": "**How Extensions Modify Base Types:**\n\nBase schema defines core types with enum values. Extension schemas use `allOf` to augment those enums.\n\n**Example - Adding discount to totals:**\n\nBase (`checkout.json`):\n```json\n{\n  \"definitions\": {\n    \"total\": {\n      \"properties\": {\n        \"type\": {\"enum\": [\"subtotal\", \"shipping\", \"tax\", \"total\"]}\n      }\n    }\n  }\n}\n```\n\nExtension (`discount.json`):\n```json\n{\n  \"allOf\": [\n    {\"$ref\": \"https://ucp.dev/schemas/shopping/checkout.json\"},\n    {\n      \"definitions\": {\n        \"total\": {\n          \"properties\": {\n            \"type\": {\"enum\": [\"discount\"]}\n          }\n        }\n      }\n    }\n  ]\n}\n```\n\n**Platform Composition:**\nPlatform fetches both schemas and merges enum arrays:\n```typescript\nfunction composeSchemas(base, ...extensions) {\n  // Merge definitions and enum values\n  // Return composed schema\n}\n```\n\n**Benefits:**\n- Extensions are self-describing\n- No central coordination needed\n- Clean separation of concerns",
+          "keywords": ["schema", "composition", "extensions", "allOf", "json-schema"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/#schema-composition"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "version-migration",
+          "question": "How do I handle Version Migration?",
+          "answer": "**Backward Compatibility:**\nUCP versions are date-based (YYYY-MM-DD). New versions:\n- **MAY** add new optional fields\n- **MUST NOT** remove required fields\n- **MUST NOT** change field semantics\n\n**Migration Pattern:**\n```typescript\n// Support multiple versions\nconst handlers = {\n  '2026-01-11': handleV20260111,\n  '2026-02-15': handleV20260215\n};\n\nconst version = request.ucp.version;\nconst handler = handlers[version] || handlers['2026-01-11'];\nawait handler(request);\n```\n\n**Deprecation Policy:**\n- Versions supported for minimum 12 months\n- Deprecation notices 6 months in advance\n- Critical fixes backported to all supported versions\n\n**Best Practices:**\n- Support at least 2 versions\n- Test with multiple versions\n- Monitor version usage\n- Plan migrations early\n- Use server-selects to control rollout",
+          "keywords": ["versioning", "migration", "compatibility", "deprecation"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "multi-currency-support",
+          "question": "How does Multi-Currency Support work?",
+          "answer": "**Currency in UCP:**\n- Always specified in checkout/order\n- Amount in minor units (cents)\n- ISO 4217 currency codes\n\n**Example:**\n```json\n{\n  \"currency\": \"USD\",\n  \"totals\": [\n    {\"type\": \"subtotal\", \"amount\": 10000},  // $100.00\n    {\"type\": \"tax\", \"amount\": 800},         // $8.00\n    {\"type\": \"total\", \"amount\": 10800}      // $108.00\n  ]\n}\n```\n\n**Multi-Currency Business:**\nBusiness determines currency based on:\n- Buyer location\n- Platform preference\n- Business's supported currencies\n\n**Implementation:**\n```typescript\nconst currency = determineCurrency(buyer, platform);\nconst prices = await getPrices(items, currency);\n```\n\n**Considerations:**\n- Currency conversion timing\n- Exchange rate sources\n- Rounding rules\n- Tax implications\n- Payment method availability per currency",
+          "keywords": ["currency", "internationalization", "multi-currency", "localization"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "error-handling-best-practices",
+          "question": "What are Error Handling best practices?",
+          "answer": "**Standard Error Format:**\n```json\n{\n  \"error\": {\n    \"code\": \"validation_error\",\n    \"message\": \"The email address is invalid\",\n    \"param\": \"buyer.email\",\n    \"details\": {\n      \"reason\": \"Email must contain @ symbol\"\n    }\n  }\n}\n```\n\n**Common Error Codes:**\n- `validation_error` - Invalid input data\n- `authentication_required` - OAuth token needed\n- `permission_denied` - Insufficient scope\n- `resource_not_found` - Checkout/order doesn't exist\n- `rate_limit_exceeded` - Too many requests\n- `service_unavailable` - Temporary outage\n\n**Retry Strategy:**\n```typescript\nasync function retryWithBackoff(fn, maxRetries = 3) {\n  for (let i = 0; i < maxRetries; i++) {\n    try {\n      return await fn();\n    } catch (error) {\n      if (!isRetryable(error) || i === maxRetries - 1) {\n        throw error;\n      }\n      await sleep(Math.pow(2, i) * 1000);  // Exponential backoff\n    }\n  }\n}\n```\n\n**Best Practices:**\n- Use specific error codes\n- Include helpful error messages\n- Specify which parameter failed\n- Implement exponential backoff\n- Log errors for debugging\n- Don't retry non-retryable errors",
+          "keywords": ["errors", "handling", "retry", "codes", "resilience"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout/"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "real-world-use-cases",
+      "title": "Part 10: Real-World Use Cases",
+      "question_count": 4,
+      "questions": [
+        {
+          "id": "ai-shopping-assistant",
+          "question": "How does an AI Shopping Assistant use UCP?",
+          "answer": "**Scenario:** User asks AI \"Find me wireless headphones under $100\"\n\n**Flow:**\n\n**1. Discovery:** AI searches for businesses selling headphones\n\n**2. Filter:** Check `.well-known/ucp-profile.json` for UCP support\n\n**3. Query:** Use MCP to search inventory\n```typescript\nconst results = await mcp.call('search_products', {\n  query: 'wireless headphones',\n  max_price: 10000  // $100.00 in cents\n});\n```\n\n**4. Present:** Show options to user in conversation\n\n**5. Checkout:** User selects, AI creates checkout session via MCP\n\n**6. Payment:** AI delegates to user's credential provider\n\n**7. Confirm:** Order created, tracking info sent to user\n\n**Benefits:**\n- Natural language → structured commerce\n- One integration works across all UCP businesses\n- User controls payment via their wallet\n- Seamless conversational experience",
+          "keywords": ["use case", "ai", "agent", "shopping assistant", "mcp"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout-mcp/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "social-commerce-platform",
+          "question": "How does Social Commerce use UCP?",
+          "answer": "**Scenario:** Social media app wants to enable in-app shopping\n\n**Implementation:**\n\n**1. Discovery:** Crawl business profiles for UCP support\n\n**2. Product Showcase:** Display products with UCP metadata\n\n**3. Native Checkout:** Use REST API for checkout in-app\n```typescript\n// User taps \"Buy Now\" on influencer post\nconst session = await createCheckoutSession({\n  line_items: [productFromPost],\n  buyer: {email: currentUser.email}\n});\n\n// Show native checkout UI\nshowCheckoutUI(session);\n```\n\n**4. Payment:** Collect via platform's payment handler\n\n**5. Tracking:** Display order status via webhooks\n\n**Benefits:**\n- Seamless in-app experience\n- Business remains MoR (no marketplace complications)\n- Revenue from payment facilitation\n- Increased conversion rates\n- Better user experience (no leaving app)",
+          "keywords": ["use case", "social commerce", "platform", "rest", "native"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout-rest/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "voice-commerce",
+          "question": "How does Voice Commerce use UCP?",
+          "answer": "**Scenario:** Smart speaker shopping\n\n**Flow:**\n\n**1. Voice Command:** \"Alexa, order coffee beans\"\n\n**2. Intent Recognition:** Parse into structured request\n\n**3. Business Selection:** User's preferred business or best match\n\n**4. Checkout via Voice:**\n```typescript\nawait voiceAgent.mcp.call('create_checkout_session', {\n  buyer: {email: userProfile.email},\n  line_items: [coffeeProduct]\n});\n\n// Confirm with user\nawait speak(\"That'll be $24.99 with free shipping. Confirm?\");\nawait listen();  // \"Yes\"\n\n// Complete\nawait voiceAgent.mcp.call('complete_checkout', {\n  session_id: session.id,\n  payment_handler: userWallet\n});\n```\n\n**Benefits:**\n- Hands-free shopping\n- Consistent across products/businesses\n- Secure payment via user's wallet\n- Natural conversational flow\n- Accessibility",
+          "keywords": ["use case", "voice", "commerce", "smart speaker", "alexa"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout-mcp/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "embedded-marketplace",
+          "question": "How does an Embedded Marketplace use UCP?",
+          "answer": "**Scenario:** Blog platform wants affiliate commerce\n\n**Implementation:**\n```html\n<!-- Blogger embeds product -->\n<div data-ucp-product=\"https://business.example.com/products/123\">\n  <button onclick=\"buyProduct()\">Buy Now</button>\n</div>\n\n<script>\nasync function buyProduct() {\n  // Create checkout session\n  const session = await fetch(\n    'https://business.example.com/api/checkout-sessions',\n    {\n      method: 'POST',\n      body: JSON.stringify({\n        ucp: {capabilities: ['dev.ucp.shopping.checkout']},\n        line_items: [{item: {id: '123'}, quantity: 1}]\n      })\n    }\n  ).then(r => r.json());\n\n  // Show embedded checkout\n  const modal = document.createElement('iframe');\n  modal.src = session.embedded_url;\n  document.body.appendChild(modal);\n}\n</script>\n```\n\n**Benefits:**\n- No custom Business integrations\n- Blogger earns affiliate commission\n- User stays on blog (better conversion)\n- Simple implementation\n- Works with any UCP business",
+          "keywords": ["use case", "embedded", "marketplace", "affiliate", "blog"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/embedded-checkout/"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "best-practices",
+      "title": "Part 11: Best Practices",
+      "question_count": 4,
+      "questions": [
+        {
+          "id": "security-checklist",
+          "question": "What is the Security Checklist?",
+          "answer": "**For All Actors:**\n- ☐ Always use HTTPS\n- ☐ Validate all input data\n- ☐ Implement rate limiting\n- ☐ Log security events\n- ☐ Keep dependencies updated\n\n**For Platforms:**\n- ☐ Validate spec URL origins match namespaces\n- ☐ Fetch and compose schemas client-side\n- ☐ Verify webhook signatures\n- ☐ Implement OAuth securely\n- ☐ Never log/store raw payment data\n\n**For Businesses:**\n- ☐ Implement OAuth correctly (state param, PKCE)\n- ☐ Sign webhook payloads\n- ☐ Validate payment handler results\n- ☐ Use PCI-compliant PSPs\n- ☐ Implement fraud detection\n\n**For PSPs:**\n- ☐ Verify payment mandate signatures\n- ☐ Validate token authenticity with CPs\n- ☐ Implement strong authentication (3DS)\n- ☐ Monitor for suspicious patterns\n\n**Critical:**\n- Never expose raw card data\n- Always verify cryptographic signatures\n- Implement defense in depth\n- Follow principle of least privilege",
+          "keywords": ["security", "checklist", "best practices", "safety"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "performance-optimization",
+          "question": "What are Performance Optimization best practices?",
+          "answer": "**Caching:**\n```typescript\n// Cache profiles (update hourly)\nconst cache = new TTLCache({ttl: 3600});\n\nasync function getBusinessProfile(businessUrl) {\n  const cacheKey = `profile:${businessUrl}`;\n  let profile = cache.get(cacheKey);\n\n  if (!profile) {\n    profile = await fetch(\n      `${businessUrl}/.well-known/ucp-profile.json`\n    ).then(r => r.json());\n    cache.set(cacheKey, profile);\n  }\n\n  return profile;\n}\n```\n\n**Schema Preloading:**\n```typescript\n// Preload common schemas at startup\nconst schemaCache = new Map();\n\nasync function preloadSchemas() {\n  const schemas = [\n    'https://ucp.dev/schemas/shopping/checkout.json',\n    'https://ucp.dev/schemas/shopping/order.json'\n  ];\n\n  await Promise.all(\n    schemas.map(async url => {\n      const schema = await fetch(url).then(r => r.json());\n      schemaCache.set(url, schema);\n    })\n  );\n}\n```\n\n**Batch Operations:**\nFetch multiple resources in parallel when possible.\n\n**Best Practices:**\n- Cache profiles and schemas\n- Preload common resources\n- Use compression\n- Implement CDN for static resources\n- Monitor response times",
+          "keywords": ["performance", "optimization", "caching", "speed"],
+          "ucp_docs_links": [
+            "https://ucp.dev/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "observability",
+          "question": "What are Observability best practices?",
+          "answer": "**Structured Logging:**\n```typescript\nlogger.info('checkout_created', {\n  session_id: session.id,\n  business: business.domain,\n  platform: platform.id,\n  capabilities: session.ucp.capabilities,\n  currency: session.currency,\n  total_amount: session.totals.find(t => t.type === 'total').amount\n});\n```\n\n**Metrics to Track:**\n- Checkout creation rate\n- Completion rate (created → completed)\n- Average checkout time\n- Error rates by type\n- API response times\n- Cache hit rates\n\n**Distributed Tracing:**\n```typescript\n// Propagate trace context\nconst headers = {\n  'x-trace-id': generateTraceId(),\n  'x-span-id': generateSpanId(),\n  'x-parent-span-id': currentSpan.id\n};\n\nawait fetch(businessEndpoint, {headers});\n```\n\n**Best Practices:**\n- Use structured logs\n- Include trace IDs\n- Monitor key metrics\n- Set up alerts\n- Track user journeys\n- Measure business KPIs",
+          "keywords": ["observability", "logging", "metrics", "monitoring", "tracing"],
+          "ucp_docs_links": [
+            "https://ucp.dev/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "developer-experience",
+          "question": "What are Developer Experience best practices?",
+          "answer": "**OpenAPI for Documentation:**\n```yaml\nopenapi: 3.0.0\ninfo:\n  title: Acme Store UCP API\n  version: 2026-01-11\npaths:\n  /checkout-sessions:\n    post:\n      summary: Create checkout session\n      requestBody:\n        $ref: 'https://ucp.dev/schemas/shopping/checkout_create_req.json'\n```\n\n**Type Safety:**\n```typescript\n// Generate types from schemas\nimport type { CheckoutSession } from './generated/ucp-types';\n\nfunction createCheckout(data: CheckoutSession): Promise<CheckoutSession> {\n  // TypeScript ensures correct shape\n}\n```\n\n**Clear Error Messages:**\n```json\n{\n  \"error\": {\n    \"code\": \"invalid_line_item\",\n    \"message\": \"Line item quantity must be positive\",\n    \"param\": \"line_items[0].quantity\",\n    \"details\": {\n      \"received\": -1,\n      \"expected\": \">= 1\"\n    }\n  }\n}\n```\n\n**Best Practices:**\n- Generate types from schemas\n- Provide code samples\n- Write clear documentation\n- Include examples for all endpoints\n- Use OpenAPI tooling\n- Maintain SDKs",
+          "keywords": ["developer experience", "dx", "documentation", "types"],
+          "ucp_docs_links": [
+            "https://ucp.dev/"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "roadmap-community",
+      "title": "Part 12: Roadmap & Community",
+      "question_count": 2,
+      "questions": [
+        {
+          "id": "upcoming-capabilities",
+          "question": "What capabilities are coming to UCP?",
+          "answer": "**In Development:**\n- **Subscriptions:** Recurring billing and subscription management\n- **Reservations:** Hotel bookings, restaurant reservations, appointments\n- **Returns & Exchanges:** Automated return merchandise authorization\n- **Gift Cards:** Digital gift card purchase and redemption\n- **Wishlists:** Cross-platform wishlist sync\n\n**Proposed:**\n- **Quotes:** B2B quote requests and negotiations\n- **Installments:** Buy-now-pay-later integrations\n- **Trade-Ins:** Device trade-in valuations\n- **Personalization:** User preference sharing\n\n**How to Influence:**\n- Join GitHub Discussions\n- Participate in working groups\n- Share use cases and requirements\n- Contribute implementations\n- Provide feedback on proposals",
+          "keywords": ["roadmap", "future", "upcoming", "capabilities", "features"],
+          "ucp_docs_links": [
+            "https://github.com/Universal-Commerce-Protocol/ucp/discussions"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "community-governance",
+          "question": "How does Community and Governance work?",
+          "answer": "**How to Contribute:**\n1. **GitHub Discussions:** Propose new capabilities\n2. **Pull Requests:** Submit schema improvements\n3. **Working Groups:** Join domain-specific groups\n4. **Implementation Feedback:** Share real-world learnings\n\n**Governance Structure:**\n- **Steering Committee:** Strategic direction\n- **Technical Committee:** Specification decisions\n- **Working Groups:** Domain expertise (payments, logistics, etc.)\n\n**Contributing:**\n- Read the Contributing Guide\n- Join discussions\n- Propose improvements\n- Share implementations\n- Help with documentation\n\n**Links:**\n- Contributing Guide: https://github.com/Universal-Commerce-Protocol/ucp/blob/main/CONTRIBUTING.md\n- GitHub Repo: https://github.com/Universal-Commerce-Protocol/ucp\n- Discussions: https://github.com/Universal-Commerce-Protocol/ucp/discussions\n\n**Open Governance:**\nUCP is community-driven. Your feedback and contributions shape the future of commerce.",
+          "keywords": ["community", "governance", "contributing", "open source"],
+          "ucp_docs_links": [
+            "https://github.com/Universal-Commerce-Protocol/ucp/blob/main/CONTRIBUTING.md",
+            "https://github.com/Universal-Commerce-Protocol/ucp"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    },
+    {
+      "id": "quick-reference",
+      "title": "Part 13: Quick Reference",
+      "question_count": 5,
+      "questions": [
+        {
+          "id": "common-endpoints",
+          "question": "What are the common UCP endpoints?",
+          "answer": "**Business Endpoints:**\n```\nGET  /.well-known/ucp-profile.json\nPOST /checkout-sessions\nGET  /checkout-sessions/{id}\nPATCH /checkout-sessions/{id}\nPOST /checkout-sessions/{id}/complete\nGET  /orders/{id}\n```\n\n**Platform Endpoints:**\n```\nPOST /webhooks/ucp\n```\n\n**Authentication:**\n```\nGET  /.well-known/oauth-authorization-server\nGET  /oauth2/authorize\nPOST /oauth2/token\nPOST /oauth2/revoke\n```\n\n**Notes:**\n- All endpoints require HTTPS\n- Paths may vary by business implementation\n- Check business profile for exact endpoints\n- OAuth endpoints required for identity linking",
+          "keywords": ["endpoints", "api", "reference", "paths"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "glossary",
+          "question": "What are the key UCP terms? (Glossary)",
+          "answer": "**Actors:**\n- **Platform:** Consumer-facing app/agent orchestrating commerce\n- **Business:** Merchant selling goods/services (always MoR)\n- **CP (Credential Provider):** Manages sensitive user data, issues tokens\n- **PSP (Payment Service Provider):** Processes payments\n\n**Core Concepts:**\n- **MoR (Merchant of Record):** Legal entity responsible for transaction\n- **Capability:** Core feature (e.g., checkout, order)\n- **Extension:** Optional module augmenting a capability\n- **Service:** Communication layer (REST, MCP, A2A, Embedded)\n\n**Payment Terms:**\n- **AP2:** Agent Payments Protocol for verifiable payments\n- **Payment Mandate:** Cryptographically signed payment authorization\n- **Payment Handler:** Entity executing payment (Business or Platform)\n\n**Technical:**\n- **Server-Selects:** Business chooses protocol version from intersection\n- **Reverse-Domain Naming:** Namespace format using domain ownership\n- **Schema Composition:** Combining base + extension schemas client-side",
+          "keywords": ["glossary", "terms", "definitions", "vocabulary"],
+          "ucp_docs_links": [
+            "https://ucp.dev/documentation/core-concepts/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "response-codes",
+          "question": "What are the standard HTTP response codes?",
+          "answer": "| Code | Meaning | When to Use |\n|------|---------|-------------|\n| 200 | OK | Successful GET, PATCH |\n| 201 | Created | Successful POST (created resource) |\n| 400 | Bad Request | Invalid input data |\n| 401 | Unauthorized | Missing/invalid auth token |\n| 403 | Forbidden | Valid token, insufficient permissions |\n| 404 | Not Found | Resource doesn't exist |\n| 409 | Conflict | State conflict (e.g., checkout already completed) |\n| 429 | Too Many Requests | Rate limit exceeded |\n| 500 | Internal Server Error | Server-side error |\n| 503 | Service Unavailable | Temporary outage |\n\n**Best Practices:**\n- Always include error details in response body\n- Use appropriate codes for each scenario\n- Include retry-after header for rate limits\n- Log all 4xx and 5xx responses\n- Provide clear error messages",
+          "keywords": ["response codes", "http", "status", "errors"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "date-time-format",
+          "question": "What Date/Time format does UCP use?",
+          "answer": "**Standard:** RFC 3339\n\n**Format Examples:**\n```\n2026-01-15T14:30:00Z        # UTC\n2026-01-15T09:30:00-05:00   # EST (with offset)\n2026-01-15T14:30:00.123Z    # With milliseconds\n```\n\n**Rules:**\n- Always use ISO 8601 / RFC 3339 format\n- Include timezone (Z for UTC or offset)\n- Use UTC when possible for consistency\n- Milliseconds optional but supported\n\n**JavaScript Example:**\n```typescript\nconst timestamp = new Date().toISOString();\n// \"2026-01-15T14:30:00.000Z\"\n```\n\n**Validation:**\n- Must be valid date/time\n- Must include timezone\n- Should be in future for scheduled events\n- Should be in past for occurred events",
+          "keywords": ["date", "time", "format", "rfc3339", "timestamp"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "amount-format",
+          "question": "What Amount format does UCP use?",
+          "answer": "**Standard:** Minor units (cents)\n\n**Format:**\n```json\n{\n  \"amount\": 9999,    // $99.99\n  \"currency\": \"USD\"\n}\n```\n\n**Examples by Currency:**\n- USD: 1000 = $10.00 (100 cents per dollar)\n- EUR: 2500 = €25.00 (100 cents per euro)\n- JPY: 1000 = ¥1000 (no minor unit for yen)\n\n**Rules:**\n- Always use integers (no decimals)\n- Always include currency code (ISO 4217)\n- Amount is in smallest currency unit\n- Never use floating point\n\n**Conversion:**\n```typescript\n// Dollars to cents\nconst cents = Math.round(dollars * 100);\n\n// Cents to dollars\nconst dollars = cents / 100;\n```\n\n**Why Minor Units:**\n- No floating point errors\n- Consistent precision\n- Standard in payment processing\n- Works across all currencies",
+          "keywords": ["amount", "currency", "format", "cents", "money"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/"
+          ],
+          "source_file": "ucp-learning.md"
+        }
+      ]
+    }
+  ]
+}
