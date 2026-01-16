@@ -14,9 +14,11 @@
     mermaid.initialize({
       startOnLoad: false,
       theme: 'default',
-      mindmap: {
+      flowchart: {
+        curve: 'basis',
         padding: 20,
-        useMaxWidth: true
+        useMaxWidth: true,
+        htmlLabels: true
       }
     });
     window.mermaid = mermaid;
@@ -1803,24 +1805,37 @@
       width: 100%;
       max-width: 100%;
       height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      overflow: auto;
     }
 
     #graph-svg {
+      width: 100%;
+      min-height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem;
+    }
+
+    #graph-svg svg {
       max-width: 100%;
       height: auto;
     }
 
-    /* Mermaid node styling */
-    .mindmap-node {
-      cursor: pointer;
-      transition: opacity 0.2s;
+    /* Mermaid flowchart node styling */
+    .node rect,
+    .node circle,
+    .node ellipse,
+    .node polygon {
+      stroke-width: 2px;
+      transition: all 0.2s;
     }
 
-    .mindmap-node:hover {
-      opacity: 0.8;
+    .node:hover rect,
+    .node:hover circle,
+    .node:hover ellipse,
+    .node:hover polygon {
+      filter: brightness(0.95);
     }
   </style>
 </head>
@@ -4003,46 +4018,97 @@ CRITICAL - Documentation Links:
     // Track current drill-down state
     let currentGraphCategory = null;
 
-    function buildMermaidGraph(categoryId = null) {
+    function buildMermaidFlowchart(categoryId = null) {
       if (!knowledgeBase || !knowledgeBase.categories) {
-        return 'mindmap\n  root((UCP Explorer))\n    Loading...';
+        return 'flowchart TD\n  START[UCP Explorer]\n';
       }
 
-      let mermaidCode = 'mindmap\n  root((UCP Explorer))\n';
+      let mermaidCode = 'flowchart TD\n';
+      let nodeIndex = 0;
 
       if (categoryId === null) {
-        // Top level - show all categories
+        // Top level - show categories as a flowchart showing conceptual flow
+        mermaidCode += '  START([Start Here])\n';
+
+        // Group categories by their conceptual flow
+        const categoryGroups = {
+          fundamentals: ['foundations_why'],
+          concepts: ['core_concepts'],
+          implementation: ['checkout_core', 'transport_protocols'],
+          security: ['security_privacy'],
+          operations: ['order_management', 'extensions_customization'],
+          advanced: ['implementation_guide', 'advanced_topics', 'real_world_use_cases'],
+          reference: ['best_practices', 'roadmap_community', 'quick_reference']
+        };
+
+        // Create nodes for each category
+        const categoryNodes = {};
         knowledgeBase.categories.forEach(category => {
-          const categoryTitle = sanitizeMermaidText(category.title || 'Category');
-          mermaidCode += `    ${categoryTitle}\n`;
+          const nodeId = `cat_${category.id}`;
+          const title = sanitizeMermaidText(category.title);
+          categoryNodes[category.id] = nodeId;
+
+          // Use different shapes for visual interest
+          if (category.id.includes('foundations') || category.id.includes('core')) {
+            mermaidCode += `  ${nodeId}[${title}]\n`;
+          } else if (category.id.includes('quick_reference')) {
+            mermaidCode += `  ${nodeId}[[${title}]]\n`;
+          } else {
+            mermaidCode += `  ${nodeId}(${title})\n`;
+          }
         });
+
+        // Create flow connections showing learning path
+        mermaidCode += '  START --> cat_foundations_why\n';
+        mermaidCode += '  cat_foundations_why --> cat_core_concepts\n';
+        mermaidCode += '  cat_core_concepts --> cat_checkout_core\n';
+        mermaidCode += '  cat_core_concepts --> cat_transport_protocols\n';
+        mermaidCode += '  cat_checkout_core --> cat_security_privacy\n';
+        mermaidCode += '  cat_transport_protocols --> cat_security_privacy\n';
+        mermaidCode += '  cat_security_privacy --> cat_order_management\n';
+        mermaidCode += '  cat_order_management --> cat_extensions_customization\n';
+        mermaidCode += '  cat_extensions_customization --> cat_implementation_guide\n';
+        mermaidCode += '  cat_implementation_guide --> cat_advanced_topics\n';
+        mermaidCode += '  cat_advanced_topics --> cat_real_world_use_cases\n';
+        mermaidCode += '  cat_real_world_use_cases --> cat_best_practices\n';
+        mermaidCode += '  cat_best_practices --> cat_roadmap_community\n';
+        mermaidCode += '  cat_quick_reference -.-> cat_foundations_why\n';
+        mermaidCode += '  cat_quick_reference -.-> cat_core_concepts\n';
+
       } else {
-        // Drilled down - show selected category and its questions
+        // Drilled down - show questions as a flowchart
         const category = knowledgeBase.categories.find(c => c.id === categoryId);
         if (category) {
-          const categoryTitle = sanitizeMermaidText(category.title || 'Category');
-          mermaidCode += `    ${categoryTitle}\n`;
+          const categoryTitle = sanitizeMermaidText(category.title);
+          mermaidCode += `  CAT[${categoryTitle}]\n`;
 
-          // Add question nodes under the category
           if (category.questions && category.questions.length > 0) {
-            category.questions.forEach(question => {
-              let questionText = question.question.length > 60
-                ? question.question.substring(0, 57) + '...'
+            category.questions.forEach((question, idx) => {
+              const nodeId = `q_${idx}`;
+              let questionText = question.question.length > 50
+                ? question.question.substring(0, 47) + '...'
                 : question.question;
               questionText = sanitizeMermaidText(questionText);
-              mermaidCode += `      ${questionText}\n`;
+              mermaidCode += `  ${nodeId}(${questionText})\n`;
+
+              // Connect questions in sequence
+              if (idx === 0) {
+                mermaidCode += `  CAT --> ${nodeId}\n`;
+              } else {
+                mermaidCode += `  q_${idx-1} --> ${nodeId}\n`;
+              }
             });
           }
         }
       }
 
-      console.log('Generated Mermaid code:', mermaidCode);
+      console.log('Generated Mermaid flowchart:', mermaidCode);
       return mermaidCode;
     }
 
     async function renderGraph() {
       const graphContainer = document.getElementById('graph-svg');
-      const mermaidCode = buildMermaidGraph(currentGraphCategory);
+      const mermaidCode = buildMermaidFlowchart(currentGraphCategory);
 
       // Update back button visibility
       const backBtn = document.getElementById('graph-back-btn');
@@ -4057,78 +4123,82 @@ CRITICAL - Documentation Links:
         graphContainer.innerHTML = '';
 
         // Generate unique ID for this render
-        const graphId = 'mermaid-graph-' + Date.now();
+        const graphId = 'mermaid-flowchart-' + Date.now();
 
         // Render with Mermaid
         const { svg } = await window.mermaid.render(graphId, mermaidCode);
         graphContainer.innerHTML = svg;
 
         // Build maps for click handling
-        const textToCategoryMap = {};
-        const textToQuestionMap = {};
+        const nodeIdToCategoryMap = {};
+        const nodeIdToQuestionMap = {};
 
         if (currentGraphCategory === null) {
-          // Top level - map category titles to category IDs
+          // Top level - map node IDs to category IDs
           knowledgeBase.categories.forEach(category => {
-            const sanitized = sanitizeMermaidText(category.title);
-            textToCategoryMap[sanitized] = category.id;
+            const nodeId = `cat_${category.id}`;
+            nodeIdToCategoryMap[nodeId] = category.id;
           });
         } else {
-          // Drilled down - map question text to question IDs
+          // Drilled down - map node indices to question IDs
           const category = knowledgeBase.categories.find(c => c.id === currentGraphCategory);
           if (category && category.questions) {
-            category.questions.forEach(question => {
-              let questionText = question.question.length > 60
-                ? question.question.substring(0, 57) + '...'
-                : question.question;
-              const sanitized = sanitizeMermaidText(questionText);
-              textToQuestionMap[sanitized] = question.id;
+            category.questions.forEach((question, idx) => {
+              nodeIdToQuestionMap[`q_${idx}`] = question.id;
             });
           }
         }
 
         // Add click handlers to nodes
         setTimeout(() => {
-          // Find all text elements in the SVG
-          const textElements = graphContainer.querySelectorAll('text');
-          textElements.forEach(textEl => {
-            const text = textEl.textContent.trim();
-            const categoryId = textToCategoryMap[text];
-            const questionId = textToQuestionMap[text];
+          // Find all flowchart nodes
+          const nodes = graphContainer.querySelectorAll('[id^="flowchart-"]');
+          nodes.forEach(node => {
+            const nodeId = node.id;
 
-            if (categoryId) {
-              // This is a category node - drill down on click
-              textEl.style.cursor = 'pointer';
-              const parentNode = textEl.closest('g');
-              if (parentNode) {
-                parentNode.style.cursor = 'pointer';
-                parentNode.addEventListener('click', async (e) => {
+            // Extract the actual node identifier from the Mermaid-generated ID
+            // Mermaid generates IDs like "flowchart-cat_foundations_why-123"
+            let actualNodeId = null;
+
+            // Try to match category nodes
+            for (const [catNodeId, categoryId] of Object.entries(nodeIdToCategoryMap)) {
+              if (nodeId.includes(catNodeId)) {
+                actualNodeId = categoryId;
+                // This is a category node - drill down on click
+                node.style.cursor = 'pointer';
+                node.addEventListener('click', async (e) => {
                   e.stopPropagation();
-                  currentGraphCategory = categoryId;
+                  currentGraphCategory = actualNodeId;
                   await renderGraph();
                 });
+                break;
               }
-            } else if (questionId) {
-              // This is a question node - navigate to question
-              textEl.style.cursor = 'pointer';
-              const parentNode = textEl.closest('g');
-              if (parentNode) {
-                parentNode.style.cursor = 'pointer';
-                parentNode.addEventListener('click', (e) => {
-                  e.stopPropagation();
-                  // Close graph page
-                  document.getElementById('graph-page').classList.remove('active');
-                  // Reset drill-down state
-                  currentGraphCategory = null;
-                  // Navigate to question
-                  navigateToQuestion(questionId);
-                });
+            }
+
+            // Try to match question nodes
+            if (!actualNodeId) {
+              for (const [qNodeId, questionId] of Object.entries(nodeIdToQuestionMap)) {
+                if (nodeId.includes(qNodeId)) {
+                  actualNodeId = questionId;
+                  // This is a question node - navigate to question
+                  node.style.cursor = 'pointer';
+                  node.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Close graph page
+                    document.getElementById('graph-page').classList.remove('active');
+                    // Reset drill-down state
+                    currentGraphCategory = null;
+                    // Navigate to question
+                    navigateToQuestion(actualNodeId);
+                  });
+                  break;
+                }
               }
             }
           });
         }, 100);
       } catch (error) {
-        console.error('Error rendering Mermaid graph:', error);
+        console.error('Error rendering Mermaid flowchart:', error);
         graphContainer.innerHTML = `<div style="color: var(--text-secondary); padding: 2rem;">
           <p>Error rendering knowledge graph.</p>
           <p style="font-size: 0.9rem; margin-top: 0.5rem;">${error.message}</p>
