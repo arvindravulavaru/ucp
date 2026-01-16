@@ -112,6 +112,33 @@
       color: var(--accent);
     }
 
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-left: 1rem;
+      padding-left: 1rem;
+      border-left: 1px solid var(--border);
+    }
+
+    .header-links a {
+      color: var(--text-secondary) !important;
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: color 0.2s;
+    }
+
+    .header-links a:visited {
+      color: var(--text-secondary) !important;
+    }
+
+    .header-links a:hover {
+      color: var(--accent) !important;
+    }
+
     .header-actions {
       display: flex;
       gap: 0.75rem;
@@ -1044,6 +1071,16 @@
       border-color: var(--accent);
     }
 
+    .chat-slack-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .chat-slack-btn:disabled:hover {
+      background: var(--bg-primary);
+      border-color: var(--border);
+    }
+
     .chat-input-container {
       padding: 1.5rem 2rem;
       border-top: 1px solid var(--border);
@@ -1077,7 +1114,7 @@
 
     .chat-send {
       padding: 0.75rem 1.5rem;
-      background: var(--text-primary);
+      background: var(--accent);
       color: white;
       border: none;
       border-radius: 50px;
@@ -1090,7 +1127,7 @@
     }
 
     .chat-send:hover {
-      background: var(--text-secondary);
+      background: var(--accent-light);
     }
 
     .chat-send:disabled {
@@ -1332,6 +1369,10 @@
 
     /* Responsive */
     @media (max-width: 960px) {
+      .header-links {
+        display: none;
+      }
+
       .app-layout {
         flex-direction: column;
       }
@@ -1841,12 +1882,24 @@
 </head>
 <body>
   <header class="app-header">
-    <div class="logo" id="app-title">
-      <img src="main_logo.svg" alt="UCP Logo">
-      <h1>UCP Explorer</h1>
+    <div style="display: flex; align-items: center;">
+      <div class="logo" id="app-title">
+        <img src="main_logo.svg" alt="UCP Logo">
+        <h1>UCP Explorer</h1>
+      </div>
+      <div class="header-links">
+        <a href="https://ucp.dev" target="_blank" rel="noopener noreferrer">
+          🌐 ucp.dev
+        </a>
+        <a href="https://github.com/Universal-Commerce-Protocol/ucp" target="_blank" rel="noopener noreferrer" title="GitHub Repository">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+        </a>
+      </div>
     </div>
     <div class="header-actions">
-      <button id="graph-btn" title="Knowledge Graph">🗺️</button>
+      <button id="graph-btn" title="Knowledge Graph" style="display: none;">🗺️</button>
       <button id="specs-btn" title="Browse Specs">📋</button>
       <button id="history-btn" title="History">📜</button>
       <button id="bookmarks-btn" title="Saved Topics">⭐</button>
@@ -2147,9 +2200,6 @@
           const title = token.title || arguments[1];
           const text = token.text || arguments[2];
 
-          // Debug logging for link rendering
-          console.log('Marked link renderer:', { href, title, text, token, allArgs: arguments });
-
           // Handle undefined text
           const linkText = text || href || 'Link';
           const titleAttr = title ? ` title="${title}"` : '';
@@ -2162,7 +2212,6 @@
     async function initializeUser() {
       try {
         currentUser = await quick.id.waitForUser();
-        console.log('User authenticated:', currentUser.email);
 
         // Set user avatar if available
         const avatarImg = document.getElementById('user-avatar');
@@ -2203,7 +2252,6 @@
                 timestamp: new Date().toISOString()
               });
             }
-            console.log('Migrated bookmarks to database');
           }
         }
 
@@ -2223,7 +2271,6 @@
                 timestamp: item.timestamp || new Date().toISOString()
               });
             }
-            console.log('Migrated search history to database');
           }
         }
 
@@ -2236,12 +2283,8 @@
     // Load knowledge base
     async function loadKnowledgeBase() {
       try {
-        console.log('Loading knowledge base...');
         const response = await fetch('ucp-learning.json');
-        console.log('Response status:', response.status);
         knowledgeBase = await response.json();
-        console.log('Knowledge base loaded:', knowledgeBase);
-        console.log('marked available:', typeof marked !== 'undefined');
 
         // Build flat list of all questions for navigation
         buildAllQuestionsList();
@@ -2268,7 +2311,6 @@
           }
         });
       }
-      console.log(`Total questions for navigation: ${allQuestions.length}`);
     }
 
     // Initialize UI
@@ -2781,14 +2823,6 @@ CRITICAL - Documentation Links:
 
         const userMessage = `Context:\n${contextText}\n\nQuestion: ${question}`;
 
-        // Console log AI inputs
-        console.group('🤖 AI Request (askAIDirect)');
-        console.log('System Prompt:', systemPrompt);
-        console.log('Context Text:', contextText);
-        console.log('User Question:', question);
-        console.log('Full User Message:', userMessage);
-        console.groupEnd();
-
         const stream = await openaiClient.chat.completions.create({
           model: 'gpt-5.1',
           messages: [
@@ -2813,20 +2847,10 @@ CRITICAL - Documentation Links:
         // Apply syntax highlighting after streaming completes
         highlightCodeBlocks(answerText);
 
-        // Console log AI output
-        console.group('✅ AI Response (askAIDirect)');
-        console.log('Full Response:', fullResponse);
-        console.groupEnd();
-
         // Enhance JSON blocks after streaming completes
         enhanceJSONBlocks(answerText);
 
         const links = extractUCPLinks(fullResponse, context);
-
-        console.group('🔗 Extracted Links');
-        console.log('Links found:', links);
-        console.log('Context objects:', context);
-        console.groupEnd();
 
         if (links.length > 0) {
           // Show sources section
@@ -2988,7 +3012,6 @@ CRITICAL - Documentation Links:
           editor.expandAll();
         } catch (e) {
           // If JSON is invalid, leave the code block as is
-          console.log('Non-JSON or invalid JSON, keeping as code block');
         }
       });
     }
@@ -3145,13 +3168,21 @@ CRITICAL - Documentation Links:
       isGenerating = false;
       lastScrollTop = 0;
 
-      chatMessages.innerHTML = '';
+      chatMessages.innerHTML = `
+        <div class="chat-empty">
+          <div class="chat-empty-icon">💬</div>
+          <p>Ask AI about: <strong>${question.question}</strong></p>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">Context loaded. Ask your question below!</p>
+        </div>
+      `;
 
-      addMessageToChat('user', `Tell me more about: ${question.question}`);
+      chatInput.placeholder = "Ask your question...";
+
+      // Disable slack button until there are messages
+      const slackBtn = document.getElementById('chat-slack-btn');
+      slackBtn.disabled = true;
 
       chatModal.classList.add('active');
-
-      askAIChat(`Tell me more about: ${question.question}`, [question]);
 
       chatInput.focus();
     }
@@ -3175,10 +3206,16 @@ CRITICAL - Documentation Links:
 
     function addMessageToChat(role, content, streaming = false) {
       const chatMessages = document.getElementById('chat-messages');
+      const chatInput = document.getElementById('chat-input');
+      const slackBtn = document.getElementById('chat-slack-btn');
 
       const emptyState = chatMessages.querySelector('.chat-empty');
       if (emptyState) {
         emptyState.remove();
+        // Update placeholder to follow-up after first message
+        chatInput.placeholder = "Ask a follow-up question...";
+        // Enable slack button when first message is added
+        slackBtn.disabled = false;
       }
 
       const messageDiv = document.createElement('div');
@@ -3277,14 +3314,6 @@ CRITICAL - Documentation Links:
 
         messages.push(...chatHistory);
 
-        // Console log AI inputs
-        console.group('💬 AI Chat Request (askAIChat)');
-        console.log('System Prompt:', systemPrompt);
-        console.log('Context Text:', contextText);
-        console.log('Chat History:', chatHistory);
-        console.log('All Messages:', messages);
-        console.groupEnd();
-
         const stream = await openaiClient.chat.completions.create({
           model: 'gpt-5.1',
           messages: messages,
@@ -3321,11 +3350,6 @@ CRITICAL - Documentation Links:
         highlightCodeBlocks(bubble);
         enhanceJSONBlocks(bubble);
 
-        // Console log AI output
-        console.group('✅ AI Chat Response (askAIChat)');
-        console.log('Full Response:', fullResponse);
-        console.groupEnd();
-
         chatHistory.push({ role: 'assistant', content: fullResponse });
 
         streamingMsg.removeAttribute('id');
@@ -3336,6 +3360,9 @@ CRITICAL - Documentation Links:
         abortController = null;
         isGenerating = false;
 
+        // Update scroll button visibility
+        setTimeout(() => updateScrollButton(), 100);
+
       } catch (error) {
         isGenerating = false;
 
@@ -3345,6 +3372,7 @@ CRITICAL - Documentation Links:
 
         if (error.name !== 'AbortError') {
           addMessageToChat('assistant', '❌ Sorry, I encountered an error. Please try again.');
+          setTimeout(() => updateScrollButton(), 100);
           console.error(error);
         }
 
@@ -3362,6 +3390,7 @@ CRITICAL - Documentation Links:
       chatInput.style.height = 'auto';
 
       addMessageToChat('user', message);
+      setTimeout(() => updateScrollButton(), 100);
 
       await askAIChat(message, currentChatContext ? [currentChatContext] : []);
     }
@@ -4043,7 +4072,6 @@ CRITICAL - Documentation Links:
           mermaidCode += `  C${i} --> C${i+1}\n`;
         }
 
-        console.log('Generated Mermaid flowchart:', mermaidCode);
         return mermaidCode;
 
       } else {
@@ -4074,7 +4102,6 @@ CRITICAL - Documentation Links:
           }
         }
 
-        console.log('Generated Mermaid flowchart:', mermaidCode);
         return mermaidCode;
       }
     }
@@ -4153,8 +4180,20 @@ CRITICAL - Documentation Links:
               node.addEventListener('click', (e) => {
                 e.stopPropagation();
                 document.getElementById('graph-page').classList.remove('active');
+
+                // Find the question object by searching all categories
+                const category = knowledgeBase.categories.find(cat =>
+                  cat.questions && cat.questions.some(q => q.id === questionId)
+                );
+
+                if (category) {
+                  const question = category.questions.find(q => q.id === questionId);
+                  if (question) {
+                    selectQuestion(question, true);
+                  }
+                }
+
                 currentGraphCategory = null;
-                navigateToQuestion(questionId);
               });
             }
           });
