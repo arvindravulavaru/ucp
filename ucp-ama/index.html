@@ -3998,8 +3998,9 @@ CRITICAL - Documentation Links:
 
       knowledgeBase.categories.forEach(category => {
         // Add category node
-        const categoryId = category.name.replace(/[^a-zA-Z0-9]/g, '_');
-        mermaidCode += `    ${categoryId}(${category.name})\n`;
+        const categoryId = category.id || category.title.replace(/[^a-zA-Z0-9]/g, '_');
+        const categoryTitle = category.title || category.name || 'Category';
+        mermaidCode += `    ${categoryId}(${categoryTitle})\n`;
 
         // Add question nodes under each category
         if (category.questions && category.questions.length > 0) {
