@@ -121,6 +121,21 @@
       background-color: var(--bg-tertiary);
     }
 
+    #user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+      object-fit: cover;
+    }
+
+    #user-avatar:hover {
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+
     /* Search Container */
     .search-container {
       max-width: 800px;
@@ -1713,6 +1728,7 @@
       <button id="history-btn" title="History">📜</button>
       <button id="bookmarks-btn" title="Saved Topics">⭐</button>
       <button id="theme-toggle" title="Toggle dark mode">🌙</button>
+      <img id="user-avatar" src="" alt="User" style="display: none;">
     </div>
   </header>
 
@@ -2006,6 +2022,14 @@
       try {
         currentUser = await quick.id.waitForUser();
         console.log('User authenticated:', currentUser.email);
+
+        // Set user avatar if available
+        const avatarImg = document.getElementById('user-avatar');
+        if (currentUser.slackImageUrl) {
+          avatarImg.src = currentUser.slackImageUrl;
+          avatarImg.style.display = 'block';
+          avatarImg.title = `${currentUser.fullName || currentUser.name || currentUser.email}`;
+        }
 
         // Initialize database collections
         bookmarksCollection = quick.db.collection('user_bookmarks');
