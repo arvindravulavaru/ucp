@@ -1608,15 +1608,95 @@
     }
 
     #specs-viewer-header {
-      padding: 1rem 2rem;
+      padding: 0;
       border-bottom: 1px solid var(--border);
       background: var(--bg-secondary);
+      display: flex;
+      flex-direction: column;
+    }
+
+    #specs-viewer-title-row {
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     #specs-viewer-header h3 {
       margin: 0;
       font-size: 1.2rem;
       color: var(--text-primary);
+    }
+
+    #specs-view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg-primary);
+      border-top: 1px solid var(--border);
+    }
+
+    .spec-view-tab {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+      font-weight: 500;
+    }
+
+    .spec-view-tab:hover {
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+    }
+
+    .spec-view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--bg-primary);
+    }
+
+    .spec-copy-btn {
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .spec-copy-btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    #raw-json-view {
+      display: none;
+      height: 100%;
+      overflow: auto;
+      padding: 0;
+    }
+
+    #raw-json-view pre {
+      margin: 0;
+      padding: 2rem;
+      background: #282c34;
+      color: #abb2bf;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+
+    #raw-json-view pre code {
+      background: transparent;
+      padding: 0;
     }
 
     #specs-viewer-body {
@@ -1859,10 +1939,18 @@
       </div>
       <div id="specs-viewer-pane">
         <div id="specs-viewer-header">
-          <h3 id="specs-current-title">Select a specification</h3>
+          <div id="specs-viewer-title-row">
+            <h3 id="specs-current-title">Select a specification</h3>
+            <button class="spec-copy-btn" id="copy-json-btn" style="display: none;">📋 Copy JSON</button>
+          </div>
+          <div id="specs-view-tabs" style="display: none;">
+            <button class="spec-view-tab active" data-view="tree">🌳 Tree View</button>
+            <button class="spec-view-tab" data-view="raw">📄 Raw JSON</button>
+          </div>
         </div>
         <div id="specs-viewer-body">
           <div id="specs-viewer-content-pane"></div>
+          <div id="raw-json-view"></div>
         </div>
       </div>
     </div>
@@ -3437,6 +3525,8 @@ CRITICAL - Documentation Links:
     // Specs Browser Functions
     let specsCache = null;
     let currentSpecPath = null;
+    let currentSpecData = null;
+    let currentSpecEditor = null;
 
     async function loadSpecs() {
       if (specsCache) return specsCache;
@@ -3455,6 +3545,9 @@ CRITICAL - Documentation Links:
     async function loadSpecInPane(specPath) {
       const titleEl = document.getElementById('specs-current-title');
       const contentEl = document.getElementById('specs-viewer-content-pane');
+      const rawJsonEl = document.getElementById('raw-json-view');
+      const tabsEl = document.getElementById('specs-view-tabs');
+      const copyBtn = document.getElementById('copy-json-btn');
 
       // Extract friendly name from path
       const fileName = specPath.split('/').pop();
@@ -3472,6 +3565,7 @@ CRITICAL - Documentation Links:
 
       // Show loading state
       contentEl.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%;"><div class="loading-spinner"></div></div>';
+      rawJsonEl.style.display = 'none';
 
       try {
         // Load from local symlink
@@ -3482,34 +3576,23 @@ CRITICAL - Documentation Links:
         }
 
         const specJson = await response.json();
-
-        // Create container for JSON editor
-        const editorContainer = document.createElement('div');
-        editorContainer.className = 'json-viewer-container';
-        editorContainer.id = 'spec-json-viewer';
-        contentEl.innerHTML = '';
-        contentEl.appendChild(editorContainer);
-
-        // Initialize JSON editor
-        const options = {
-          mode: 'view',
-          modes: ['view', 'code'],
-          search: true,
-          navigationBar: true,
-          statusBar: true,
-          mainMenuBar: false,
-          onError: function (err) {
-            console.error('JSON Editor error:', err);
-          }
-        };
-
-        const editor = new JSONEditor(editorContainer, options);
-        editor.set(specJson);
-
+        currentSpecData = specJson;
         currentSpecPath = specPath;
+
+        // Show tabs and copy button
+        tabsEl.style.display = 'flex';
+        copyBtn.style.display = 'block';
+
+        // Render tree view by default
+        renderTreeView();
+
+        // Render raw JSON view (but keep it hidden)
+        renderRawJsonView();
 
       } catch (error) {
         console.error('Error loading spec:', error);
+        tabsEl.style.display = 'none';
+        copyBtn.style.display = 'none';
         contentEl.innerHTML = `
           <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; padding: 2rem; color: var(--error);">
             <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">❌ Failed to load specification</p>
@@ -3522,6 +3605,98 @@ CRITICAL - Documentation Links:
             </p>
           </div>
         `;
+      }
+    }
+
+    function renderTreeView() {
+      const contentEl = document.getElementById('specs-viewer-content-pane');
+
+      // Create container for JSON editor
+      const editorContainer = document.createElement('div');
+      editorContainer.className = 'json-viewer-container';
+      editorContainer.id = 'spec-json-viewer';
+      contentEl.innerHTML = '';
+      contentEl.appendChild(editorContainer);
+
+      // Initialize JSON editor
+      const options = {
+        mode: 'view',
+        modes: ['view', 'code'],
+        search: true,
+        navigationBar: true,
+        statusBar: true,
+        mainMenuBar: false,
+        onError: function (err) {
+          console.error('JSON Editor error:', err);
+        }
+      };
+
+      currentSpecEditor = new JSONEditor(editorContainer, options);
+      currentSpecEditor.set(currentSpecData);
+    }
+
+    function renderRawJsonView() {
+      const rawJsonEl = document.getElementById('raw-json-view');
+      const formattedJson = JSON.stringify(currentSpecData, null, 2);
+
+      rawJsonEl.innerHTML = `<pre><code class="language-json">${escapeHtml(formattedJson)}</code></pre>`;
+
+      // Apply syntax highlighting
+      const codeBlock = rawJsonEl.querySelector('code');
+      if (codeBlock && window.hljs) {
+        hljs.highlightElement(codeBlock);
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function switchSpecView(view) {
+      const contentEl = document.getElementById('specs-viewer-content-pane');
+      const rawJsonEl = document.getElementById('raw-json-view');
+      const tabs = document.querySelectorAll('.spec-view-tab');
+
+      // Update active tab
+      tabs.forEach(tab => {
+        if (tab.getAttribute('data-view') === view) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+
+      // Show/hide appropriate view
+      if (view === 'tree') {
+        contentEl.style.display = 'block';
+        rawJsonEl.style.display = 'none';
+      } else if (view === 'raw') {
+        contentEl.style.display = 'none';
+        rawJsonEl.style.display = 'block';
+      }
+    }
+
+    async function copySpecJson() {
+      if (!currentSpecData) return;
+
+      try {
+        const jsonText = JSON.stringify(currentSpecData, null, 2);
+        await navigator.clipboard.writeText(jsonText);
+
+        // Visual feedback
+        const btn = document.getElementById('copy-json-btn');
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+
+        showNotification('JSON copied to clipboard');
+      } catch (error) {
+        console.error('Failed to copy:', error);
+        showNotification('Failed to copy to clipboard');
       }
     }
 
@@ -3697,6 +3872,17 @@ CRITICAL - Documentation Links:
     document.getElementById('specs-search-input').addEventListener('input', (e) => {
       displaySpecsTree(e.target.value);
     });
+
+    // Spec view tabs
+    document.querySelectorAll('.spec-view-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const view = tab.getAttribute('data-view');
+        switchSpecView(view);
+      });
+    });
+
+    // Copy JSON button
+    document.getElementById('copy-json-btn').addEventListener('click', copySpecJson);
 
     document.getElementById('history-btn').addEventListener('click', () => {
       document.getElementById('history-modal').classList.add('active');
