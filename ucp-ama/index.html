@@ -3992,9 +3992,7 @@ CRITICAL - Documentation Links:
     function sanitizeMermaidText(text) {
       // Remove or escape special characters that break Mermaid syntax
       return text
-        .replace(/\[/g, '(')  // Replace brackets with parentheses
-        .replace(/\]/g, ')')
-        .replace(/[{}]/g, '') // Remove curly braces
+        .replace(/[()[\]{}]/g, '') // Remove all brackets and parens
         .replace(/["'`]/g, '') // Remove quotes
         .replace(/\n/g, ' ')  // Replace newlines with spaces
         .replace(/\s+/g, ' ') // Normalize whitespace
@@ -4009,20 +4007,19 @@ CRITICAL - Documentation Links:
       let mermaidCode = 'mindmap\n  root((UCP Explorer))\n';
 
       knowledgeBase.categories.forEach(category => {
-        // Add category node
-        const categoryId = category.id.replace(/[^a-zA-Z0-9]/g, '_');
+        // Add category node - using plain text without wrapping
         const categoryTitle = sanitizeMermaidText(category.title || 'Category');
-        mermaidCode += `    ${categoryId}\n      ${categoryTitle}\n`;
+        mermaidCode += `    ${categoryTitle}\n`;
 
         // Add question nodes under each category
         if (category.questions && category.questions.length > 0) {
           category.questions.forEach(question => {
-            const questionId = question.id.replace(/[^a-zA-Z0-9]/g, '_');
-            let questionText = question.question.length > 40
-              ? question.question.substring(0, 37) + '...'
+            let questionText = question.question.length > 50
+              ? question.question.substring(0, 47) + '...'
               : question.question;
             questionText = sanitizeMermaidText(questionText);
-            mermaidCode += `      ${questionId}\n        ${questionText}\n`;
+            // Store question ID as data attribute for click handling
+            mermaidCode += `      ${questionText}\n`;
           });
         }
       });
@@ -4046,23 +4043,42 @@ CRITICAL - Documentation Links:
         const { svg } = await window.mermaid.render(graphId, mermaidCode);
         graphContainer.innerHTML = svg;
 
+        // Build a map of sanitized text to question IDs
+        const textToQuestionMap = {};
+        knowledgeBase.categories.forEach(category => {
+          category.questions.forEach(question => {
+            let questionText = question.question.length > 50
+              ? question.question.substring(0, 47) + '...'
+              : question.question;
+            const sanitized = sanitizeMermaidText(questionText);
+            textToQuestionMap[sanitized] = question.id;
+          });
+        });
+
         // Add click handlers to nodes
         setTimeout(() => {
-          // Add click handlers to question nodes
-          knowledgeBase.categories.forEach(category => {
-            category.questions.forEach(question => {
-              const nodeElement = document.querySelector(`[id*="${question.id}"]`);
-              if (nodeElement) {
-                nodeElement.style.cursor = 'pointer';
-                nodeElement.addEventListener('click', (e) => {
+          // Find all text elements in the SVG
+          const textElements = graphContainer.querySelectorAll('text');
+          textElements.forEach(textEl => {
+            const text = textEl.textContent.trim();
+            const questionId = textToQuestionMap[text];
+
+            if (questionId) {
+              // This is a question node
+              textEl.style.cursor = 'pointer';
+              // Also make the parent node clickable
+              const parentNode = textEl.closest('g');
+              if (parentNode) {
+                parentNode.style.cursor = 'pointer';
+                parentNode.addEventListener('click', (e) => {
                   e.stopPropagation();
                   // Close graph page
                   document.getElementById('graph-page').classList.remove('active');
                   // Navigate to question
-                  navigateToQuestion(question.id);
+                  navigateToQuestion(questionId);
                 });
               }
-            });
+            }
           });
         }, 100);
       } catch (error) {
