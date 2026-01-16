@@ -2069,6 +2069,7 @@
         <h2>🗺️ Knowledge Graph</h2>
       </div>
       <div id="graph-page-actions">
+        <button id="graph-back-btn" style="display: none;">← Back</button>
         <button id="graph-close-btn">✕ Close</button>
       </div>
     </div>
@@ -3999,30 +4000,41 @@ CRITICAL - Documentation Links:
         .trim();
     }
 
-    function buildMermaidGraph() {
+    // Track current drill-down state
+    let currentGraphCategory = null;
+
+    function buildMermaidGraph(categoryId = null) {
       if (!knowledgeBase || !knowledgeBase.categories) {
         return 'mindmap\n  root((UCP Explorer))\n    Loading...';
       }
 
       let mermaidCode = 'mindmap\n  root((UCP Explorer))\n';
 
-      knowledgeBase.categories.forEach(category => {
-        // Add category node - using plain text without wrapping
-        const categoryTitle = sanitizeMermaidText(category.title || 'Category');
-        mermaidCode += `    ${categoryTitle}\n`;
+      if (categoryId === null) {
+        // Top level - show all categories
+        knowledgeBase.categories.forEach(category => {
+          const categoryTitle = sanitizeMermaidText(category.title || 'Category');
+          mermaidCode += `    ${categoryTitle}\n`;
+        });
+      } else {
+        // Drilled down - show selected category and its questions
+        const category = knowledgeBase.categories.find(c => c.id === categoryId);
+        if (category) {
+          const categoryTitle = sanitizeMermaidText(category.title || 'Category');
+          mermaidCode += `    ${categoryTitle}\n`;
 
-        // Add question nodes under each category
-        if (category.questions && category.questions.length > 0) {
-          category.questions.forEach(question => {
-            let questionText = question.question.length > 50
-              ? question.question.substring(0, 47) + '...'
-              : question.question;
-            questionText = sanitizeMermaidText(questionText);
-            // Store question ID as data attribute for click handling
-            mermaidCode += `      ${questionText}\n`;
-          });
+          // Add question nodes under the category
+          if (category.questions && category.questions.length > 0) {
+            category.questions.forEach(question => {
+              let questionText = question.question.length > 60
+                ? question.question.substring(0, 57) + '...'
+                : question.question;
+              questionText = sanitizeMermaidText(questionText);
+              mermaidCode += `      ${questionText}\n`;
+            });
+          }
         }
-      });
+      }
 
       console.log('Generated Mermaid code:', mermaidCode);
       return mermaidCode;
@@ -4030,7 +4042,15 @@ CRITICAL - Documentation Links:
 
     async function renderGraph() {
       const graphContainer = document.getElementById('graph-svg');
-      const mermaidCode = buildMermaidGraph();
+      const mermaidCode = buildMermaidGraph(currentGraphCategory);
+
+      // Update back button visibility
+      const backBtn = document.getElementById('graph-back-btn');
+      if (currentGraphCategory === null) {
+        backBtn.style.display = 'none';
+      } else {
+        backBtn.style.display = 'block';
+      }
 
       try {
         // Clear previous graph
@@ -4043,17 +4063,29 @@ CRITICAL - Documentation Links:
         const { svg } = await window.mermaid.render(graphId, mermaidCode);
         graphContainer.innerHTML = svg;
 
-        // Build a map of sanitized text to question IDs
+        // Build maps for click handling
+        const textToCategoryMap = {};
         const textToQuestionMap = {};
-        knowledgeBase.categories.forEach(category => {
-          category.questions.forEach(question => {
-            let questionText = question.question.length > 50
-              ? question.question.substring(0, 47) + '...'
-              : question.question;
-            const sanitized = sanitizeMermaidText(questionText);
-            textToQuestionMap[sanitized] = question.id;
+
+        if (currentGraphCategory === null) {
+          // Top level - map category titles to category IDs
+          knowledgeBase.categories.forEach(category => {
+            const sanitized = sanitizeMermaidText(category.title);
+            textToCategoryMap[sanitized] = category.id;
           });
-        });
+        } else {
+          // Drilled down - map question text to question IDs
+          const category = knowledgeBase.categories.find(c => c.id === currentGraphCategory);
+          if (category && category.questions) {
+            category.questions.forEach(question => {
+              let questionText = question.question.length > 60
+                ? question.question.substring(0, 57) + '...'
+                : question.question;
+              const sanitized = sanitizeMermaidText(questionText);
+              textToQuestionMap[sanitized] = question.id;
+            });
+          }
+        }
 
         // Add click handlers to nodes
         setTimeout(() => {
@@ -4061,12 +4093,24 @@ CRITICAL - Documentation Links:
           const textElements = graphContainer.querySelectorAll('text');
           textElements.forEach(textEl => {
             const text = textEl.textContent.trim();
+            const categoryId = textToCategoryMap[text];
             const questionId = textToQuestionMap[text];
 
-            if (questionId) {
-              // This is a question node
+            if (categoryId) {
+              // This is a category node - drill down on click
               textEl.style.cursor = 'pointer';
-              // Also make the parent node clickable
+              const parentNode = textEl.closest('g');
+              if (parentNode) {
+                parentNode.style.cursor = 'pointer';
+                parentNode.addEventListener('click', async (e) => {
+                  e.stopPropagation();
+                  currentGraphCategory = categoryId;
+                  await renderGraph();
+                });
+              }
+            } else if (questionId) {
+              // This is a question node - navigate to question
+              textEl.style.cursor = 'pointer';
               const parentNode = textEl.closest('g');
               if (parentNode) {
                 parentNode.style.cursor = 'pointer';
@@ -4074,6 +4118,8 @@ CRITICAL - Documentation Links:
                   e.stopPropagation();
                   // Close graph page
                   document.getElementById('graph-page').classList.remove('active');
+                  // Reset drill-down state
+                  currentGraphCategory = null;
                   // Navigate to question
                   navigateToQuestion(questionId);
                 });
@@ -4091,12 +4137,22 @@ CRITICAL - Documentation Links:
     }
 
     document.getElementById('graph-btn').addEventListener('click', async () => {
+      // Reset to top level when opening graph
+      currentGraphCategory = null;
       document.getElementById('graph-page').classList.add('active');
+      await renderGraph();
+    });
+
+    document.getElementById('graph-back-btn').addEventListener('click', async () => {
+      // Go back to top level
+      currentGraphCategory = null;
       await renderGraph();
     });
 
     document.getElementById('graph-close-btn').addEventListener('click', () => {
       document.getElementById('graph-page').classList.remove('active');
+      // Reset drill-down state when closing
+      currentGraphCategory = null;
     });
 
     document.getElementById('history-btn').addEventListener('click', () => {
