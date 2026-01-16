@@ -4128,31 +4128,34 @@ CRITICAL - Documentation Links:
           nodes.forEach(node => {
             const nodeId = node.id;
 
-            // Check category nodes (C0, C1, etc.)
-            for (const [catNodeId, categoryId] of Object.entries(nodeIdToCategoryMap)) {
-              if (nodeId.includes(catNodeId)) {
-                node.style.cursor = 'pointer';
-                node.addEventListener('click', async (e) => {
-                  e.stopPropagation();
-                  currentGraphCategory = categoryId;
-                  await renderGraph();
-                });
-                break;
-              }
-            }
+            // Extract the node identifier from Mermaid-generated ID
+            // IDs are like "flowchart-C0-123" or "flowchart-Q5-456"
+            // We need to match the exact node ID between dashes
+            const match = nodeId.match(/flowchart-([CQ]\d+)-/);
+            if (!match) return;
 
-            // Check question nodes (Q0, Q1, etc.)
-            for (const [qNodeId, questionId] of Object.entries(nodeIdToQuestionMap)) {
-              if (nodeId.includes(qNodeId)) {
-                node.style.cursor = 'pointer';
-                node.addEventListener('click', (e) => {
-                  e.stopPropagation();
-                  document.getElementById('graph-page').classList.remove('active');
-                  currentGraphCategory = null;
-                  navigateToQuestion(questionId);
-                });
-                break;
-              }
+            const extractedId = match[1];
+
+            // Check if it's a category node
+            if (extractedId in nodeIdToCategoryMap) {
+              const categoryId = nodeIdToCategoryMap[extractedId];
+              node.style.cursor = 'pointer';
+              node.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                currentGraphCategory = categoryId;
+                await renderGraph();
+              });
+            }
+            // Check if it's a question node
+            else if (extractedId in nodeIdToQuestionMap) {
+              const questionId = nodeIdToQuestionMap[extractedId];
+              node.style.cursor = 'pointer';
+              node.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('graph-page').classList.remove('active');
+                currentGraphCategory = null;
+                navigateToQuestion(questionId);
+              });
             }
           });
         }, 100);
