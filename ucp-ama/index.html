@@ -4020,90 +4020,63 @@ CRITICAL - Documentation Links:
 
     function buildMermaidFlowchart(categoryId = null) {
       if (!knowledgeBase || !knowledgeBase.categories) {
-        return 'flowchart TD\n  START[UCP Explorer]\n';
+        return 'flowchart LR\n  START["UCP Explorer"]\n';
       }
-
-      let mermaidCode = 'flowchart TD\n';
-      let nodeIndex = 0;
 
       if (categoryId === null) {
-        // Top level - show categories as a flowchart showing conceptual flow
-        mermaidCode += '  START([Start Here])\n';
+        // Top level - show categories as clickable cards in a simple grid
+        let mermaidCode = 'flowchart LR\n';
+        mermaidCode += '  START(["🏠 Start Your UCP Journey"])\n\n';
 
-        // Group categories by their conceptual flow
-        const categoryGroups = {
-          fundamentals: ['foundations_why'],
-          concepts: ['core_concepts'],
-          implementation: ['checkout_core', 'transport_protocols'],
-          security: ['security_privacy'],
-          operations: ['order_management', 'extensions_customization'],
-          advanced: ['implementation_guide', 'advanced_topics', 'real_world_use_cases'],
-          reference: ['best_practices', 'roadmap_community', 'quick_reference']
-        };
-
-        // Create nodes for each category
-        const categoryNodes = {};
-        knowledgeBase.categories.forEach(category => {
-          const nodeId = `cat_${category.id}`;
+        // Create category nodes with cleaner IDs
+        knowledgeBase.categories.forEach((category, idx) => {
+          const nodeId = `C${idx}`;
           const title = sanitizeMermaidText(category.title);
-          categoryNodes[category.id] = nodeId;
+          const count = category.questions ? category.questions.length : 0;
 
-          // Use different shapes for visual interest
-          if (category.id.includes('foundations') || category.id.includes('core')) {
-            mermaidCode += `  ${nodeId}[${title}]\n`;
-          } else if (category.id.includes('quick_reference')) {
-            mermaidCode += `  ${nodeId}[[${title}]]\n`;
-          } else {
-            mermaidCode += `  ${nodeId}(${title})\n`;
-          }
+          mermaidCode += `  ${nodeId}["${title}<br/>${count} topics"]\n`;
         });
 
-        // Create flow connections showing learning path
-        mermaidCode += '  START --> cat_foundations_why\n';
-        mermaidCode += '  cat_foundations_why --> cat_core_concepts\n';
-        mermaidCode += '  cat_core_concepts --> cat_checkout_core\n';
-        mermaidCode += '  cat_core_concepts --> cat_transport_protocols\n';
-        mermaidCode += '  cat_checkout_core --> cat_security_privacy\n';
-        mermaidCode += '  cat_transport_protocols --> cat_security_privacy\n';
-        mermaidCode += '  cat_security_privacy --> cat_order_management\n';
-        mermaidCode += '  cat_order_management --> cat_extensions_customization\n';
-        mermaidCode += '  cat_extensions_customization --> cat_implementation_guide\n';
-        mermaidCode += '  cat_implementation_guide --> cat_advanced_topics\n';
-        mermaidCode += '  cat_advanced_topics --> cat_real_world_use_cases\n';
-        mermaidCode += '  cat_real_world_use_cases --> cat_best_practices\n';
-        mermaidCode += '  cat_best_practices --> cat_roadmap_community\n';
-        mermaidCode += '  cat_quick_reference -.-> cat_foundations_why\n';
-        mermaidCode += '  cat_quick_reference -.-> cat_core_concepts\n';
+        // Simple connections showing recommended flow
+        mermaidCode += '\n  START --> C0\n';
+        for (let i = 0; i < knowledgeBase.categories.length - 1; i++) {
+          mermaidCode += `  C${i} --> C${i+1}\n`;
+        }
+
+        console.log('Generated Mermaid flowchart:', mermaidCode);
+        return mermaidCode;
 
       } else {
-        // Drilled down - show questions as a flowchart
+        // Drilled down - show questions as a simple vertical flow
         const category = knowledgeBase.categories.find(c => c.id === categoryId);
-        if (category) {
-          const categoryTitle = sanitizeMermaidText(category.title);
-          mermaidCode += `  CAT[${categoryTitle}]\n`;
+        if (!category) {
+          return 'flowchart TD\n  ERROR["Category not found"]\n';
+        }
 
-          if (category.questions && category.questions.length > 0) {
-            category.questions.forEach((question, idx) => {
-              const nodeId = `q_${idx}`;
-              let questionText = question.question.length > 50
-                ? question.question.substring(0, 47) + '...'
-                : question.question;
-              questionText = sanitizeMermaidText(questionText);
-              mermaidCode += `  ${nodeId}(${questionText})\n`;
+        let mermaidCode = 'flowchart TD\n';
+        const categoryTitle = sanitizeMermaidText(category.title);
+        mermaidCode += `  CAT["📚 ${categoryTitle}"]\n\n`;
 
-              // Connect questions in sequence
-              if (idx === 0) {
-                mermaidCode += `  CAT --> ${nodeId}\n`;
-              } else {
-                mermaidCode += `  q_${idx-1} --> ${nodeId}\n`;
-              }
-            });
+        if (category.questions && category.questions.length > 0) {
+          category.questions.forEach((question, idx) => {
+            const nodeId = `Q${idx}`;
+            let questionText = question.question.length > 60
+              ? question.question.substring(0, 57) + '...'
+              : question.question;
+            questionText = sanitizeMermaidText(questionText);
+            mermaidCode += `  ${nodeId}["${idx + 1}. ${questionText}"]\n`;
+          });
+
+          // Connect in sequence
+          mermaidCode += '\n  CAT --> Q0\n';
+          for (let i = 0; i < category.questions.length - 1; i++) {
+            mermaidCode += `  Q${i} --> Q${i+1}\n`;
           }
         }
-      }
 
-      console.log('Generated Mermaid flowchart:', mermaidCode);
-      return mermaidCode;
+        console.log('Generated Mermaid flowchart:', mermaidCode);
+        return mermaidCode;
+      }
     }
 
     async function renderGraph() {
@@ -4134,17 +4107,16 @@ CRITICAL - Documentation Links:
         const nodeIdToQuestionMap = {};
 
         if (currentGraphCategory === null) {
-          // Top level - map node IDs to category IDs
-          knowledgeBase.categories.forEach(category => {
-            const nodeId = `cat_${category.id}`;
-            nodeIdToCategoryMap[nodeId] = category.id;
+          // Top level - map simple indices to category IDs
+          knowledgeBase.categories.forEach((category, idx) => {
+            nodeIdToCategoryMap[`C${idx}`] = category.id;
           });
         } else {
-          // Drilled down - map node indices to question IDs
+          // Drilled down - map question indices to question IDs
           const category = knowledgeBase.categories.find(c => c.id === currentGraphCategory);
           if (category && category.questions) {
             category.questions.forEach((question, idx) => {
-              nodeIdToQuestionMap[`q_${idx}`] = question.id;
+              nodeIdToQuestionMap[`Q${idx}`] = question.id;
             });
           }
         }
@@ -4156,43 +4128,30 @@ CRITICAL - Documentation Links:
           nodes.forEach(node => {
             const nodeId = node.id;
 
-            // Extract the actual node identifier from the Mermaid-generated ID
-            // Mermaid generates IDs like "flowchart-cat_foundations_why-123"
-            let actualNodeId = null;
-
-            // Try to match category nodes
+            // Check category nodes (C0, C1, etc.)
             for (const [catNodeId, categoryId] of Object.entries(nodeIdToCategoryMap)) {
               if (nodeId.includes(catNodeId)) {
-                actualNodeId = categoryId;
-                // This is a category node - drill down on click
                 node.style.cursor = 'pointer';
                 node.addEventListener('click', async (e) => {
                   e.stopPropagation();
-                  currentGraphCategory = actualNodeId;
+                  currentGraphCategory = categoryId;
                   await renderGraph();
                 });
                 break;
               }
             }
 
-            // Try to match question nodes
-            if (!actualNodeId) {
-              for (const [qNodeId, questionId] of Object.entries(nodeIdToQuestionMap)) {
-                if (nodeId.includes(qNodeId)) {
-                  actualNodeId = questionId;
-                  // This is a question node - navigate to question
-                  node.style.cursor = 'pointer';
-                  node.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    // Close graph page
-                    document.getElementById('graph-page').classList.remove('active');
-                    // Reset drill-down state
-                    currentGraphCategory = null;
-                    // Navigate to question
-                    navigateToQuestion(actualNodeId);
-                  });
-                  break;
-                }
+            // Check question nodes (Q0, Q1, etc.)
+            for (const [qNodeId, questionId] of Object.entries(nodeIdToQuestionMap)) {
+              if (nodeId.includes(qNodeId)) {
+                node.style.cursor = 'pointer';
+                node.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  document.getElementById('graph-page').classList.remove('active');
+                  currentGraphCategory = null;
+                  navigateToQuestion(questionId);
+                });
+                break;
               }
             }
           });
