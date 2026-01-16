@@ -4020,12 +4020,12 @@ CRITICAL - Documentation Links:
 
     function buildMermaidFlowchart(categoryId = null) {
       if (!knowledgeBase || !knowledgeBase.categories) {
-        return 'flowchart LR\n  START["UCP Explorer"]\n';
+        return 'flowchart TD\n  START["UCP Explorer"]\n';
       }
 
       if (categoryId === null) {
-        // Top level - show categories as clickable cards in a simple grid
-        let mermaidCode = 'flowchart LR\n';
+        // Top level - show categories as clickable cards in a vertical flow
+        let mermaidCode = 'flowchart TD\n';
         mermaidCode += '  START(["🏠 Start Your UCP Journey"])\n\n';
 
         // Create category nodes with cleaner IDs
