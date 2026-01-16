@@ -3549,30 +3549,15 @@ CRITICAL - Documentation Links:
       rawJsonEl.style.display = 'none';
 
       try {
-        let response;
-        let specJson;
+        // Always fetch from GitHub
+        const githubUrl = `https://raw.githubusercontent.com/Universal-Commerce-Protocol/ucp/main/${specPath}`;
+        const response = await fetch(githubUrl);
 
-        // Try loading from local symlink first (for development)
-        try {
-          response = await fetch(specPath);
-          if (response.ok) {
-            specJson = await response.json();
-          } else {
-            throw new Error('Local file not found');
-          }
-        } catch (localError) {
-          // Fall back to GitHub (for production)
-          console.log('Local fetch failed, trying GitHub:', localError);
-          const githubUrl = `https://raw.githubusercontent.com/Universal-Commerce-Protocol/ucp/main/${specPath}`;
-          response = await fetch(githubUrl);
-
-          if (!response.ok) {
-            throw new Error(`Failed to load spec from GitHub: ${response.statusText}`);
-          }
-
-          specJson = await response.json();
+        if (!response.ok) {
+          throw new Error(`Failed to load spec from GitHub: ${response.statusText}`);
         }
 
+        const specJson = await response.json();
         currentSpecData = specJson;
         currentSpecPath = specPath;
 
