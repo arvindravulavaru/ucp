@@ -3989,6 +3989,18 @@ CRITICAL - Documentation Links:
     });
 
     // Graph functionality
+    function sanitizeMermaidText(text) {
+      // Remove or escape special characters that break Mermaid syntax
+      return text
+        .replace(/\[/g, '(')  // Replace brackets with parentheses
+        .replace(/\]/g, ')')
+        .replace(/[{}]/g, '') // Remove curly braces
+        .replace(/["'`]/g, '') // Remove quotes
+        .replace(/\n/g, ' ')  // Replace newlines with spaces
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+    }
+
     function buildMermaidGraph() {
       if (!knowledgeBase || !knowledgeBase.categories) {
         return 'mindmap\n  root((UCP Explorer))\n    Loading...';
@@ -3998,17 +4010,18 @@ CRITICAL - Documentation Links:
 
       knowledgeBase.categories.forEach(category => {
         // Add category node
-        const categoryId = category.id || category.title.replace(/[^a-zA-Z0-9]/g, '_');
-        const categoryTitle = category.title || category.name || 'Category';
+        const categoryId = category.id.replace(/[^a-zA-Z0-9]/g, '_');
+        const categoryTitle = sanitizeMermaidText(category.title || 'Category');
         mermaidCode += `    ${categoryId}(${categoryTitle})\n`;
 
         // Add question nodes under each category
         if (category.questions && category.questions.length > 0) {
           category.questions.forEach(question => {
-            const questionId = question.id;
-            const questionText = question.question.length > 40
+            const questionId = question.id.replace(/[^a-zA-Z0-9]/g, '_');
+            let questionText = question.question.length > 40
               ? question.question.substring(0, 37) + '...'
               : question.question;
+            questionText = sanitizeMermaidText(questionText);
             mermaidCode += `      ${questionId}[${questionText}]\n`;
           });
         }
