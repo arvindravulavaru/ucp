@@ -147,6 +147,37 @@
       letter-spacing: 0.5px;
     }
 
+    .explorer-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .explorer-link:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      transform: translateX(2px);
+    }
+
+    .explorer-link svg {
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+
+    .explorer-link:hover svg {
+      transform: scale(1.1);
+    }
+
     .search-box {
       padding: 16px;
       border-bottom: 1px solid var(--border);
@@ -901,6 +932,14 @@
                 <div class="progress-fill" style="width: ${percentage}%"></div>
               </div>
               <div class="progress-text">${stats.completed} / ${stats.total}</div>
+              <a href="../ucp-ama/index.html" class="explorer-link" title="Interactive FAQ & AI Assistant">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="M21 21l-4.35-4.35"/>
+                  <path d="M11 8v3l2 2"/>
+                </svg>
+                UCP Explorer
+              </a>
             </div>
 
             <!-- <div class="tree-controls">

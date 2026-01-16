@@ -514,8 +514,8 @@
     },
     {
       "id": "quick-reference",
-      "title": "Part 13: Quick Reference",
-      "question_count": 5,
+      "title": "Part 13: Quick Reference & Specifications",
+      "question_count": 9,
       "questions": [
         {
           "id": "common-endpoints",
@@ -564,6 +564,50 @@
           "keywords": ["amount", "currency", "format", "cents", "money"],
           "ucp_docs_links": [
             "https://ucp.dev/specification/overview/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "schema-types",
+          "question": "What are the main UCP JSON Schema types?",
+          "answer": "**Core Resources:**\n- [`checkout_session`](spec:spec/schemas/shopping/checkout_session_resp.json) - Main shopping cart and checkout container\n- [`order`](spec:spec/schemas/shopping/order_resp.json) - Confirmed purchase record\n- [`payment`](spec:spec/schemas/shopping/payment_resp.json) - Payment transaction details\n- [`fulfillment`](spec:spec/schemas/shopping/fulfillment_resp.json) - Shipping/delivery information\n- [`discount`](spec:spec/schemas/shopping/discount_resp.json) - Applied promotional discounts\n- [`buyer_consent`](spec:spec/schemas/shopping/buyer_consent_resp.json) - User consent records\n\n**Buyer & Identity:**\n- [`buyer`](spec:spec/schemas/shopping/types/buyer_resp.json) - Customer information\n- [`account_info`](spec:spec/schemas/shopping/types/account_info.json) - Customer account details\n- [`payment_identity`](spec:spec/schemas/shopping/types/payment_identity.json) - Payment-specific identity data\n\n**Items & Products:**\n- [`line_item`](spec:spec/schemas/shopping/types/line_item_resp.json) - Individual cart items\n- [`item`](spec:spec/schemas/shopping/types/item_resp.json) - Product details\n- [`order_line_item`](spec:spec/schemas/shopping/types/order_line_item.json) - Confirmed order items\n\n**Fulfillment Types:**\n- [`fulfillment_group`](spec:spec/schemas/shopping/types/fulfillment_group_resp.json) - Group of items shipping together\n- [`fulfillment_method`](spec:spec/schemas/shopping/types/fulfillment_method_resp.json) - Shipping/delivery method\n- [`fulfillment_option`](spec:spec/schemas/shopping/types/fulfillment_option_resp.json) - Available fulfillment choices\n- [`fulfillment_event`](spec:spec/schemas/shopping/types/fulfillment_event.json) - Shipping status updates\n- [`postal_address`](spec:spec/schemas/shopping/types/postal_address.json) - Physical shipping address\n- [`retail_location`](spec:spec/schemas/shopping/types/retail_location_resp.json) - Store/pickup location\n\n**Payment Types:**\n- [`payment_instrument`](spec:spec/schemas/shopping/types/payment_instrument.json) - Payment method (card, wallet, etc.)\n- [`card_payment_instrument`](spec:spec/schemas/shopping/types/card_payment_instrument.json) - Credit/debit card specific\n- [`payment_credential`](spec:spec/schemas/shopping/types/payment_credential.json) - Tokenized payment data\n- [`card_credential`](spec:spec/schemas/shopping/types/card_credential.json) - Card token details\n- [`token_credential`](spec:spec/schemas/shopping/types/token_credential_resp.json) - Generic token structure\n- [`payment_handler`](spec:spec/schemas/shopping/types/payment_handler_resp.json) - Entity processing payment\n\n**Supporting Types:**\n- [`total`](spec:spec/schemas/shopping/types/total_resp.json) - Price breakdowns and calculations\n- [`adjustment`](spec:spec/schemas/shopping/types/adjustment.json) - Price modifications\n- [`message`](spec:spec/schemas/shopping/types/message.json) - Informational messages\n- [`message_error`](spec:spec/schemas/shopping/types/message_error.json) - Error details\n- [`message_warning`](spec:spec/schemas/shopping/types/message_warning.json) - Warning notifications\n- [`link`](spec:spec/schemas/shopping/types/link.json) - HATEOAS navigation links\n- [`binding`](spec:spec/schemas/shopping/types/binding.json) - Data source references\n\n💡 **Tip:** Click any schema name above to view its complete JSON specification.\n\n**See Also:** Part 3 (Checkout schemas), Part 6 (Order schemas)",
+          "keywords": ["schemas", "types", "json", "reference", "data models"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/checkout/",
+            "https://ucp.dev/specification/order/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "common-fields",
+          "question": "What are common fields across UCP schemas?",
+          "answer": "**Identifiers:**\n- `id` - Unique resource identifier (string)\n- `version` - Schema/API version\n- `type` - Discriminator for polymorphic types\n\n**Temporal:**\n- `created_at` - Creation timestamp (RFC 3339)\n- `updated_at` - Last modification timestamp\n- `expires_at` - Expiration time (for sessions)\n\n**Links & Relations:**\n- `_links` - HATEOAS navigation links\n- `self` - URL to this resource\n- `related` - Related resource URLs\n\n**Money & Pricing:**\n- `amount` - Monetary value in minor units (integer)\n- `currency` - ISO 4217 currency code (e.g., \"USD\")\n- `subtotal` - Pre-tax/discount amount\n- `total` - Final amount including tax/fees\n\n**Buyer Information:**\n- `email` - Contact email address\n- `phone` - Contact phone number\n- `name` - Display name object with first/last\n\n**Addresses:**\n- `address1` - Primary street address\n- `address2` - Secondary address line\n- `city` - City/locality\n- `province` - State/province/region\n- `postal_code` - ZIP/postal code\n- `country` - ISO 3166-1 alpha-2 country code\n\n**Status & State:**\n- `status` - Current lifecycle state\n- `state` - Processing state\n- `completed` - Boolean completion flag\n\n**Metadata:**\n- `metadata` - Custom key-value data (object)\n- `tags` - Classification labels (array)\n- `notes` - Human-readable notes\n\n**Messages:**\n- `messages` - Array of message objects\n- `errors` - Array of error details\n- `warnings` - Array of warning notifications\n\n**See Also:** Part 2 (Core concepts), Part 3 (Checkout structure)",
+          "keywords": ["fields", "properties", "common", "reference", "attributes"],
+          "ucp_docs_links": [
+            "https://ucp.dev/specification/overview/",
+            "https://ucp.dev/specification/checkout/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "schema-composition",
+          "question": "How does UCP schema composition work?",
+          "answer": "**Base + Extension Pattern:**\n\nUCP uses **client-side schema composition** where base schemas are extended with optional modules:\n\n```\nFinal Schema = Base Schema + Extension Schemas\n```\n\n**Example - Checkout with Loyalty:**\n```json\n{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"allOf\": [\n    { \"$ref\": \"checkout_resp.json\" },\n    { \"$ref\": \"extensions/loyalty.json\" }\n  ]\n}\n```\n\n**Request vs Response Variants:**\n\nEach resource has operation-specific schemas:\n- `*.create_req.json` - Fields for POST (creation)\n- `*.update_req.json` - Fields for PATCH (updates)\n- `*_resp.json` - Fields in GET responses\n- Base schema - Shared definitions\n\n**Field Annotations:**\n\nSource schemas use annotations to control variants:\n```json\n{\n  \"id\": {\n    \"type\": \"string\",\n    \"ucp_request\": \"omit\",      // Not in create/update\n    \"ucp_response\": \"required\"  // Always in response\n  },\n  \"email\": {\n    \"type\": \"string\",\n    \"ucp_request\": \"optional\",   // Optional in requests\n    \"ucp_response\": \"required\"  // Required in response\n  }\n}\n```\n\n**Why This Approach:**\n- **Modularity:** Enable/disable features independently\n- **Backwards compatibility:** Add extensions without breaking changes\n- **Flexibility:** Different platforms support different extensions\n- **Performance:** Only load schemas you need\n\n**Discovery:**\n\nBusinesses declare supported extensions in their profile:\n```json\n{\n  \"extensions\": [\n    \"com.example.loyalty\",\n    \"com.example.subscriptions\"\n  ]\n}\n```\n\n**See Also:** Part 2 (Capability model), Part 7 (Extensions), Part 8 (Implementation)",
+          "keywords": ["composition", "extensions", "schemas", "modularity", "allOf"],
+          "ucp_docs_links": [
+            "https://ucp.dev/documentation/core-concepts/",
+            "https://ucp.dev/specification/extensions/"
+          ],
+          "source_file": "ucp-learning.md"
+        },
+        {
+          "id": "extension-naming",
+          "question": "What are UCP extension naming conventions?",
+          "answer": "**Reverse-Domain Format:**\n\nExtensions use **reverse domain naming** to ensure global uniqueness:\n\n```\ncom.{company}.{feature}\ncom.{company}.{domain}.{feature}\n```\n\n**Examples:**\n```\ncom.shopify.subscriptions\ncom.shopify.loyalty.points\ncom.acme.gift-wrapping\ncom.bigcommerce.wishlists\norg.woocommerce.memberships\n```\n\n**Naming Rules:**\n\n1. **Start with reverse domain** you control\n   - `com.yourcompany.*`\n   - Proves ownership and prevents conflicts\n\n2. **Use lowercase with hyphens**\n   - ✅ `com.example.gift-cards`\n   - ❌ `com.example.GiftCards`\n   - ❌ `com.example.gift_cards`\n\n3. **Be descriptive but concise**\n   - ✅ `com.example.subscriptions`\n   - ❌ `com.example.recurring-billing-subscriptions`\n\n4. **Organize by domain**\n   - `com.example.payments.*`\n   - `com.example.fulfillment.*`\n   - `com.example.loyalty.*`\n\n**Standard Extensions:**\n\nReserved `ucp.*` namespace for official extensions:\n```\nucp.identity-linking\nucp.buyer-consent\nucp.payment-mandates\nucp.fulfillment-tracking\n```\n\n**Schema Files:**\n\nExtension schemas follow same convention:\n```\nextensions/com.shopify.subscriptions.json\nextensions/com.acme.loyalty.json\n```\n\n**Versioning:**\n\nInclude version in schema, not name:\n```json\n{\n  \"$id\": \"https://api.example.com/schemas/com.example.loyalty.json\",\n  \"version\": \"2024-01\"\n}\n```\n\n**Best Practices:**\n- Document your extensions publicly\n- Maintain backwards compatibility\n- Use semantic versioning\n- Provide migration guides\n- Keep schemas focused and single-purpose\n\n**See Also:** Part 2 (Naming concepts), Part 7 (Extensions guide), Part 8 (Implementation)",
+          "keywords": ["naming", "extensions", "conventions", "reverse-domain", "standards"],
+          "ucp_docs_links": [
+            "https://ucp.dev/documentation/core-concepts/",
+            "https://ucp.dev/specification/extensions/"
           ],
           "source_file": "ucp-learning.md"
         }
