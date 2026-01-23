@@ -2252,6 +2252,69 @@
       margin: 0 0 1rem 0;
       font-size: 1.5rem;
     }
+
+    /* Presentation Page */
+    #presentation-page {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: var(--bg-primary);
+      z-index: 10000;
+      flex-direction: column;
+    }
+
+    #presentation-page.active {
+      display: flex;
+    }
+
+    .presentation-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-secondary);
+      flex-shrink: 0;
+    }
+
+    .presentation-header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .presentation-close {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+    }
+
+    .presentation-close:hover {
+      background: var(--error);
+      color: white;
+      border-color: var(--error);
+    }
+
+    .presentation-container {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: white;
+    }
+
+    #presentation-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
   </style>
 </head>
 <body>
@@ -2273,6 +2336,7 @@
       </div>
     </div>
     <div class="header-actions">
+      <button id="presentation-btn" title="UCP Presentation">📊</button>
       <button id="playground-btn" title="Protocol Playground" style="display: none;">🎮</button>
       <button id="graph-btn" title="Knowledge Graph" style="display: none;">🗺️</button>
       <button id="specs-btn" title="Browse Specs">📋</button>
@@ -2477,6 +2541,7 @@
         <a id="specs-github-btn" href="https://github.com/Universal-Commerce-Protocol/ucp/tree/main/spec" target="_blank" rel="noopener noreferrer">
           📁 GitHub
         </a>
+        <button id="specs-share-btn" title="Copy shareable link">🔗 Share</button>
         <button id="specs-close-btn">✕ Close</button>
       </div>
     </div>
@@ -2513,6 +2578,7 @@
       </div>
       <div id="graph-page-actions">
         <button id="graph-back-btn" style="display: none;">← Back</button>
+        <button id="graph-share-btn" title="Copy shareable link">🔗 Share</button>
         <button id="graph-close-btn">✕ Close</button>
       </div>
     </div>
@@ -2527,7 +2593,10 @@
   <div id="playground-page">
     <div class="playground-header">
       <h1>🎮 UCP Protocol Playground</h1>
-      <button id="playground-close-btn" class="playground-close">✕</button>
+      <div style="display: flex; gap: 0.5rem;">
+        <button id="playground-share-btn" class="playground-close" title="Copy shareable link">🔗 Share</button>
+        <button id="playground-close-btn" class="playground-close">✕</button>
+      </div>
     </div>
 
     <div class="playground-container">
@@ -2540,6 +2609,17 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Presentation Page -->
+  <div id="presentation-page">
+    <div class="presentation-header">
+      <h1>📊 UCP Presentation</h1>
+      <button id="presentation-close-btn" class="presentation-close">✕</button>
+    </div>
+    <div class="presentation-container">
+      <iframe id="presentation-iframe" src="./presentation.html"></iframe>
+    </div>
   </div>
 
   <!-- Highlight.js for syntax highlighting -->
@@ -3799,6 +3879,9 @@ CRITICAL - Documentation Links:
       modal.addEventListener('click', (e) => {
         if (e.target === modal) {
           modal.classList.remove('active');
+          if (window.location.hash.startsWith('#view=')) {
+            window.location.hash = '';
+          }
         }
       });
     });
@@ -4404,6 +4487,7 @@ CRITICAL - Documentation Links:
 
     document.getElementById('specs-btn').addEventListener('click', async () => {
       document.getElementById('specs-page').classList.add('active');
+      window.location.hash = 'view=specs';
       const specs = await displaySpecsTree();
       // Load first spec by default
       if (specs && specs.length > 0) {
@@ -4413,7 +4497,10 @@ CRITICAL - Documentation Links:
 
     document.getElementById('specs-close-btn').addEventListener('click', () => {
       document.getElementById('specs-page').classList.remove('active');
+      window.location.hash = '';
     });
+
+    document.getElementById('specs-share-btn').addEventListener('click', copyShareableURL);
 
     document.getElementById('specs-search-input').addEventListener('input', (e) => {
       displaySpecsTree(e.target.value);
@@ -4605,6 +4692,7 @@ CRITICAL - Documentation Links:
       // Reset to top level when opening graph
       currentGraphCategory = null;
       document.getElementById('graph-page').classList.add('active');
+      window.location.hash = 'view=graph';
       await renderGraph();
     });
 
@@ -4616,9 +4704,12 @@ CRITICAL - Documentation Links:
 
     document.getElementById('graph-close-btn').addEventListener('click', () => {
       document.getElementById('graph-page').classList.remove('active');
+      window.location.hash = '';
       // Reset drill-down state when closing
       currentGraphCategory = null;
     });
+
+    document.getElementById('graph-share-btn').addEventListener('click', copyShareableURL);
 
     // Protocol Playground - Mermaid Diagram
 
@@ -4694,21 +4785,38 @@ CRITICAL - Documentation Links:
     // Event Listeners
     document.getElementById('playground-btn').addEventListener('click', async () => {
       document.getElementById('playground-page').classList.add('active');
+      window.location.hash = 'view=playground';
       await renderMermaidDiagram();
     });
 
     document.getElementById('playground-close-btn').addEventListener('click', () => {
       document.getElementById('playground-page').classList.remove('active');
+      window.location.hash = '';
+    });
+
+    document.getElementById('playground-share-btn').addEventListener('click', copyShareableURL);
+
+    // Presentation Page Event Listeners
+    document.getElementById('presentation-btn').addEventListener('click', () => {
+      document.getElementById('presentation-page').classList.add('active');
+      window.location.hash = 'view=presentation';
+    });
+
+    document.getElementById('presentation-close-btn').addEventListener('click', () => {
+      document.getElementById('presentation-page').classList.remove('active');
+      window.location.hash = '';
     });
 
     document.getElementById('history-btn').addEventListener('click', () => {
       document.getElementById('history-modal').classList.add('active');
+      window.location.hash = 'view=history';
     });
 
     document.getElementById('clear-history-btn').addEventListener('click', clearHistory);
 
     document.getElementById('bookmarks-btn').addEventListener('click', () => {
       document.getElementById('bookmarks-modal').classList.add('active');
+      window.location.hash = 'view=bookmarks';
     });
 
     // Dark mode
@@ -4731,11 +4839,40 @@ CRITICAL - Documentation Links:
     // Deep linking
     function loadFromURL() {
       const hash = window.location.hash;
+
+      // Handle question links
       if (hash.startsWith('#q=')) {
         const questionId = hash.substring(3);
         const question = findQuestionById(questionId);
         if (question) {
           selectQuestion(question);
+        }
+      }
+
+      // Handle view links
+      if (hash.startsWith('#view=')) {
+        const view = hash.substring(6);
+        switch(view) {
+          case 'presentation':
+            document.getElementById('presentation-page').classList.add('active');
+            break;
+          case 'specs':
+            document.getElementById('specs-page').classList.add('active');
+            break;
+          case 'playground':
+            document.getElementById('playground-page').classList.add('active');
+            renderMermaidDiagram();
+            break;
+          case 'history':
+            document.getElementById('history-modal').classList.add('active');
+            break;
+          case 'bookmarks':
+            document.getElementById('bookmarks-modal').classList.add('active');
+            break;
+          case 'graph':
+            document.getElementById('graph-page').classList.add('active');
+            renderGraph();
+            break;
         }
       }
     }
@@ -4746,6 +4883,16 @@ CRITICAL - Documentation Links:
         if (q) return q;
       }
       return null;
+    }
+
+    // Share URL functionality
+    function copyShareableURL() {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(() => {
+        showNotification('✓ Link copied to clipboard!', 'success');
+      }).catch(() => {
+        showNotification('Failed to copy link', 'error');
+      });
     }
 
     window.addEventListener('hashchange', loadFromURL);
