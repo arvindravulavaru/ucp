@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UCP Visual Resources</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    h1 {
+      color: white;
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .subtitle {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .intro {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .visuals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+
+    .visual-card {
+      background: white;
+      border-radius: 20px;
+      padding: 35px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: slideUp 0.6s ease-out forwards;
+      opacity: 0;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .visual-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+    }
+
+    .visual-card:nth-child(1) { animation-delay: 0.1s; }
+    .visual-card:nth-child(2) { animation-delay: 0.2s; }
+    .visual-card:nth-child(3) { animation-delay: 0.3s; }
+    .visual-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .visual-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .visual-card h2 {
+      font-size: 1.8rem;
+      color: #1F2937;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .visual-card p {
+      font-size: 1.05rem;
+      color: #6B7280;
+      line-height: 1.7;
+      margin-bottom: 15px;
+    }
+
+    .visual-card .best-for {
+      background: #F3F4F6;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .visual-card .best-for strong {
+      color: #7C3AED;
+      font-size: 0.95rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .visual-card .best-for span {
+      color: #4B5563;
+      font-size: 0.9rem;
+    }
+
+    .visual-card .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 15px;
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 40px;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 1s ease-out;
+    }
+
+    .info-box h2 {
+      color: #FCD34D;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .info-box p {
+      color: white;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 15px;
+    }
+
+    .info-box ul {
+      list-style: none;
+      margin-top: 20px;
+    }
+
+    .info-box li {
+      color: white;
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      padding-left: 30px;
+      position: relative;
+    }
+
+    .info-box li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #FCD34D;
+      font-weight: bold;
+      font-size: 1.3rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    footer p {
+      color: white;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    footer a {
+      color: #FCD34D;
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.3s ease;
+    }
+
+    footer a:hover {
+      opacity: 0.8;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2.5rem; }
+      .subtitle { font-size: 1.2rem; }
+      .visuals-grid { grid-template-columns: 1fr; }
+      .visual-card { padding: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>UCP Visual Resources</h1>
+      <p class="subtitle">Interactive Presentation Materials</p>
+      <p class="intro">
+        Explore the Universal Commerce Protocol through these visual guides. Each resource is optimized for different audiences and use cases.
+      </p>
+    </header>
+
+    <div class="visuals-grid">
+      <a href="eli5.html" class="visual-card">
+        <span class="visual-icon">🎈</span>
+        <h2>ELI5 Explainer</h2>
+        <p>A simple, friendly explanation of UCP for anyone - no technical background needed!</p>
+        <p>Uses real-world analogies like USB-C ports and email to explain how UCP works.</p>
+        <div class="best-for">
+          <strong>Best for:</strong>
+          <span>Executives, non-technical stakeholders, marketing materials, social media</span>
+        </div>
+        <span class="badge">🌟 Start Here</span>
+      </a>
+
+      <a href="quick-reference.html" class="visual-card">
+        <span class="visual-icon">📄</span>
+        <h2>Quick Reference Card</h2>
+        <p>One-page summary of UCP essentials: core pillars, benefits, capabilities, and transaction flow.</p>
+        <p>Perfect for a quick overview or as a cheat sheet.</p>
+        <div class="best-for">
+          <strong>Best for:</strong>
+          <span>Conference handouts, developer quick reference, email signatures, print materials</span>
+        </div>
+        <span class="badge">⚡ Quick Read</span>
+      </a>
+
+      <a href="protocol-flow.html" class="visual-card">
+        <span class="visual-icon">🔄</span>
+        <h2>Protocol Flow Animation</h2>
+        <p>End-to-end animated walkthrough showing the complete UCP transaction lifecycle from discovery to order confirmation.</p>
+        <p>9 sequential steps with clear explanations.</p>
+        <div class="best-for">
+          <strong>Best for:</strong>
+          <span>Technical presentations, developer onboarding, demo walkthroughs, conference talks</span>
+        </div>
+        <span class="badge">🎬 Animated</span>
+      </a>
+
+      <a href="architecture.html" class="visual-card">
+        <span class="visual-icon">🏗️</span>
+        <h2>Architecture Infographic</h2>
+        <p>Comprehensive visualization of UCP's modular architecture showing capabilities, extensions, transport options, and security layers.</p>
+        <p>Detailed breakdown of the entire system.</p>
+        <div class="best-for">
+          <strong>Best for:</strong>
+          <span>Architecture reviews, system design discussions, integration planning, technical deep-dives</span>
+        </div>
+        <span class="badge">🔧 Technical</span>
+      </a>
+    </div>
+
+    <div class="info-box">
+      <h2>💡 How to Use These Resources</h2>
+      <p><strong>For non-technical audiences:</strong></p>
+      <ul>
+        <li>Start with ELI5 Explainer</li>
+        <li>Follow with Quick Reference Card for key points</li>
+        <li>Use Architecture Infographic if they want more details</li>
+      </ul>
+      <p><strong>For technical audiences:</strong></p>
+      <ul>
+        <li>Start with Architecture Infographic for system overview</li>
+        <li>Follow with Protocol Flow Animation for implementation details</li>
+        <li>Use Quick Reference Card for summarizing key points</li>
+      </ul>
+    </div>
+
+    <footer>
+      <p><strong>Universal Commerce Protocol</strong></p>
+      <p>Open Standard for Commerce Interoperability</p>
+      <p>
+        <a href="https://ucp.dev" target="_blank">ucp.dev</a> •
+        Apache 2.0 License •
+        <a href="https://github.com/Universal-Commerce-Protocol/ucp" target="_blank">GitHub</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

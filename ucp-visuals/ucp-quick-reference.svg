@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);">
+  <defs>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.3"/>
+    </filter>
+
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F3F4F6;stop-opacity:1" />
+    </linearGradient>
+
+    <style>
+      text {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .title {
+        font-size: 48px;
+        font-weight: 900;
+        fill: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+
+      .tagline {
+        font-size: 20px;
+        fill: white;
+        font-weight: 500;
+      }
+
+      .section-title {
+        font-size: 22px;
+        font-weight: bold;
+        fill: #1F2937;
+      }
+
+      .card-title {
+        font-size: 18px;
+        font-weight: 700;
+        fill: #374151;
+      }
+
+      .card-text {
+        font-size: 14px;
+        fill: #4B5563;
+        line-height: 1.6;
+      }
+
+      .emoji {
+        font-size: 32px;
+      }
+
+      .highlight {
+        fill: #7C3AED;
+        font-weight: 700;
+      }
+    </style>
+  </defs>
+
+  <!-- Header -->
+  <text x="540" y="80" text-anchor="middle" class="title">UCP</text>
+  <text x="540" y="115" text-anchor="middle" class="tagline">Universal Commerce Protocol</text>
+  <text x="540" y="145" text-anchor="middle" style="font-size: 16px; fill: rgba(255,255,255,0.9);">
+    Open standard for commerce interoperability
+  </text>
+
+  <!-- Main Container -->
+  <rect x="60" y="180" width="960" height="850" rx="20" fill="white" filter="url(#shadow)"/>
+
+  <!-- What is UCP? -->
+  <text x="90" y="230" class="section-title">💡 What is UCP?</text>
+  <text x="90" y="260" class="card-text">
+    <tspan x="90" dy="0">An open standard enabling platforms (AI agents, apps), businesses, and payment providers</tspan>
+    <tspan x="90" dy="22">to communicate seamlessly using a standardized common language.</tspan>
+  </text>
+
+  <!-- 4 Pillars Cards -->
+  <text x="90" y="330" class="section-title">🎯 Four Core Pillars</text>
+
+  <!-- Pillar 1 -->
+  <rect x="80" y="360" width="220" height="140" rx="10" fill="url(#cardGrad)" stroke="#667eea" stroke-width="2"/>
+  <text x="190" y="395" text-anchor="middle" class="emoji">🔍</text>
+  <text x="190" y="425" text-anchor="middle" class="card-title">Discovery</text>
+  <text x="95" y="450" class="card-text">
+    <tspan x="95" dy="0">Autonomous capability</tspan>
+    <tspan x="95" dy="18">negotiation via</tspan>
+    <tspan x="95" dy="18">/.well-known/ucp</tspan>
+  </text>
+
+  <!-- Pillar 2 -->
+  <rect x="320" y="360" width="220" height="140" rx="10" fill="url(#cardGrad)" stroke="#10B981" stroke-width="2"/>
+  <text x="430" y="395" text-anchor="middle" class="emoji">🛒</text>
+  <text x="430" y="425" text-anchor="middle" class="card-title">Checkout</text>
+  <text x="335" y="450" class="card-text">
+    <tspan x="335" dy="0">Standardized cart,</tspan>
+    <tspan x="335" dy="18">tax calc, payment</tspan>
+    <tspan x="335" dy="18">handler negotiation</tspan>
+  </text>
+
+  <!-- Pillar 3 -->
+  <rect x="560" y="360" width="220" height="140" rx="10" fill="url(#cardGrad)" stroke="#F59E0B" stroke-width="2"/>
+  <text x="670" y="395" text-anchor="middle" class="emoji">💳</text>
+  <text x="670" y="425" text-anchor="middle" class="card-title">Payments</text>
+  <text x="575" y="450" class="card-text">
+    <tspan x="575" dy="0">Decoupled token</tspan>
+    <tspan x="575" dy="18">exchange, PCI-DSS</tspan>
+    <tspan x="575" dy="18">compliant patterns</tspan>
+  </text>
+
+  <!-- Pillar 4 -->
+  <rect x="800" y="360" width="220" height="140" rx="10" fill="url(#cardGrad)" stroke="#EF4444" stroke-width="2"/>
+  <text x="910" y="395" text-anchor="middle" class="emoji">🔐</text>
+  <text x="910" y="425" text-anchor="middle" class="card-title">Security</text>
+  <text x="815" y="450" class="card-text">
+    <tspan x="815" dy="0">OAuth 2.0, AP2</tspan>
+    <tspan x="815" dy="18">mandates, JWS</tspan>
+    <tspan x="815" dy="18">signatures, HTTPS</tspan>
+  </text>
+
+  <!-- Key Benefits -->
+  <text x="90" y="550" class="section-title">✨ Key Benefits</text>
+
+  <g class="card-text">
+    <text x="110" y="585">
+      <tspan class="highlight">🧩 Modular:</tspan> Mix and match capabilities & extensions
+    </text>
+    <text x="110" y="615">
+      <tspan class="highlight">🌐 Transport Agnostic:</tspan> REST, MCP, A2A, Embedded - choose your protocol
+    </text>
+    <text x="110" y="645">
+      <tspan class="highlight">🤖 AI-Ready:</tspan> Designed for autonomous agents from the ground up
+    </text>
+    <text x="110" y="675">
+      <tspan class="highlight">🔓 Open Standard:</tspan> Apache 2.0 licensed, no vendor lock-in
+    </text>
+  </g>
+
+  <!-- Core Capabilities -->
+  <text x="90" y="730" class="section-title">🎯 Standard Capabilities</text>
+
+  <rect x="80" y="750" width="940" height="120" rx="10" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="1"/>
+
+  <g class="card-text">
+    <text x="100" y="780">
+      <tspan class="highlight">dev.ucp.shopping.checkout</tspan> • Cart & tax calculation
+    </text>
+    <text x="100" y="805">
+      <tspan class="highlight">dev.ucp.common.identity_linking</tspan> • OAuth 2.0 user delegation
+    </text>
+    <text x="100" y="830">
+      <tspan class="highlight">dev.ucp.shopping.order</tspan> • Webhook lifecycle updates
+    </text>
+    <text x="100" y="855">
+      <tspan class="highlight">dev.ucp.shopping.fulfillment</tspan> • Shipping options (extends checkout)
+    </text>
+  </g>
+
+  <!-- Transaction Flow -->
+  <text x="90" y="915" class="section-title">🔄 Transaction Flow</text>
+
+  <g class="card-text">
+    <text x="100" y="945">
+      <tspan class="highlight">1.</tspan> Platform discovers business profile
+      <tspan x="530" dy="0"><tspan class="highlight">2.</tspan> Create checkout session</tspan>
+    </text>
+    <text x="100" y="970">
+      <tspan class="highlight">3.</tspan> Negotiate payment handlers
+      <tspan x="530" dy="0"><tspan class="highlight">4.</tspan> Acquire payment token from CP</tspan>
+    </text>
+    <text x="100" y="995">
+      <tspan class="highlight">5.</tspan> Complete checkout with token
+      <tspan x="530" dy="0"><tspan class="highlight">6.</tspan> PSP processes payment</tspan>
+    </text>
+  </g>
+
+  <!-- Footer CTA -->
+  <rect x="80" y="1010" width="940" height="1" fill="#E5E7EB"/>
+  <text x="540" y="1005" text-anchor="middle" style="font-size: 18px; fill: #7C3AED; font-weight: 700;">
+    Learn more at ucp.dev
+  </text>
+</svg>

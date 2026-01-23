@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1400" style="background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);">
+  <defs>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.2"/>
+    </filter>
+
+    <style>
+      text {
+        font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .main-title {
+        font-size: 56px;
+        font-weight: 900;
+        fill: white;
+      }
+
+      .subtitle {
+        font-size: 28px;
+        fill: white;
+        font-weight: 600;
+      }
+
+      .section-title {
+        font-size: 32px;
+        font-weight: bold;
+        fill: #1F2937;
+      }
+
+      .body-text {
+        font-size: 18px;
+        fill: #374151;
+        line-height: 1.8;
+      }
+
+      .body-text-white {
+        font-size: 18px;
+        fill: white;
+        line-height: 1.8;
+      }
+
+      .highlight {
+        font-weight: 900;
+        fill: #7C3AED;
+      }
+
+      .emoji {
+        font-size: 48px;
+      }
+
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+
+      .bounce {
+        animation: bounce 2s ease-in-out infinite;
+      }
+    </style>
+  </defs>
+
+  <!-- Header -->
+  <text x="500" y="80" text-anchor="middle" class="main-title">What is UCP?</text>
+  <text x="500" y="120" text-anchor="middle" class="subtitle">Explained Simply 🎈</text>
+
+  <!-- The Problem -->
+  <rect x="60" y="160" width="880" height="200" rx="20" fill="white" filter="url(#shadow)"/>
+  <text x="500" y="200" text-anchor="middle" class="section-title">😫 The Problem</text>
+
+  <text x="100" y="240" class="body-text">
+    <tspan x="100" dy="0">Imagine you want to buy something online, but every shop speaks</tspan>
+    <tspan x="100" dy="28">a different language! 🇺🇸🇫🇷🇯🇵🇪🇸</tspan>
+  </text>
+
+  <text x="100" y="310" class="body-text">
+    <tspan x="100" dy="0">Each store has its own way of:</tspan>
+    <tspan x="120" dy="28">• Taking orders 📝</tspan>
+    <tspan x="120" dy="28">• Accepting payment 💳</tspan>
+    <tspan x="120" dy="28">• Shipping items 📦</tspan>
+  </text>
+
+  <!-- The Solution -->
+  <rect x="60" y="400" width="880" height="280" rx="20" fill="white" filter="url(#shadow)"/>
+  <text x="500" y="440" text-anchor="middle" class="section-title">💡 UCP is the Solution!</text>
+
+  <text x="100" y="480" class="body-text">
+    <tspan x="100" dy="0">UCP is like a <tspan class="highlight">universal translator</tspan> that helps everyone speak</tspan>
+    <tspan x="100" dy="28">the same language! 🗣️✨</tspan>
+  </text>
+
+  <rect x="100" y="530" width="800" height="130" rx="15" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="2"/>
+  <text x="500" y="570" text-anchor="middle" style="font-size: 22px; font-weight: bold; fill: #7C3AED;">
+    Think of it like...
+  </text>
+  <text x="120" y="605" class="body-text">
+    <tspan x="120" dy="0">📱 <tspan class="highlight">USB-C ports</tspan> that work with any device</tspan>
+    <tspan x="120" dy="28">🔌 <tspan class="highlight">Power outlets</tspan> that any appliance can plug into</tspan>
+    <tspan x="120" dy="28">🌐 <tspan class="highlight">Email</tspan> that works between Gmail, Yahoo, Outlook...</tspan>
+  </text>
+
+  <!-- Who Uses It -->
+  <rect x="60" y="720" width="880" height="220" rx="20" fill="white" filter="url(#shadow)"/>
+  <text x="500" y="760" text-anchor="middle" class="section-title">👥 Who Uses UCP?</text>
+
+  <g>
+    <rect x="100" y="790" width="180" height="120" rx="10" fill="#EEF2FF" stroke="#818CF8" stroke-width="2"/>
+    <text x="190" y="830" text-anchor="middle" class="emoji">🤖</text>
+    <text x="190" y="870" text-anchor="middle" class="body-text">AI Shopping</text>
+    <text x="190" y="895" text-anchor="middle" class="body-text">Assistants</text>
+  </g>
+
+  <g>
+    <rect x="310" y="790" width="180" height="120" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="2"/>
+    <text x="400" y="830" text-anchor="middle" class="emoji">🏪</text>
+    <text x="400" y="870" text-anchor="middle" class="body-text">Online</text>
+    <text x="400" y="895" text-anchor="middle" class="body-text">Stores</text>
+  </g>
+
+  <g>
+    <rect x="520" y="790" width="180" height="120" rx="10" fill="#FEF3C7" stroke="#FCD34D" stroke-width="2"/>
+    <text x="610" y="830" text-anchor="middle" class="emoji">💳</text>
+    <text x="610" y="870" text-anchor="middle" class="body-text">Payment</text>
+    <text x="610" y="895" text-anchor="middle" class="body-text">Apps</text>
+  </g>
+
+  <g>
+    <rect x="730" y="790" width="180" height="120" rx="10" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="2"/>
+    <text x="820" y="830" text-anchor="middle" class="emoji">📱</text>
+    <text x="820" y="870" text-anchor="middle" class="body-text">Shopping</text>
+    <text x="820" y="895" text-anchor="middle" class="body-text">Apps</text>
+  </g>
+
+  <!-- What It Does -->
+  <rect x="60" y="980" width="880" height="180" rx="20" fill="white" filter="url(#shadow)"/>
+  <text x="500" y="1020" text-anchor="middle" class="section-title">✨ What Does It Do?</text>
+
+  <text x="100" y="1060" class="body-text">
+    <tspan x="100" dy="0">UCP lets different systems work together <tspan class="highlight">automatically</tspan>, so:</tspan>
+    <tspan x="120" dy="32">✅ You can shop anywhere without creating new accounts</tspan>
+    <tspan x="120" dy="28">✅ Your payment info stays safe and works everywhere</tspan>
+    <tspan x="120" dy="28">✅ AI assistants can help you shop from any store</tspan>
+  </text>
+
+  <!-- The Magic -->
+  <rect x="60" y="1200" width="880" height="150" rx="20" fill="rgba(255, 255, 255, 0.2)" stroke="white" stroke-width="3"/>
+  <text x="500" y="1240" text-anchor="middle" class="subtitle" style="fill: #FCD34D;">🎯 The Magic Part</text>
+
+  <text x="500" y="1280" text-anchor="middle" class="body-text-white">
+    <tspan x="500" dy="0">Everything works together seamlessly, like magic! ✨</tspan>
+    <tspan x="500" dy="30">You just shop, and UCP handles all the technical stuff behind the scenes.</tspan>
+  </text>
+
+  <!-- Footer -->
+  <rect x="200" y="1360" width="600" height="1" fill="rgba(255, 255, 255, 0.5)"/>
+  <text x="500" y="1385" text-anchor="middle" style="font-size: 14px; fill: white; opacity: 0.8;">
+    Learn more at ucp.dev • Apache 2.0 Open Standard
+  </text>
+</svg>

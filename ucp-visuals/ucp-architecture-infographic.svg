@@ -1,0 +1,293 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" style="background: #1a1a2e;">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="capabilityGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2563EB;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="extensionGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="transportGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="securityGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Glow effects -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="strongGlow">
+      <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Styles -->
+    <style>
+      text {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .main-title {
+        font-size: 42px;
+        font-weight: bold;
+        fill: white;
+      }
+
+      .section-title {
+        font-size: 24px;
+        font-weight: bold;
+        fill: #FCD34D;
+      }
+
+      .layer-title {
+        font-size: 18px;
+        font-weight: bold;
+        fill: white;
+      }
+
+      .item-title {
+        font-size: 15px;
+        font-weight: 600;
+        fill: white;
+      }
+
+      .item-desc {
+        font-size: 12px;
+        fill: rgba(255, 255, 255, 0.85);
+      }
+
+      .icon-text {
+        font-size: 28px;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes slideIn {
+        from { transform: translateX(-30px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+
+      .animated-box {
+        animation: fadeIn 0.8s ease-out forwards;
+      }
+
+      .animated-text {
+        animation: slideIn 0.6s ease-out forwards;
+      }
+    </style>
+  </defs>
+
+  <!-- Header -->
+  <rect x="0" y="0" width="1400" height="100" fill="url(#headerGrad)"/>
+  <text x="700" y="60" text-anchor="middle" class="main-title">Universal Commerce Protocol</text>
+  <text x="700" y="85" text-anchor="middle" style="font-size: 16px; fill: white; opacity: 0.9;">Modular Architecture for Commerce Interoperability</text>
+
+  <!-- Architecture Layers -->
+
+  <!-- Layer 1: Core Capabilities -->
+  <g class="animated-box" style="animation-delay: 0.2s;">
+    <rect x="50" y="130" width="1300" height="160" rx="12" fill="rgba(59, 130, 246, 0.15)" stroke="#3B82F6" stroke-width="2"/>
+    <rect x="60" y="140" width="220" height="40" rx="6" fill="url(#capabilityGrad)" filter="url(#glow)"/>
+    <text x="170" y="167" text-anchor="middle" class="section-title">🎯 Core Capabilities</text>
+
+    <!-- Checkout -->
+    <g class="animated-text" style="animation-delay: 0.4s;">
+      <rect x="80" y="200" width="280" height="70" rx="8" fill="rgba(59, 130, 246, 0.3)" stroke="#60A5FA" stroke-width="1.5"/>
+      <text x="220" y="225" text-anchor="middle" class="item-title">🛒 Checkout</text>
+      <text x="90" y="245" class="item-desc">• Cart & line item management</text>
+      <text x="90" y="260" class="item-desc">• Tax calculation & totals</text>
+    </g>
+
+    <!-- Identity Linking -->
+    <g class="animated-text" style="animation-delay: 0.6s;">
+      <rect x="390" y="200" width="280" height="70" rx="8" fill="rgba(59, 130, 246, 0.3)" stroke="#60A5FA" stroke-width="1.5"/>
+      <text x="530" y="225" text-anchor="middle" class="item-title">🔐 Identity Linking</text>
+      <text x="400" y="245" class="item-desc">• OAuth 2.0 authorization</text>
+      <text x="400" y="260" class="item-desc">• User action delegation</text>
+    </g>
+
+    <!-- Order -->
+    <g class="animated-text" style="animation-delay: 0.8s;">
+      <rect x="700" y="200" width="280" height="70" rx="8" fill="rgba(59, 130, 246, 0.3)" stroke="#60A5FA" stroke-width="1.5"/>
+      <text x="840" y="225" text-anchor="middle" class="item-title">📦 Order</text>
+      <text x="710" y="245" class="item-desc">• Webhook lifecycle updates</text>
+      <text x="710" y="260" class="item-desc">• Ship, deliver, return events</text>
+    </g>
+
+    <!-- Payment Token Exchange -->
+    <g class="animated-text" style="animation-delay: 1.0s;">
+      <rect x="1010" y="200" width="300" height="70" rx="8" fill="rgba(59, 130, 246, 0.3)" stroke="#60A5FA" stroke-width="1.5"/>
+      <text x="1160" y="225" text-anchor="middle" class="item-title">💳 Payment Token Exchange</text>
+      <text x="1020" y="245" class="item-desc">• PSP & CP token protocols</text>
+      <text x="1020" y="260" class="item-desc">• Secure credential exchange</text>
+    </g>
+  </g>
+
+  <!-- Layer 2: Extensions -->
+  <g class="animated-box" style="animation-delay: 1.2s;">
+    <rect x="50" y="310" width="1300" height="140" rx="12" fill="rgba(16, 185, 129, 0.15)" stroke="#10B981" stroke-width="2"/>
+    <rect x="60" y="320" width="220" height="40" rx="6" fill="url(#extensionGrad)" filter="url(#glow)"/>
+    <text x="170" y="347" text-anchor="middle" class="section-title">🧩 Extensions</text>
+
+    <!-- Fulfillment -->
+    <g class="animated-text" style="animation-delay: 1.4s;">
+      <rect x="80" y="375" width="220" height="55" rx="8" fill="rgba(16, 185, 129, 0.3)" stroke="#34D399" stroke-width="1.5"/>
+      <text x="190" y="398" text-anchor="middle" class="item-title">🚚 Fulfillment</text>
+      <text x="90" y="415" class="item-desc">Shipping options & delivery</text>
+    </g>
+
+    <!-- Discounts -->
+    <g class="animated-text" style="animation-delay: 1.6s;">
+      <rect x="330" y="375" width="220" height="55" rx="8" fill="rgba(16, 185, 129, 0.3)" stroke="#34D399" stroke-width="1.5"/>
+      <text x="440" y="398" text-anchor="middle" class="item-title">🏷️ Discounts</text>
+      <text x="340" y="415" class="item-desc">Coupons & promotions</text>
+    </g>
+
+    <!-- AP2 Mandates -->
+    <g class="animated-text" style="animation-delay: 1.8s;">
+      <rect x="580" y="375" width="220" height="55" rx="8" fill="rgba(16, 185, 129, 0.3)" stroke="#34D399" stroke-width="1.5"/>
+      <text x="690" y="398" text-anchor="middle" class="item-title">🔒 AP2 Mandates</text>
+      <text x="590" y="415" class="item-desc">Cryptographic authorization</text>
+    </g>
+
+    <!-- Custom Extensions -->
+    <g class="animated-text" style="animation-delay: 2.0s;">
+      <rect x="830" y="375" width="220" height="55" rx="8" fill="rgba(16, 185, 129, 0.3)" stroke="#34D399" stroke-width="1.5"/>
+      <text x="940" y="398" text-anchor="middle" class="item-title">⚙️ Custom Extensions</text>
+      <text x="840" y="415" class="item-desc">Vendor-specific features</text>
+    </g>
+
+    <!-- Extensibility Note -->
+    <text x="1100" y="393" class="item-desc" style="font-style: italic;">Extends: Checkout</text>
+    <text x="1100" y="410" class="item-desc" style="font-style: italic;">via extends field</text>
+  </g>
+
+  <!-- Layer 3: Transport Layer -->
+  <g class="animated-box" style="animation-delay: 2.2s;">
+    <rect x="50" y="470" width="1300" height="140" rx="12" fill="rgba(245, 158, 11, 0.15)" stroke="#F59E0B" stroke-width="2"/>
+    <rect x="60" y="480" width="220" height="40" rx="6" fill="url(#transportGrad)" filter="url(#glow)"/>
+    <text x="170" y="507" text-anchor="middle" class="section-title">🌐 Transport Layer</text>
+
+    <!-- REST -->
+    <g class="animated-text" style="animation-delay: 2.4s;">
+      <rect x="80" y="535" width="260" height="55" rx="8" fill="rgba(245, 158, 11, 0.3)" stroke="#FBBF24" stroke-width="1.5"/>
+      <text x="210" y="558" text-anchor="middle" class="item-title">REST API (Primary)</text>
+      <text x="90" y="575" class="item-desc">OpenAPI 3.x • HTTP/1.1+</text>
+    </g>
+
+    <!-- MCP -->
+    <g class="animated-text" style="animation-delay: 2.6s;">
+      <rect x="370" y="535" width="260" height="55" rx="8" fill="rgba(245, 158, 11, 0.3)" stroke="#FBBF24" stroke-width="1.5"/>
+      <text x="500" y="558" text-anchor="middle" class="item-title">MCP (Model Context)</text>
+      <text x="380" y="575" class="item-desc">OpenRPC • LLM Integration</text>
+    </g>
+
+    <!-- A2A -->
+    <g class="animated-text" style="animation-delay: 2.8s;">
+      <rect x="660" y="535" width="260" height="55" rx="8" fill="rgba(245, 158, 11, 0.3)" stroke="#FBBF24" stroke-width="1.5"/>
+      <text x="790" y="558" text-anchor="middle" class="item-title">A2A (Agent-to-Agent)</text>
+      <text x="670" y="575" class="item-desc">Agent Card • AI Agents</text>
+    </g>
+
+    <!-- Embedded -->
+    <g class="animated-text" style="animation-delay: 3.0s;">
+      <rect x="950" y="535" width="260" height="55" rx="8" fill="rgba(245, 158, 11, 0.3)" stroke="#FBBF24" stroke-width="1.5"/>
+      <text x="1080" y="558" text-anchor="middle" class="item-title">Embedded Protocol</text>
+      <text x="960" y="575" class="item-desc">Host delegation • Events</text>
+    </g>
+  </g>
+
+  <!-- Layer 4: Security & Standards -->
+  <g class="animated-box" style="animation-delay: 3.2s;">
+    <rect x="50" y="630" width="1300" height="120" rx="12" fill="rgba(239, 68, 68, 0.15)" stroke="#EF4444" stroke-width="2"/>
+    <rect x="60" y="640" width="220" height="40" rx="6" fill="url(#securityGrad)" filter="url(#glow)"/>
+    <text x="170" y="667" text-anchor="middle" class="section-title">🛡️ Security & Standards</text>
+
+    <g class="animated-text" style="animation-delay: 3.4s;">
+      <text x="80" y="705" class="item-title">🔐 Transport Security</text>
+      <text x="90" y="725" class="item-desc">HTTPS only • TLS 1.2+</text>
+    </g>
+
+    <g class="animated-text" style="animation-delay: 3.6s;">
+      <text x="340" y="705" class="item-title">🪪 OAuth 2.0</text>
+      <text x="350" y="725" class="item-desc">Identity linking & delegation</text>
+    </g>
+
+    <g class="animated-text" style="animation-delay: 3.8s;">
+      <text x="600" y="705" class="item-title">💳 PCI-DSS</text>
+      <text x="610" y="725" class="item-desc">Payment security compliance</text>
+    </g>
+
+    <g class="animated-text" style="animation-delay: 4.0s;">
+      <text x="840" y="705" class="item-title">📝 JWS Signatures</text>
+      <text x="850" y="725" class="item-desc">Webhook verification</text>
+    </g>
+
+    <g class="animated-text" style="animation-delay: 4.2s;">
+      <text x="1080" y="705" class="item-title">✅ Verifiable Credentials</text>
+      <text x="1090" y="725" class="item-desc">AP2 cryptographic proofs</text>
+    </g>
+  </g>
+
+  <!-- Key Features Box -->
+  <g class="animated-box" style="animation-delay: 4.4s;">
+    <rect x="50" y="770" width="640" height="190" rx="12" fill="rgba(102, 126, 234, 0.2)" stroke="#667eea" stroke-width="2" filter="url(#glow)"/>
+    <text x="370" y="800" text-anchor="middle" class="layer-title">✨ Key Features</text>
+
+    <text x="70" y="830" class="item-title">🔍 Dynamic Discovery</text>
+    <text x="80" y="848" class="item-desc">Autonomous capability negotiation via profiles</text>
+
+    <text x="70" y="873" class="item-title">🧱 Composable Architecture</text>
+    <text x="80" y="891" class="item-desc">Mix & match capabilities and extensions</text>
+
+    <text x="70" y="916" class="item-title">🌍 Transport Agnostic</text>
+    <text x="80" y="934" class="item-desc">REST, MCP, A2A, Embedded - pick your protocol</text>
+  </g>
+
+  <!-- Governance Box -->
+  <g class="animated-box" style="animation-delay: 4.6s;">
+    <rect x="710" y="770" width="640" height="190" rx="12" fill="rgba(118, 75, 162, 0.2)" stroke="#764ba2" stroke-width="2" filter="url(#glow)"/>
+    <text x="1030" y="800" text-anchor="middle" class="layer-title">🏛️ Governance Model</text>
+
+    <text x="730" y="830" class="item-title">📛 Namespace Authority</text>
+    <text x="740" y="848" class="item-desc">Reverse-domain naming (dev.ucp.* = UCP governed)</text>
+
+    <text x="730" y="873" class="item-title">📋 Spec URL Binding</text>
+    <text x="740" y="891" class="item-desc">Origin must match namespace authority</text>
+
+    <text x="730" y="916" class="item-title">🔄 Version Negotiation</text>
+    <text x="740" y="934" class="item-desc">Date-based versioning (YYYY-MM-DD)</text>
+  </g>
+
+  <!-- Footer -->
+  <rect x="0" y="970" width="1400" height="30" fill="url(#headerGrad)"/>
+  <text x="700" y="990" text-anchor="middle" style="font-size: 14px; fill: white; font-weight: 600;">
+    Open Standard • Apache 2.0 • ucp.dev
+  </text>
+</svg>

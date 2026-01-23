@@ -1,0 +1,255 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="platformGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="businessGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#059669;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cpGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#DC2626;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B91C1C;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="pspGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#EA580C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C2410C;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Arrow markers -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#FFF" />
+    </marker>
+
+    <!-- Glow filter -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Animations -->
+    <style>
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slideIn {
+        from { transform: translateX(-50px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+
+      @keyframes draw {
+        to { stroke-dashoffset: 0; }
+      }
+
+      .actor-box {
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      .step-label {
+        animation: slideIn 0.6s ease-out;
+      }
+
+      .flow-arrow {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: draw 1.5s ease-in forwards;
+      }
+
+      .phase-box {
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      text {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .title {
+        font-size: 32px;
+        font-weight: bold;
+        fill: white;
+      }
+
+      .subtitle {
+        font-size: 18px;
+        fill: rgba(255, 255, 255, 0.9);
+      }
+
+      .actor-title {
+        font-size: 16px;
+        font-weight: bold;
+        fill: white;
+      }
+
+      .step-number {
+        font-size: 20px;
+        font-weight: bold;
+        fill: #FCD34D;
+      }
+
+      .step-text {
+        font-size: 14px;
+        fill: white;
+      }
+
+      .detail-text {
+        font-size: 11px;
+        fill: rgba(255, 255, 255, 0.8);
+        font-style: italic;
+      }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="50" text-anchor="middle" class="title">Universal Commerce Protocol (UCP)</text>
+  <text x="600" y="80" text-anchor="middle" class="subtitle">End-to-End Protocol Flow</text>
+
+  <!-- Actors -->
+  <!-- Platform -->
+  <g class="actor-box">
+    <rect x="50" y="130" width="180" height="100" rx="10" fill="url(#platformGrad)" filter="url(#glow)"/>
+    <text x="140" y="165" text-anchor="middle" class="actor-title">PLATFORM</text>
+    <text x="140" y="185" text-anchor="middle" class="detail-text">AI Agent / App</text>
+    <text x="140" y="200" text-anchor="middle" class="detail-text">User Interface</text>
+    <circle cx="140" cy="215" r="4" fill="#FCD34D"/>
+  </g>
+
+  <!-- Business -->
+  <g class="actor-box">
+    <rect x="510" y="130" width="180" height="100" rx="10" fill="url(#businessGrad)" filter="url(#glow)"/>
+    <text x="600" y="165" text-anchor="middle" class="actor-title">BUSINESS</text>
+    <text x="600" y="185" text-anchor="middle" class="detail-text">Merchant of Record</text>
+    <text x="600" y="200" text-anchor="middle" class="detail-text">UCP Implementation</text>
+    <circle cx="600" cy="215" r="4" fill="#FCD34D"/>
+  </g>
+
+  <!-- Credential Provider -->
+  <g class="actor-box">
+    <rect x="280" y="130" width="180" height="100" rx="10" fill="url(#cpGrad)" filter="url(#glow)"/>
+    <text x="370" y="165" text-anchor="middle" class="actor-title">CREDENTIAL</text>
+    <text x="370" y="180" text-anchor="middle" class="actor-title">PROVIDER</text>
+    <text x="370" y="200" text-anchor="middle" class="detail-text">Wallet / Identity</text>
+    <circle cx="370" cy="215" r="4" fill="#FCD34D"/>
+  </g>
+
+  <!-- PSP -->
+  <g class="actor-box">
+    <rect x="740" y="130" width="180" height="100" rx="10" fill="url(#pspGrad)" filter="url(#glow)"/>
+    <text x="830" y="165" text-anchor="middle" class="actor-title">PAYMENT</text>
+    <text x="830" y="180" text-anchor="middle" class="actor-title">PROVIDER (PSP)</text>
+    <text x="830" y="200" text-anchor="middle" class="detail-text">Tokenization</text>
+    <circle cx="830" cy="215" r="4" fill="#FCD34D"/>
+  </g>
+
+  <!-- Protocol Flow -->
+
+  <!-- Step 1: Discovery -->
+  <g class="step-label" style="animation-delay: 0.5s;">
+    <circle cx="30" cy="280" r="18" fill="#FCD34D"/>
+    <text x="30" y="287" text-anchor="middle" class="step-number">1</text>
+  </g>
+  <line x1="140" y1="230" x2="600" y2="230" stroke="white" stroke-width="3" marker-end="url(#arrowhead)" class="flow-arrow" style="animation-delay: 0.5s;"/>
+  <text x="370" y="250" text-anchor="middle" class="step-text" style="animation-delay: 0.7s;">Discovery: GET /.well-known/ucp</text>
+  <text x="370" y="268" text-anchor="middle" class="detail-text" style="animation-delay: 0.7s;">Platform fetches business profile & capabilities</text>
+
+  <!-- Step 2: Profile Response -->
+  <g class="step-label" style="animation-delay: 1.2s;">
+    <circle cx="30" cy="330" r="18" fill="#FCD34D"/>
+    <text x="30" y="337" text-anchor="middle" class="step-number">2</text>
+  </g>
+  <line x1="600" y1="290" x2="140" y2="290" stroke="white" stroke-width="3" stroke-dasharray="5,5" marker-end="url(#arrowhead)" class="flow-arrow" style="animation-delay: 1.2s;"/>
+  <text x="370" y="310" text-anchor="middle" class="step-text" style="animation-delay: 1.4s;">Profile Response (capabilities, services)</text>
+  <text x="370" y="328" text-anchor="middle" class="detail-text" style="animation-delay: 1.4s;">Returns: checkout, payment handlers, extensions</text>
+
+  <!-- Step 3: Create Checkout -->
+  <g class="step-label" style="animation-delay: 1.9s;">
+    <circle cx="30" cy="390" r="18" fill="#FCD34D"/>
+    <text x="30" y="397" text-anchor="middle" class="step-number">3</text>
+  </g>
+  <line x1="140" y1="350" x2="600" y2="350" stroke="white" stroke-width="3" marker-end="url(#arrowhead)" class="flow-arrow" style="animation-delay: 1.9s;"/>
+  <text x="370" y="370" text-anchor="middle" class="step-text" style="animation-delay: 2.1s;">POST /checkout-sessions (line_items, buyer)</text>
+  <text x="370" y="388" text-anchor="middle" class="detail-text" style="animation-delay: 2.1s;">Platform creates checkout with cart items</text>
+
+  <!-- Step 4: Checkout Response -->
+  <g class="step-label" style="animation-delay: 2.6s;">
+    <circle cx="30" cy="450" r="18" fill="#FCD34D"/>
+    <text x="30" y="457" text-anchor="middle" class="step-number">4</text>
+  </g>
+  <line x1="600" y1="410" x2="140" y2="410" stroke="white" stroke-width="3" stroke-dasharray="5,5" marker-end="url(#arrowhead)" class="flow-arrow" style="animation-delay: 2.6s;"/>
+  <text x="370" y="430" text-anchor="middle" class="step-text" style="animation-delay: 2.8s;">Checkout Response (totals, payment.handlers[])</text>
+  <text x="370" y="448" text-anchor="middle" class="detail-text" style="animation-delay: 2.8s;">Returns: session ID, available payment methods</text>
+
+  <!-- Step 5: Token Acquisition -->
+  <g class="step-label" style="animation-delay: 3.3s;">
+    <circle cx="30" cy="520" r="18" fill="#FCD34D"/>
+    <text x="30" y="527" text-anchor="middle" class="step-number">5</text>
+  </g>
+  <!-- Platform to CP -->
+  <line x1="140" y1="480" x2="370" y2="480" stroke="#DC2626" stroke-width="3" marker-end="url(#arrowhead)" class="flow-arrow" style="animation-delay: 3.3s;"/>
+  <text x="255" y="500" text-anchor="middle" class="step-text" style="animation-delay: 3.5s;">Payment Token Request</text>
+  <text x="255" y="518" text-anchor="middle" class="detail-text" style="animation-delay: 3.5s;">Platform acquires token from CP</text>
+
+  <!-- Step 6: Token Response -->
+  <g class="step-label" style="animation-delay: 4.0s;">
+    <circle cx="30" cy="580" r="18" fill="#FCD34D"/>
+    <text x="30" y="587" text-anchor="middle" class="step-number">6</text>
+  </g>
+  <line x1="370" y1="540" x2="140" y2="540" stroke="#DC2626" stroke-width="3" stroke-dasharray="5,5" marker-end="url(#arrowhead)" class="flow-arrow" style="animation-delay: 4.0s;"/>
+  <text x="255" y="560" text-anchor="middle" class="step-text" style="animation-delay: 4.2s;">Encrypted Token / Network Token</text>
+  <text x="255" y="578" text-anchor="middle" class="detail-text" style="animation-delay: 4.2s;">Returns: opaque credential for business</text>
+
+  <!-- Step 7: Complete Checkout -->
+  <g class="step-label" style="animation-delay: 4.7s;">
+    <circle cx="30" cy="650" r="18" fill="#FCD34D"/>
+    <text x="30" y="657" text-anchor="middle" class="step-number">7</text>
+  </g>
+  <line x1="140" y1="610" x2="600" y2="610" stroke="white" stroke-width="3" marker-end="url(#arrowhead)" class="flow-arrow" style="animation-delay: 4.7s;"/>
+  <text x="370" y="630" text-anchor="middle" class="step-text" style="animation-delay: 4.9s;">POST /checkout-sessions/{id}/complete</text>
+  <text x="370" y="648" text-anchor="middle" class="detail-text" style="animation-delay: 4.9s;">Platform submits: payment_data + token</text>
+
+  <!-- Step 8: PSP Charge -->
+  <g class="step-label" style="animation-delay: 5.4s;">
+    <circle cx="30" cy="710" r="18" fill="#FCD34D"/>
+    <text x="30" y="717" text-anchor="middle" class="step-number">8</text>
+  </g>
+  <line x1="600" y1="680" x2="830" y2="680" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowhead)" class="flow-arrow" style="animation-delay: 5.4s;"/>
+  <text x="715" y="700" text-anchor="middle" class="step-text" style="animation-delay: 5.6s;">Authorize / Capture</text>
+  <text x="715" y="718" text-anchor="middle" class="detail-text" style="animation-delay: 5.6s;">Business processes payment via PSP</text>
+
+  <!-- Step 9: Order Confirmation -->
+  <g class="step-label" style="animation-delay: 6.1s;">
+    <circle cx="30" cy="780" r="18" fill="#FCD34D"/>
+    <text x="30" y="787" text-anchor="middle" class="step-number">9</text>
+  </g>
+  <line x1="600" y1="750" x2="140" y2="750" stroke="white" stroke-width="3" stroke-dasharray="5,5" marker-end="url(#arrowhead)" class="flow-arrow" style="animation-delay: 6.1s;"/>
+  <text x="370" y="770" text-anchor="middle" class="step-text" style="animation-delay: 6.3s;">Order Confirmation (status: complete)</text>
+  <text x="370" y="788" text-anchor="middle" class="detail-text" style="animation-delay: 6.3s;">Returns: order ID, confirmation details</text>
+
+  <!-- Phase Labels -->
+  <rect x="970" y="140" width="200" height="180" rx="8" fill="rgba(0, 0, 0, 0.3)" stroke="#FCD34D" stroke-width="2"/>
+  <text x="1070" y="170" text-anchor="middle" style="font-size: 18px; font-weight: bold; fill: #FCD34D;">KEY PHASES</text>
+  <text x="980" y="200" text-anchor="start" style="font-size: 14px; fill: white;">🔍 Discovery (1-2)</text>
+  <text x="990" y="220" text-anchor="start" class="detail-text">Profile & capabilities</text>
+
+  <text x="980" y="245" text-anchor="start" style="font-size: 14px; fill: white;">🛒 Checkout (3-4)</text>
+  <text x="990" y="265" text-anchor="start" class="detail-text">Cart & payment handlers</text>
+
+  <text x="980" y="290" text-anchor="start" style="font-size: 14px; fill: white;">💳 Payment (5-6)</text>
+  <text x="990" y="310" text-anchor="start" class="detail-text">Token acquisition</text>
+
+  <!-- Footer -->
+  <rect x="300" y="830" width="600" height="50" rx="8" fill="rgba(0, 0, 0, 0.4)"/>
+  <text x="600" y="852" text-anchor="middle" style="font-size: 14px; fill: white; font-weight: bold;">Standards-Based Commerce Interoperability</text>
+  <text x="600" y="870" text-anchor="middle" class="detail-text">Secure • Modular • Platform-Agnostic • Open Standard</text>
+</svg>

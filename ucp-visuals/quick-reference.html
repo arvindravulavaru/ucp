@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UCP Quick Reference Card</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 30px;
+      padding: 50px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 30px;
+      border-bottom: 3px solid #F3F4F6;
+    }
+
+    h1 {
+      font-size: 3rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      font-weight: 900;
+    }
+
+    .tagline {
+      font-size: 1.3rem;
+      color: #6B7280;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #9CA3AF;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section h2 {
+      font-size: 1.8rem;
+      color: #1F2937;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .section p {
+      font-size: 1.1rem;
+      color: #4B5563;
+      line-height: 1.8;
+      margin-bottom: 15px;
+    }
+
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 25px 0;
+    }
+
+    .pillar {
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      border: 2px solid;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .pillar:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .pillar.discovery { background: #EEF2FF; border-color: #667eea; }
+    .pillar.checkout { background: #F0FDF4; border-color: #10B981; }
+    .pillar.payments { background: #FEF3C7; border-color: #F59E0B; }
+    .pillar.security { background: #FEE2E2; border-color: #EF4444; }
+
+    .pillar .emoji {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .pillar h3 {
+      font-size: 1.1rem;
+      color: #1F2937;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .pillar p {
+      font-size: 0.9rem;
+      color: #6B7280;
+      margin: 0;
+    }
+
+    .benefits {
+      background: #F9FAFB;
+      padding: 25px;
+      border-radius: 15px;
+      border-left: 4px solid #7C3AED;
+    }
+
+    .benefits ul {
+      list-style: none;
+    }
+
+    .benefits li {
+      font-size: 1.1rem;
+      color: #374151;
+      margin-bottom: 12px;
+      padding-left: 30px;
+      position: relative;
+    }
+
+    .benefits li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #7C3AED;
+      font-weight: bold;
+      font-size: 1.3rem;
+    }
+
+    .highlight {
+      color: #7C3AED;
+      font-weight: 700;
+    }
+
+    .capabilities {
+      background: #F3F4F6;
+      padding: 25px;
+      border-radius: 15px;
+    }
+
+    .capabilities ul {
+      list-style: none;
+    }
+
+    .capabilities li {
+      font-size: 1rem;
+      color: #374151;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: baseline;
+    }
+
+    .capabilities code {
+      background: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #7C3AED;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .flow-step {
+      background: #F9FAFB;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 3px solid #7C3AED;
+    }
+
+    .flow-step strong {
+      color: #7C3AED;
+      font-weight: 700;
+    }
+
+    .flow-step span {
+      color: #374151;
+      font-size: 0.95rem;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid #F3F4F6;
+    }
+
+    footer p {
+      font-size: 1.2rem;
+      color: #7C3AED;
+      font-weight: 700;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (max-width: 768px) {
+      .card { padding: 30px; }
+      h1 { font-size: 2rem; }
+      .tagline { font-size: 1.1rem; }
+      .pillars { grid-template-columns: 1fr 1fr; }
+      .flow-steps { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <header>
+      <h1>UCP</h1>
+      <p class="tagline">Universal Commerce Protocol</p>
+      <p class="subtitle">Open standard for commerce interoperability</p>
+    </header>
+
+    <div class="section">
+      <h2>💡 What is UCP?</h2>
+      <p>An open standard enabling platforms (AI agents, apps), businesses, and payment providers to communicate seamlessly using a standardized common language.</p>
+    </div>
+
+    <div class="section">
+      <h2>🎯 Four Core Pillars</h2>
+      <div class="pillars">
+        <div class="pillar discovery">
+          <span class="emoji">🔍</span>
+          <h3>Discovery</h3>
+          <p>Autonomous capability negotiation via /.well-known/ucp</p>
+        </div>
+        <div class="pillar checkout">
+          <span class="emoji">🛒</span>
+          <h3>Checkout</h3>
+          <p>Standardized cart, tax calc, payment handler negotiation</p>
+        </div>
+        <div class="pillar payments">
+          <span class="emoji">💳</span>
+          <h3>Payments</h3>
+          <p>Decoupled token exchange, PCI-DSS compliant patterns</p>
+        </div>
+        <div class="pillar security">
+          <span class="emoji">🔐</span>
+          <h3>Security</h3>
+          <p>OAuth 2.0, AP2 mandates, JWS signatures, HTTPS</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>✨ Key Benefits</h2>
+      <div class="benefits">
+        <ul>
+          <li><span class="highlight">🧩 Modular:</span> Mix and match capabilities & extensions</li>
+          <li><span class="highlight">🌐 Transport Agnostic:</span> REST, MCP, A2A, Embedded - choose your protocol</li>
+          <li><span class="highlight">🤖 AI-Ready:</span> Designed for autonomous agents from the ground up</li>
+          <li><span class="highlight">🔓 Open Standard:</span> Apache 2.0 licensed, no vendor lock-in</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🎯 Standard Capabilities</h2>
+      <div class="capabilities">
+        <ul>
+          <li><code>dev.ucp.shopping.checkout</code> <span>Cart & tax calculation</span></li>
+          <li><code>dev.ucp.common.identity_linking</code> <span>OAuth 2.0 user delegation</span></li>
+          <li><code>dev.ucp.shopping.order</code> <span>Webhook lifecycle updates</span></li>
+          <li><code>dev.ucp.shopping.fulfillment</code> <span>Shipping options (extends checkout)</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔄 Transaction Flow</h2>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <strong>1.</strong> <span>Platform discovers business profile</span>
+        </div>
+        <div class="flow-step">
+          <strong>2.</strong> <span>Create checkout session</span>
+        </div>
+        <div class="flow-step">
+          <strong>3.</strong> <span>Negotiate payment handlers</span>
+        </div>
+        <div class="flow-step">
+          <strong>4.</strong> <span>Acquire payment token from CP</span>
+        </div>
+        <div class="flow-step">
+          <strong>5.</strong> <span>Complete checkout with token</span>
+        </div>
+        <div class="flow-step">
+          <strong>6.</strong> <span>PSP processes payment</span>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Learn more at ucp.dev</p>
+    </footer>
+  </div>
+</body>
+</html>

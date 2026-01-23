@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Commerce Protocol - Compact Presentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/black.css">
+  <style>
+    :root {
+      --r-background-color: #ffffff;
+      --r-main-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      --r-heading-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      --r-heading-color: #1a1a1a;
+      --r-link-color: #2563eb;
+      --r-link-color-hover: #1d4ed8;
+      --primary-blue: #2563eb;
+      --dark-gray: #1a1a1a;
+      --medium-gray: #6b7280;
+      --light-gray: #f3f4f6;
+      --border-gray: #e5e7eb;
+      --success-green: #059669;
+      --warning-orange: #ea580c;
+      --error-red: #dc2626;
+    }
+
+    .reveal {
+      background: #ffffff;
+      color: var(--dark-gray);
+    }
+
+    .reveal h1, .reveal h2, .reveal h3 {
+      text-transform: none;
+      font-weight: 600;
+      color: var(--dark-gray);
+    }
+
+    .reveal h1 {
+      font-size: 2em;
+      margin-bottom: 0.2em;
+      font-weight: 700;
+    }
+
+    .reveal h2 {
+      font-size: 1.4em;
+      color: var(--primary-blue);
+      margin-bottom: 0.5em;
+      font-weight: 600;
+    }
+
+    .reveal h3 {
+      font-size: 1.1em;
+      color: var(--medium-gray);
+      font-weight: 500;
+    }
+
+    .reveal p, .reveal li {
+      font-size: 0.75em;
+      line-height: 1.4;
+      color: var(--dark-gray);
+    }
+
+    .reveal .slides section {
+      text-align: left;
+      padding: 10px !important;
+    }
+
+    .reveal .slides section.center {
+      text-align: center;
+    }
+
+    .reveal strong {
+      color: var(--dark-gray);
+      font-weight: 600;
+    }
+
+    .emoji {
+      font-size: 0.9em;
+      margin-right: 0.25em;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin: 6px 0;
+      border: 1px solid var(--border-gray);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h3 {
+      color: var(--dark-gray);
+      margin-bottom: 6px;
+      font-size: 0.95em;
+      font-weight: 600;
+    }
+
+    .card p, .card li {
+      color: var(--dark-gray);
+      font-size: 0.7em;
+      line-height: 1.4;
+      margin: 4px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .box {
+      background: var(--light-gray);
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-gray);
+      transition: all 0.2s ease;
+    }
+
+    .box:hover {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .box h4 {
+      color: var(--primary-blue);
+      font-size: 0.85em;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .box p {
+      font-size: 0.7em;
+      color: var(--medium-gray);
+      margin: 3px 0;
+      line-height: 1.3;
+    }
+
+    .highlight {
+      color: var(--primary-blue);
+      font-weight: 600;
+    }
+
+    .actor-box {
+      text-align: center;
+      padding: 10px;
+      border-radius: 6px;
+      background: var(--color-bg);
+      border: 2px solid var(--color-border);
+      transition: all 0.2s ease;
+    }
+
+    .actor-box:hover {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .actor-box h4 {
+      margin: 5px 0;
+      font-size: 0.8em;
+      color: var(--dark-gray);
+      font-weight: 600;
+    }
+
+    .actor-box p {
+      font-size: 0.7em;
+      color: var(--medium-gray);
+      margin: 0;
+    }
+
+    .step {
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 6px;
+      margin: 8px 0;
+      border-left: 3px solid var(--step-color);
+      border: 1px solid var(--border-gray);
+      border-left: 3px solid var(--step-color);
+    }
+
+    .step h4 {
+      color: var(--step-color);
+      margin-bottom: 5px;
+      font-size: 0.8em;
+      font-weight: 600;
+    }
+
+    .step p {
+      font-size: 0.7em;
+      margin: 3px 0;
+      color: var(--dark-gray);
+      line-height: 1.3;
+    }
+
+    .layer {
+      background: var(--light-gray);
+      border: 1px solid var(--layer-color);
+      border-radius: 6px;
+      padding: 10px;
+      margin: 8px 0;
+    }
+
+    .layer h4 {
+      color: var(--layer-color);
+      font-size: 0.85em;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .layer ul {
+      margin: 0;
+      padding-left: 16px;
+      list-style: none;
+    }
+
+    .layer li {
+      font-size: 0.7em;
+      margin-bottom: 4px;
+      color: var(--dark-gray);
+      line-height: 1.3;
+    }
+
+    .fragment {
+      opacity: 0.5;
+    }
+
+    .fragment.visible {
+      opacity: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--primary-blue);
+      color: #ffffff;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 0.65em;
+      font-weight: 500;
+      margin: 3px 3px;
+    }
+
+    .arrow {
+      color: var(--primary-blue);
+      font-size: 0.85em;
+      margin: 0 4px;
+      font-weight: 600;
+    }
+
+    code {
+      background: var(--light-gray);
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: var(--primary-blue);
+      font-size: 0.7em;
+      font-family: 'Monaco', 'Courier New', monospace;
+      border: 1px solid var(--border-gray);
+    }
+
+    .controls {
+      color: var(--primary-blue) !important;
+    }
+
+    .progress span {
+      background: var(--primary-blue) !important;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .escalation-flow {
+      background: #fef9c3;
+      border: 2px solid #eab308;
+      border-radius: 6px;
+      padding: 10px;
+      margin: 8px 0;
+    }
+
+    .escalation-flow h4 {
+      color: #a16207;
+      font-size: 0.85em;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .escalation-flow p {
+      color: var(--dark-gray);
+      font-size: 0.7em;
+    }
+
+    .severity-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.65em;
+      font-weight: 500;
+      margin: 3px 3px 3px 0;
+    }
+
+    .severity-recoverable {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    .severity-input {
+      background: #fed7aa;
+      color: #9a3412;
+      border: 1px solid #fdba74;
+    }
+
+    .severity-review {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .reveal .slide-number {
+      color: var(--medium-gray);
+      font-size: 0.7em;
+    }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- Title Slide -->
+      <section class="center">
+        <h1>Universal Commerce Protocol</h1>
+        <h3 style="color: var(--medium-gray); font-weight: 500;">Making Commerce Interoperable</h3>
+      </section>
+
+      <!-- What is UCP? -->
+      <section>
+        <h2><span class="emoji">🎯</span>What is UCP?</h2>
+        <div class="card">
+          <h3>The Universal Translator for Commerce</h3>
+          <p><strong>Problem:</strong> Every shop has different APIs, payment systems, and processes</p>
+          <p><strong>Solution:</strong> UCP provides a <span class="highlight">standard language</span> for platforms, businesses, and payment providers</p>
+        </div>
+        <div class="grid fragment">
+          <div class="actor-box" style="--color-bg: #eff6ff; --color-border: #3b82f6;">
+            <span style="font-size: 1.5em;">🤖</span>
+            <h4>Platforms</h4>
+            <p>AI agents, apps</p>
+          </div>
+          <div class="actor-box" style="--color-bg: #f0fdf4; --color-border: #059669;">
+            <span style="font-size: 1.5em;">🏪</span>
+            <h4>Businesses</h4>
+            <p>Merchants</p>
+          </div>
+          <div class="actor-box" style="--color-bg: #fef3c7; --color-border: #d97706;">
+            <span style="font-size: 1.5em;">💳</span>
+            <h4>Credential Providers</h4>
+            <p>Wallets</p>
+          </div>
+          <div class="actor-box" style="--color-bg: #fee2e2; --color-border: #dc2626;">
+            <span style="font-size: 1.5em;">🏦</span>
+            <h4>PSPs</h4>
+            <p>Processors</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Core Architecture -->
+      <section>
+        <h2 style="margin-bottom: 15px;"><span class="emoji">🧱</span>Core Architecture</h2>
+        <div class="two-col" style="gap: 15px;">
+          <div>
+            <div class="layer fragment" style="--layer-color: #3B82F6; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 2px solid #3B82F6; padding: 12px;">
+              <h4 style="font-size: 0.85em; margin-bottom: 8px; color: #1e40af;">Core Capabilities</h4>
+              <ul style="padding-left: 0;">
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #3B82F6;">▸</span>
+                  Checkout (cart, tax, totals)
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #3B82F6;">▸</span>
+                  Identity Linking (OAuth 2.0)
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #3B82F6;">▸</span>
+                  Order (webhooks, lifecycle)
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 0; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #3B82F6;">▸</span>
+                  Payment Token Exchange
+                </li>
+              </ul>
+            </div>
+            <div class="layer fragment" style="--layer-color: #10B981; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #10B981; padding: 12px; margin-top: 12px;">
+              <h4 style="font-size: 0.85em; margin-bottom: 8px; color: #166534;">Extensions</h4>
+              <ul style="padding-left: 0;">
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #10B981;">▸</span>
+                  Fulfillment (shipping)
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #10B981;">▸</span>
+                  Discounts (coupons)
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #10B981;">▸</span>
+                  AP2 Mandates (crypto auth)
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 0; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #10B981;">▸</span>
+                  Custom (vendor-specific)
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <div class="layer fragment" style="--layer-color: #F59E0B; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 2px solid #F59E0B; padding: 12px;">
+              <h4 style="font-size: 0.85em; margin-bottom: 8px; color: #92400e;">Transport Layer</h4>
+              <ul style="padding-left: 0;">
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #F59E0B;">▸</span>
+                  REST API (primary)
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #F59E0B;">▸</span>
+                  MCP (LLM tools)
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #F59E0B;">▸</span>
+                  A2A (agent-to-agent)
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 0; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #F59E0B;">▸</span>
+                  Embedded (host delegation)
+                </li>
+              </ul>
+            </div>
+            <div class="layer fragment" style="--layer-color: #EF4444; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 2px solid #EF4444; padding: 12px; margin-top: 12px;">
+              <h4 style="font-size: 0.85em; margin-bottom: 8px; color: #991b1b;">Security</h4>
+              <ul style="padding-left: 0;">
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #EF4444;">▸</span>
+                  HTTPS, TLS 1.2+
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #EF4444;">▸</span>
+                  OAuth 2.0, JWS signatures
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 6px; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #EF4444;">▸</span>
+                  PCI-DSS compliance
+                </li>
+                <li style="font-size: 0.7em; margin-bottom: 0; padding-left: 18px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #EF4444;">▸</span>
+                  Verifiable credentials
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Protocol Flow Part Divider -->
+      <section class="center">
+        <h1 style="color: var(--primary-blue);">Protocol Flow</h1>
+        <h3 style="color: var(--medium-gray); font-weight: 500;">End-to-End Transaction</h3>
+      </section>
+
+      <!-- Happy Path Flow -->
+      <section>
+        <h2><span class="emoji">✅</span>Happy Path: Steps 1-3</h2>
+        <div class="step fragment" style="--step-color: #3b82f6;">
+          <h4>1. Discovery</h4>
+          <p>Platform <span class="arrow">→</span> Business: <code>GET /.well-known/ucp</code></p>
+          <p style="color: #6b7280; font-size: 0.75em;">Returns capabilities, services, payment handlers</p>
+        </div>
+        <div class="step fragment" style="--step-color: #059669;">
+          <h4>2. Create Checkout</h4>
+          <p>Platform <span class="arrow">→</span> Business: <code>POST /checkout-sessions</code></p>
+          <p style="color: #6b7280; font-size: 0.75em;">Send cart items, buyer info, preferences</p>
+        </div>
+        <div class="step fragment" style="--step-color: #3b82f6;">
+          <h4>3. Checkout Response</h4>
+          <p>Business <span class="arrow">→</span> Platform: Session data</p>
+          <p style="color: #6b7280; font-size: 0.75em;"><code>status: ready_for_complete</code> or <code>incomplete</code> or <code>requires_escalation</code></p>
+        </div>
+      </section>
+
+      <!-- Happy Path Flow continued -->
+      <section>
+        <h2><span class="emoji">✅</span>Happy Path: Steps 4-6</h2>
+        <div class="step fragment" style="--step-color: #d97706;">
+          <h4>4. Token Request</h4>
+          <p>Platform <span class="arrow">↔</span> Credential Provider: Acquire payment token</p>
+          <p style="color: #6b7280; font-size: 0.75em;">Platform gets encrypted credential</p>
+        </div>
+        <div class="step fragment" style="--step-color: #3b82f6;">
+          <h4>5. Complete Checkout</h4>
+          <p>Platform <span class="arrow">→</span> Business: <code>POST /complete</code> with token</p>
+          <p style="color: #6b7280; font-size: 0.75em;">Submit encrypted payment_data</p>
+        </div>
+        <div class="step fragment" style="--step-color: #059669;">
+          <h4>6. Order Confirmation</h4>
+          <p>Business <span class="arrow">→</span> PSP <span class="arrow">→</span> Platform: Success</p>
+          <p style="color: #6b7280; font-size: 0.75em;"><code>status: completed</code>, order ID returned</p>
+        </div>
+      </section>
+
+      <!-- Escalation Flow -->
+      <section>
+        <h2><span class="emoji">⚠️</span>Escalation Flow: requires_escalation</h2>
+        <div class="escalation-flow">
+          <h4>When buyer intervention is needed</h4>
+          <p style="font-size: 0.7em;">Business returns <code>status: requires_escalation</code> with <code>continue_url</code></p>
+        </div>
+
+        <div class="card fragment">
+          <h3>Error Severities</h3>
+          <p><span class="severity-badge severity-recoverable">recoverable</span> Platform can fix via API (e.g., invalid phone format)</p>
+          <p><span class="severity-badge severity-input">requires_buyer_input</span> Need info not available via API (e.g., delivery scheduling)</p>
+          <p><span class="severity-badge severity-review">requires_buyer_review</span> Buyer must authorize (e.g., high-value order, policy compliance)</p>
+        </div>
+
+        <div class="step fragment" style="--step-color: #eab308; margin-top: 10px;">
+          <h4>Platform Actions</h4>
+          <p>1. Resolve any <span class="severity-badge severity-recoverable">recoverable</span> errors first via Update Checkout</p>
+          <p>2. Hand off to buyer via <code>continue_url</code></p>
+          <p>3. Buyer completes in business UI</p>
+          <p>4. Platform polls or receives webhook when <code>status: completed</code></p>
+        </div>
+      </section>
+
+      <!-- Get Started -->
+      <section class="center">
+        <h2>Get Started with UCP</h2>
+        <div class="card" style="text-align: center; margin: 20px auto; max-width: 650px;">
+          <p style="font-size: 0.85em; margin: 10px 0;">
+            <strong>📚 Documentation:</strong> <a href="https://ucp.dev" target="_blank" style="text-decoration: none;">ucp.dev</a>
+          </p>
+          <p style="font-size: 0.85em; margin: 10px 0;">
+            <strong>💻 GitHub:</strong> <a href="https://github.com/Universal-Commerce-Protocol/ucp" target="_blank" style="text-decoration: none;">Universal-Commerce-Protocol</a>
+          </p>
+          <p style="font-size: 0.85em; margin: 10px 0;">
+            <strong>📄 License:</strong> Apache 2.0 (Open Source)
+          </p>
+          <div style="margin-top: 20px;">
+            <span class="badge">Specification</span>
+            <span class="badge">SDKs</span>
+            <span class="badge">Examples</span>
+            <span class="badge">Tests</span>
+          </div>
+        </div>
+        <h3 style="margin-top: 35px; color: var(--medium-gray); font-weight: 500;">Questions?</h3>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'slide',
+      backgroundTransition: 'fade',
+      controls: true,
+      progress: true,
+      center: false,
+      width: 1280,
+      height: 720,
+      margin: 0.12,
+      minScale: 0.2,
+      maxScale: 2.0,
+    });
+  </script>
+</body>
+</html>

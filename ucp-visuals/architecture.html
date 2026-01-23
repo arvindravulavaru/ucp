@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UCP Architecture - Modular Commerce Infrastructure</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a2e;
+      color: white;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+      padding: 40px;
+      border-radius: 20px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .tagline {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    .layer {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 2px solid var(--layer-color);
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+    }
+
+    .layer:nth-child(2) { animation-delay: 0.2s; --layer-color: #3B82F6; }
+    .layer:nth-child(3) { animation-delay: 0.4s; --layer-color: #10B981; }
+    .layer:nth-child(4) { animation-delay: 0.6s; --layer-color: #F59E0B; }
+    .layer:nth-child(5) { animation-delay: 0.8s; --layer-color: #EF4444; }
+
+    .layer-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .layer-icon {
+      font-size: 2rem;
+      margin-right: 15px;
+    }
+
+    .layer h2 {
+      font-size: 1.8rem;
+      color: #FCD34D;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .item {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid var(--item-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .item h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: white;
+    }
+
+    .item p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .item ul {
+      list-style: none;
+      margin-top: 10px;
+    }
+
+    .item li {
+      padding-left: 20px;
+      position: relative;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .item li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--item-color);
+      font-weight: bold;
+    }
+
+    /* Layer-specific colors */
+    .layer.capabilities .item { --item-color: #60A5FA; }
+    .layer.extensions .item { --item-color: #34D399; }
+    .layer.transport .item { --item-color: #FBBF24; }
+    .layer.security .item { --item-color: #F87171; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .feature-box {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+      border: 2px solid #667eea;
+      border-radius: 15px;
+      padding: 30px;
+      animation: fadeIn 0.8s ease-out forwards;
+      opacity: 0;
+    }
+
+    .feature-box:nth-child(1) { animation-delay: 1.0s; }
+    .feature-box:nth-child(2) { animation-delay: 1.2s; }
+
+    .feature-box h2 {
+      color: #FCD34D;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .feature-item {
+      margin-bottom: 20px;
+    }
+
+    .feature-item h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: white;
+    }
+
+    .feature-item p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      margin-top: 40px;
+      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+      border-radius: 15px;
+    }
+
+    footer p {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      .items-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-box { min-width: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Universal Commerce Protocol</h1>
+      <p class="tagline">Modular Architecture for Commerce Interoperability</p>
+    </header>
+
+    <!-- Core Capabilities -->
+    <div class="layer capabilities">
+      <div class="layer-header">
+        <span class="layer-icon">🎯</span>
+        <h2>Core Capabilities</h2>
+      </div>
+      <div class="items-grid">
+        <div class="item">
+          <h3>🛒 Checkout</h3>
+          <ul>
+            <li>Cart & line item management</li>
+            <li>Tax calculation & totals</li>
+            <li>Payment handler negotiation</li>
+          </ul>
+        </div>
+        <div class="item">
+          <h3>🔐 Identity Linking</h3>
+          <ul>
+            <li>OAuth 2.0 authorization</li>
+            <li>User action delegation</li>
+            <li>Secure identity exchange</li>
+          </ul>
+        </div>
+        <div class="item">
+          <h3>📦 Order</h3>
+          <ul>
+            <li>Webhook lifecycle updates</li>
+            <li>Ship, deliver, return events</li>
+            <li>Order state management</li>
+          </ul>
+        </div>
+        <div class="item">
+          <h3>💳 Payment Token Exchange</h3>
+          <ul>
+            <li>PSP & CP token protocols</li>
+            <li>Secure credential exchange</li>
+            <li>PCI-DSS compliance</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extensions -->
+    <div class="layer extensions">
+      <div class="layer-header">
+        <span class="layer-icon">🧩</span>
+        <h2>Extensions (Augment Core Capabilities)</h2>
+      </div>
+      <div class="items-grid">
+        <div class="item">
+          <h3>🚚 Fulfillment</h3>
+          <p>Extends: Checkout</p>
+          <p>Shipping options & delivery methods</p>
+        </div>
+        <div class="item">
+          <h3>🏷️ Discounts</h3>
+          <p>Extends: Checkout</p>
+          <p>Coupons, promotions & price reductions</p>
+        </div>
+        <div class="item">
+          <h3>🔒 AP2 Mandates</h3>
+          <p>Extends: Checkout</p>
+          <p>Cryptographic authorization proofs</p>
+        </div>
+        <div class="item">
+          <h3>⚙️ Custom Extensions</h3>
+          <p>Vendor-specific features</p>
+          <p>Using reverse-domain namespaces</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transport Layer -->
+    <div class="layer transport">
+      <div class="layer-header">
+        <span class="layer-icon">🌐</span>
+        <h2>Transport Layer (Protocol Agnostic)</h2>
+      </div>
+      <div class="items-grid">
+        <div class="item">
+          <h3>REST API (Primary)</h3>
+          <ul>
+            <li>OpenAPI 3.x specification</li>
+            <li>HTTP/1.1+ over HTTPS</li>
+            <li>Standard request/response</li>
+          </ul>
+        </div>
+        <div class="item">
+          <h3>MCP (Model Context Protocol)</h3>
+          <ul>
+            <li>OpenRPC specification</li>
+            <li>LLM tool integration</li>
+            <li>AI agent compatibility</li>
+          </ul>
+        </div>
+        <div class="item">
+          <h3>A2A (Agent-to-Agent)</h3>
+          <ul>
+            <li>Agent Card specification</li>
+            <li>AI agent communication</li>
+            <li>Structured data exchange</li>
+          </ul>
+        </div>
+        <div class="item">
+          <h3>Embedded Protocol</h3>
+          <ul>
+            <li>Host delegation pattern</li>
+            <li>Event-driven interface</li>
+            <li>Continue URL initiation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security & Standards -->
+    <div class="layer security">
+      <div class="layer-header">
+        <span class="layer-icon">🛡️</span>
+        <h2>Security & Standards</h2>
+      </div>
+      <div class="items-grid">
+        <div class="item">
+          <h3>🔐 Transport Security</h3>
+          <p>HTTPS only • TLS 1.2+ encryption</p>
+        </div>
+        <div class="item">
+          <h3>🪪 OAuth 2.0</h3>
+          <p>Identity linking & user delegation</p>
+        </div>
+        <div class="item">
+          <h3>💳 PCI-DSS Compliance</h3>
+          <p>Payment security standards</p>
+        </div>
+        <div class="item">
+          <h3>📝 JWS Signatures</h3>
+          <p>Webhook verification & integrity</p>
+        </div>
+        <div class="item">
+          <h3>✅ Verifiable Credentials</h3>
+          <p>AP2 cryptographic authorization</p>
+        </div>
+        <div class="item">
+          <h3>🔑 Key Management</h3>
+          <p>JWK format • Signing key rotation</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features & Governance -->
+    <div class="features-grid">
+      <div class="feature-box">
+        <h2>✨ Key Features</h2>
+        <div class="feature-item">
+          <h3>🔍 Dynamic Discovery</h3>
+          <p>Autonomous capability negotiation via /.well-known/ucp profiles</p>
+        </div>
+        <div class="feature-item">
+          <h3>🧱 Composable Architecture</h3>
+          <p>Mix & match capabilities and extensions to suit your needs</p>
+        </div>
+        <div class="feature-item">
+          <h3>🌍 Transport Agnostic</h3>
+          <p>REST, MCP, A2A, Embedded - choose the protocol that fits best</p>
+        </div>
+      </div>
+
+      <div class="feature-box">
+        <h2>🏛️ Governance Model</h2>
+        <div class="feature-item">
+          <h3>📛 Namespace Authority</h3>
+          <p>Reverse-domain naming (dev.ucp.* = UCP governed)</p>
+        </div>
+        <div class="feature-item">
+          <h3>📋 Spec URL Binding</h3>
+          <p>Specification origin must match namespace authority</p>
+        </div>
+        <div class="feature-item">
+          <h3>🔄 Version Negotiation</h3>
+          <p>Date-based versioning (YYYY-MM-DD) with backward compatibility</p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Open Standard • Apache 2.0 • ucp.dev</p>
+    </footer>
+  </div>
+</body>
+</html>
